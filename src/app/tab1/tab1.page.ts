@@ -7,6 +7,12 @@ import { Component } from '@angular/core';
 })
 export class Tab1Page {
 
+  codeTextArea: any;
+
   constructor() {}
+
+  run(){
+    console.log("compile code");
+  }
 
 }
