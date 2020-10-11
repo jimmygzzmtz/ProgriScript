@@ -1,0 +1,38 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Run
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Run</ion-title>
+      <ion-buttons (click)="run()" slot="end">
+        <ion-icon color="secondary" slot="icon-only" name="play"></ion-icon>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Code</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-textarea rows="15" cols="10" id="textArea" [(ngModel)]="codeTextArea" placeholder="Type Code Here"></ion-textarea>      
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Output</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Code Output Will Go Here</p>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
