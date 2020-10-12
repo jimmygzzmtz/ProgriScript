@@ -78,37 +78,52 @@ VARS
     : var VARS_AUX;
 
 VARS_AUX
-    : TIPO ID_VAR VARS_AUX2 semicolon VARS_AUX | ;
+    : TIPO ID_DECLARE_VAR VARS_AUX2 semicolon VARS_AUX | ;
 
 VARS_AUX2
-    : comma ID_VAR VARS_AUX2 | ;
+    : comma ID_DECLARE_VAR VARS_AUX2 | ;
 
 TIPO
     : int | float | char;
 
-ID_VAR
-    : id | id lsqbracket cte_int rsqbracket ID_VAR_AUX;
+// id | id[INT]~[INT]~
+ID_DECLARE_VAR
+    : id | id lsqbracket cte_int rsqbracket ID_DECLARE_VAR_AUX;
 
-ID_VAR_AUX
+// [INT] | eps
+ID_DECLARE_VAR_AUX
     : lsqbracket cte_int rsqbracket | ;
 
-ID_VAR_VARIABLE
-    : id | id lsqbracket EXP rsqbracket ID_VAR_VARIABLE_AUX;
+// id | id[EXP]~[EXP]~
+ID_ACCESS_VAR
+    : id
+    | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
+    | id lparen PARAMS_LLAMADA_FUNCION rparen
+    | id lparen rparen;
 
-ID_VAR_VARIABLE_AUX
+PARAMS_LLAMADA_FUNCION
+    : EXPRESION PARAMS_LLAMADA_FUNCION_AUX;
+
+PARAMS_LLAMADA_FUNCION_AUX
+    : comma EXPRESION PARAMS_LLAMADA_FUNCION_AUX
+    | ;
+
+// [EXP] | eps
+ID_ACCESS_VAR_AUX
     : lsqbracket EXP rsqbracket | ;
 
+// module void|TIPO id (list[TIPO id --declare params]); VARS {BLOQUE}
 FUNCION
-    : module FUNCION_AUX id lparen FUNCION_AUX2 rparen semicolon VARS BLOQUE;
+    : module FUNCION_TIPO id lparen FUNCION_PARAM_LIST rparen semicolon VARS BLOQUE;
 
-FUNCION_AUX
+FUNCION_TIPO
     : void | TIPO;
 
-FUNCION_AUX2
-    : TIPO ID_VAR FUNCION_AUX3 | ;
+FUNCION_PARAM_LIST
+    : TIPO ID_DECLARE_VAR FUNCION_PARAM_LIST_AUX | ;
 
-FUNCION_AUX3
-    : comma TIPO ID_VAR FUNCION_AUX3 | ;
+FUNCION_PARAM_LIST_AUX
+    : comma TIPO ID_DECLARE_VAR FUNCION_PARAM_LIST_AUX | ;
 
 BLOQUE
     : lbracket BLOQUE_AUX rbracket;
@@ -117,7 +132,7 @@ BLOQUE_AUX
     : ESTATUTO BLOQUE_AUX | ;
 
 ESTATUTO
-    : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION semicolon;
+    : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION semicolon | ID_ACCESS_VAR semicolon;
 
 EXPRESION
     : EXP EXPRESION_AUX;
@@ -159,28 +174,28 @@ FACTOR_AUX3
     : plus | minus | ;
 
 VAR_CTE
-    : id | cte_int | cte_float | cte_char | ID_VAR_VARIABLE | LLAMADA_FUNCION;
+    : ID_ACCESS_VAR | cte_int | cte_float | cte_char;
 
 ASIGNACION
-    : ID_VAR_VARIABLE equals EXPRESION semicolon;
+    : ID_ACCESS_VAR equals EXPRESION semicolon;
 
-LLAMADA_FUNCION
+/*LLAMADA_FUNCION
     : lsqbracket id lparen LLAMADA_FUNCION_AUX rparen rsqbracket;
 
 LLAMADA_FUNCION_AUX
     : EXPRESION LLAMADA_FUNCION_AUX2 | ;
 
 LLAMADA_FUNCION_AUX2
-    : comma EXPRESION LLAMADA_FUNCION_AUX2 | ;
+    : comma EXPRESION LLAMADA_FUNCION_AUX2 | ;*/
 
 RETORNO_FUNCION
     : return lparen EXP rparen semicolon;
 
 LECTURA
-    : read lparen ID_VAR_VARIABLE LECTURA_AUX rparen semicolon;
+    : read lparen ID_ACCESS_VAR LECTURA_AUX rparen semicolon;
 
 LECTURA_AUX
-    : comma ID_VAR_VARIABLE LECTURA_AUX | ;
+    : comma ID_ACCESS_VAR LECTURA_AUX | ;
 
 ESCRITURA
     : write lparen ESCRITURA_AUX ESCRITURA_AUX2 rparen semicolon;
