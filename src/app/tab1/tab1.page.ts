@@ -7,6 +7,11 @@ import { Component } from '@angular/core';
 })
 export class Tab1Page {
 
+  monacoEditor = false;
+  standardEditor = false;
+
+  userAgentString = navigator.userAgent;
+
   theme = 'vs-dark';
 
   model = {
@@ -33,6 +38,16 @@ export class Tab1Page {
 
   run(){
     console.log("compile code");
+  }
+
+  ionViewWillEnter(){
+    if(this.userAgentString.includes("Android")){
+      this.monacoEditor = true;
+    }
+    else{
+      this.standardEditor = true;
+    }
+    
   }
 
 }

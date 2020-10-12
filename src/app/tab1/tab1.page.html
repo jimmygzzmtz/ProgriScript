@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-card>
+  <ion-card [hidden]="monacoEditor">
     <ion-card-header>
       <ion-card-title>Code</ion-card-title>
     </ion-card-header>
@@ -23,6 +23,16 @@
       </ngs-code-editor>
     </ion-card-content>
   </ion-card>
+
+  <ion-card [hidden]="standardEditor">
+    <ion-card-header>
+      <ion-card-title>Code</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-textarea rows="15" cols="10" id="textArea" [(ngModel)]="codeTextArea" placeholder="Type Code Here"></ion-textarea>
+    </ion-card-content>
+  </ion-card>
+
 
   <ion-card>
     <ion-card-header>
