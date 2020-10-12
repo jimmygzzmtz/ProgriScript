@@ -7,6 +7,26 @@ import { Component } from '@angular/core';
 })
 export class Tab1Page {
 
+  theme = 'vs-dark';
+
+  model = {
+    language: 'typescript',
+    uri: 'main.ts',
+    value: '{}',
+  };
+
+  options = {
+    lineNumbers: true,
+    minimap: {
+      enabled: false,
+    },
+    automaticLayout: true,
+  };
+
+  onCodeChanged(value) {
+    
+  }
+
   codeTextArea: any;
 
   constructor() {}
