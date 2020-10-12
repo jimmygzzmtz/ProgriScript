@@ -112,7 +112,7 @@ PARAMS_LLAMADA_FUNCION_AUX
 ID_ACCESS_VAR_AUX
     : lsqbracket EXP rsqbracket | ;
 
-// module void|TIPO id (list[TIPO id --declare params]); VARS {BLOQUE}
+// module void|TIPO id (list[TIPO id ...]); VARS {BLOQUE}
 FUNCION
     : module FUNCION_TIPO id lparen FUNCION_PARAM_LIST rparen semicolon VARS BLOQUE;
 
@@ -178,15 +178,6 @@ VAR_CTE
 
 ASIGNACION
     : ID_ACCESS_VAR equals EXPRESION semicolon;
-
-/*LLAMADA_FUNCION
-    : lsqbracket id lparen LLAMADA_FUNCION_AUX rparen rsqbracket;
-
-LLAMADA_FUNCION_AUX
-    : EXPRESION LLAMADA_FUNCION_AUX2 | ;
-
-LLAMADA_FUNCION_AUX2
-    : comma EXPRESION LLAMADA_FUNCION_AUX2 | ;*/
 
 RETORNO_FUNCION
     : return lparen EXP rparen semicolon;
