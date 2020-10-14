@@ -1,5 +1,6 @@
 var semCube = new Map();
 var operatorCategories = new Map();
+var functionDirectory = new Map();
 
 //This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
 function fillMaps(){
@@ -51,11 +52,33 @@ function fillMaps(){
 
 fillMaps();
 
+// returns the resulting type of an operation
 function semanticCube(operand1, operand2, operator){
     var opCategory = operatorCategories.get(operator);
     var result = semCube.get(operand1 + "," + operand2 + "," + opCategory);
     //if result == undefined, return Error
     return result;
+}
+
+// adds a function to the function directory
+function createFunction(id, funcType) {
+    if (!functionDirectory.has(id)) {
+        functionDirectory.set(id, {type: funcType, varTable: new Map()});
+    }
+    else {
+        // error, re-declaration of function
+    }
+}
+
+// adds a variable to the variable table of a function in the directory
+function createVariable(id, funcId, varType, varValue) {
+    var varTable = functionDirectory.get(funcId).varTable;
+    if (!varTable.has(id)) {
+        varTable.set(id, {type: varType, value: varValue});
+    }
+    else {
+        // error, re-declaration of variable
+    }
 }
 
 /* lexical grammar */
