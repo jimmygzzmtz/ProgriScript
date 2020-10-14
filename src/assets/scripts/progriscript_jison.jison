@@ -1,3 +1,63 @@
+var semCube = new Map();
+var operatorCategories = new Map();
+
+//This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
+function fillMaps(){
+    semCube.set("int,int,plus", "int");
+    semCube.set("int,int,arithmetic", "int");
+    semCube.set("int,float,plus", "float");
+    semCube.set("int,float,arithmetic", "float");
+    semCube.set("int,letrero,plus", "letrero");
+    
+    semCube.set("float,int,plus", "float");
+    semCube.set("float,int,arithmetic", "float");
+    semCube.set("float,float,plus", "float");
+    semCube.set("float,float,arithmetic", "float");
+    semCube.set("float,letrero,plus", "letrero");
+    
+    semCube.set("char,letrero,plus", "letrero");
+    
+    semCube.set("letrero,int,plus", "letrero");
+    semCube.set("letrero,float,plus", "letrero");
+    semCube.set("letrero,char,plus", "letrero");
+    semCube.set("letrero,letrero,plus", "letrero");
+    
+    semCube.set("int,int,equalComp", "bool");
+    semCube.set("int,float,equalComp", "bool");
+    semCube.set("float,int,equalComp", "bool");
+    semCube.set("float,float,equalComp", "bool");
+    
+    semCube.set("int,int,numericComp", "bool");
+    semCube.set("int,float,numericComp", "bool");
+    semCube.set("float,int,numericComp", "bool");
+    semCube.set("float,float,numericComp", "bool");
+    
+    semCube.set("char,char,equalComp", "bool");
+    semCube.set("char,letrero,equalComp", "bool");
+    semCube.set("letrero,letrero,equalComp", "bool");
+    semCube.set("letrero,char,equalComp", "bool");
+    
+    operatorCategories.set('+', "plus");
+    operatorCategories.set('-', "arithmetic");
+    operatorCategories.set('*', "arithmetic");
+    operatorCategories.set('/', "arithmetic");
+    operatorCategories.set('==', "equalComp");
+    operatorCategories.set('!=', "equalComp");
+    operatorCategories.set('<', "numericComp");
+    operatorCategories.set('<=', "numericComp");
+    operatorCategories.set('>', "numericComp");
+    operatorCategories.set('>=', "numericComp");
+}
+
+fillMaps();
+
+function semanticCube(operand1, operand2, operator){
+    var opCategory = operatorCategories.get(operator);
+    var result = semCube.get(operand1 + "," + operand2 + "," + opCategory);
+    //if result == undefined, return Error
+    return result;
+}
+
 /* lexical grammar */
 %lex
 %%
