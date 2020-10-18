@@ -3,9 +3,6 @@
     <ion-title>
       Run
     </ion-title>
-    <ion-buttons (click)="run()" slot="end">
-      <ion-icon color="secondary" slot="icon-only" name="play"></ion-icon>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -21,6 +18,8 @@
         [options]="options"
         (valueChanged)="onCodeChanged($event)"        >
       </ngs-code-editor>
+      <ion-button (click)="run()" slot="end">Run</ion-button>
+      <ion-button (click)="share()" slot="end">Share</ion-button>
     </ion-card-content>
   </ion-card>
 
@@ -30,6 +29,8 @@
     </ion-card-header>
     <ion-card-content>
       <ion-textarea rows="15" cols="10" id="textArea" [(ngModel)]="codeTextArea" placeholder="Type Code Here"></ion-textarea>
+      <ion-button (click)="run()" slot="end">Run</ion-button>
+      <ion-button (click)="share()" slot="end">Share</ion-button>
     </ion-card-content>
   </ion-card>
 
@@ -39,7 +40,7 @@
       <ion-card-title>Output</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <p>Code Output Will Go Here</p>
+      <p>{{codeOutput}}</p>
     </ion-card-content>
   </ion-card>
 

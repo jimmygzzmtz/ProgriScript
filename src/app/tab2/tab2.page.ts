@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router, NavigationExtras  } from '@angular/router';
 
 @Component({
   selector: 'app-tab2',
@@ -7,6 +8,17 @@ import { Component } from '@angular/core';
 })
 export class Tab2Page {
 
-  constructor() {}
+  constructor(private router: Router) {}
+
+  templateCode = ['int test = 1;', 'string test = "lol";', 'for (int i = 0; i < 10; i++){};'];
+
+  cardClick(pos){
+    let navigationExtras: NavigationExtras = {
+      state: {
+        template: this.templateCode[pos],
+      }
+    };
+    this.router.navigate(['/tabs/tab1'], navigationExtras);
+  }
 
 }
