@@ -60,17 +60,25 @@ export class Tab1Page {
   }
 
   share(){
+    var codeValShare = "";
+    if(this.monacoEditor == false){
+      codeValShare = this.model.value;
+    }
+    else{
+      codeValShare = this.codeTextArea;
+    }
+
     let newNavigator: any;
       newNavigator = window.navigator;
 
       if (newNavigator && newNavigator.share) {
         newNavigator.share({
           title: "ProgriScript Code",
-          text: "this.model.value",
+          text: codeValShare,
         })
       } else {
         let listener = (e: ClipboardEvent) => {
-          e.clipboardData.setData('text/plain', "this.model.value");
+          e.clipboardData.setData('text/plain', codeValShare);
           e.preventDefault();
         };
     }
