@@ -17,12 +17,12 @@ export class Tab1Page {
 
   theme = 'vs-dark';
 
-  codeTextArea: any;
+  codeTextArea: any = 'write "Hello World!"';
 
   model = {
     language: 'typescript',
     uri: 'main.ts',
-    value: "hello world",
+    value: 'write "Hello World!"',
   };
 
   options = {
