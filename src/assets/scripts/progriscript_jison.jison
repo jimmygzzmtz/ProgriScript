@@ -1,85 +1,109 @@
-var semCube = new Map();
-var operatorCategories = new Map();
-var functionDirectory = new Map();
+%{
 
-//This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
-function fillMaps(){
-    semCube.set("int,int,plus", "int");
-    semCube.set("int,int,arithmetic", "int");
-    semCube.set("int,float,plus", "float");
-    semCube.set("int,float,arithmetic", "float");
-    semCube.set("int,letrero,plus", "letrero");
-    
-    semCube.set("float,int,plus", "float");
-    semCube.set("float,int,arithmetic", "float");
-    semCube.set("float,float,plus", "float");
-    semCube.set("float,float,arithmetic", "float");
-    semCube.set("float,letrero,plus", "letrero");
-    
-    semCube.set("char,letrero,plus", "letrero");
-    
-    semCube.set("letrero,int,plus", "letrero");
-    semCube.set("letrero,float,plus", "letrero");
-    semCube.set("letrero,char,plus", "letrero");
-    semCube.set("letrero,letrero,plus", "letrero");
-    
-    semCube.set("int,int,equalComp", "bool");
-    semCube.set("int,float,equalComp", "bool");
-    semCube.set("float,int,equalComp", "bool");
-    semCube.set("float,float,equalComp", "bool");
-    
-    semCube.set("int,int,numericComp", "bool");
-    semCube.set("int,float,numericComp", "bool");
-    semCube.set("float,int,numericComp", "bool");
-    semCube.set("float,float,numericComp", "bool");
-    
-    semCube.set("char,char,equalComp", "bool");
-    semCube.set("char,letrero,equalComp", "bool");
-    semCube.set("letrero,letrero,equalComp", "bool");
-    semCube.set("letrero,char,equalComp", "bool");
-    
-    operatorCategories.set('+', "plus");
-    operatorCategories.set('-', "arithmetic");
-    operatorCategories.set('*', "arithmetic");
-    operatorCategories.set('/', "arithmetic");
-    operatorCategories.set('==', "equalComp");
-    operatorCategories.set('!=', "equalComp");
-    operatorCategories.set('<', "numericComp");
-    operatorCategories.set('<=', "numericComp");
-    operatorCategories.set('>', "numericComp");
-    operatorCategories.set('>=', "numericComp");
-}
+    var semCube = new Map();
+    var operatorCategories = new Map();
+    var functionDirectory = new Map();
 
-fillMaps();
+    var stackOperators = [];
+	var stackOperands = [];
+	var stackJumps = [];
 
-// returns the resulting type of an operation
-function semanticCube(operand1, operand2, operator){
-    var opCategory = operatorCategories.get(operator);
-    var result = semCube.get(operand1 + "," + operand2 + "," + opCategory);
-    //if result == undefined, return Error
-    return result;
-}
+    var quads = [];
+    var quadCount = 0;
 
-// adds a function to the function directory
-function createFunction(id, funcType) {
-    if (!functionDirectory.has(id)) {
-        functionDirectory.set(id, {type: funcType, varTable: new Map()});
+    //This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
+    function fillMaps(){
+        semCube.set("int,int,plus", "int");
+        semCube.set("int,int,arithmetic", "int");
+        semCube.set("int,float,plus", "float");
+        semCube.set("int,float,arithmetic", "float");
+        semCube.set("int,letrero,plus", "letrero");
+        
+        semCube.set("float,int,plus", "float");
+        semCube.set("float,int,arithmetic", "float");
+        semCube.set("float,float,plus", "float");
+        semCube.set("float,float,arithmetic", "float");
+        semCube.set("float,letrero,plus", "letrero");
+        
+        semCube.set("char,letrero,plus", "letrero");
+        
+        semCube.set("letrero,int,plus", "letrero");
+        semCube.set("letrero,float,plus", "letrero");
+        semCube.set("letrero,char,plus", "letrero");
+        semCube.set("letrero,letrero,plus", "letrero");
+        
+        semCube.set("int,int,equalComp", "bool");
+        semCube.set("int,float,equalComp", "bool");
+        semCube.set("float,int,equalComp", "bool");
+        semCube.set("float,float,equalComp", "bool");
+        
+        semCube.set("int,int,numericComp", "bool");
+        semCube.set("int,float,numericComp", "bool");
+        semCube.set("float,int,numericComp", "bool");
+        semCube.set("float,float,numericComp", "bool");
+        
+        semCube.set("char,char,equalComp", "bool");
+        semCube.set("char,letrero,equalComp", "bool");
+        semCube.set("letrero,letrero,equalComp", "bool");
+        semCube.set("letrero,char,equalComp", "bool");
+        
+        operatorCategories.set('+', "plus");
+        operatorCategories.set('-', "arithmetic");
+        operatorCategories.set('*', "arithmetic");
+        operatorCategories.set('/', "arithmetic");
+        operatorCategories.set('==', "equalComp");
+        operatorCategories.set('!=', "equalComp");
+        operatorCategories.set('<', "numericComp");
+        operatorCategories.set('<=', "numericComp");
+        operatorCategories.set('>', "numericComp");
+        operatorCategories.set('>=', "numericComp");
     }
-    else {
-        // error, re-declaration of function
-    }
-}
 
-// adds a variable to the variable table of a function in the directory
-function createVariable(id, funcId, varType, varValue) {
-    var varTable = functionDirectory.get(funcId).varTable;
-    if (!varTable.has(id)) {
-        varTable.set(id, {type: varType, value: varValue});
+    fillMaps();
+
+    // returns the resulting type of an operation
+    function semanticCube(operand1, operand2, operator){
+        var opCategory = operatorCategories.get(operator);
+        var result = semCube.get(operand1 + "," + operand2 + "," + opCategory);
+        //if result == undefined, return Error
+        return result;
     }
-    else {
-        // error, re-declaration of variable
+
+    // adds a function to the function directory
+    function createFunction(id, funcType) {
+        if (!functionDirectory.has(id)) {
+            functionDirectory.set(id, {type: funcType, varTable: new Map()});
+        }
+        else {
+            // error, re-declaration of function
+        }
     }
-}
+
+    // adds a variable to the variable table of a function in the directory
+    function createVariable(id, funcId, varType, varValue) {
+        var varTable = functionDirectory.get(funcId).varTable;
+        if (!varTable.has(id)) {
+            varTable.set(id, {type: varType, value: varValue});
+        }
+        else {
+            // error, re-declaration of variable
+        }
+    }
+
+    function addQuad(operator, dir1, dir2, dir3){
+        quads.push({operator: operator, dir1: dir1, dir2: dir2, dir3: dir3});
+        count++;
+    }
+
+    function pushOperator(operator){
+        stackOperators.push(operator);
+    }
+
+    function pushOperand(operand){
+        stackOperands.push(operand);
+    }
+
+%}
 
 /* lexical grammar */
 %lex
@@ -224,7 +248,39 @@ EXPRESION_AUX
     : EXPRESION_AUX2 EXP EXPRESION_AUX | ;
 
 EXPRESION_AUX2
-    : lessthan | greaterthan | isDifferent | isEqual | and | or | lessthanEqual | greaterthanEqual;
+    : lessthan {
+        pushOperator("lessthan");
+        $$ = "lessthan";
+    } 
+    | greaterthan {
+        pushOperator("greaterthan");
+        $$ = "greaterthan";
+    } 
+    | isDifferent {
+        pushOperator("isDifferent");
+        $$ = "isDifferent";
+    } 
+    | isEqual {
+        pushOperator("isEqual");
+        $$ = "isEqual";
+    } 
+    | and {
+        pushOperator("and");
+        $$ = "and";
+    } 
+    | or {
+        pushOperator("or");
+        $$ = "or";
+    } 
+    | lessthanEqual {
+        pushOperator("lessthanEqual");
+        $$ = "lessthanEqual";
+    } 
+    | greaterthanEqual {
+        pushOperator("greaterthanEqual");
+        $$ = "greaterthanEqual";
+    }
+    ;
 
 EXP
     : TERMINO EXP_AUX;
@@ -233,7 +289,15 @@ EXP_AUX
     : EXP_AUX2 EXP | ;
 
 EXP_AUX2
-    : plus | minus;
+    : plus {
+        pushOperator("plus");
+        $$ = "plus";
+    } 
+    | minus{
+        pushOperator("minus");
+        $$ = "minus";
+    }
+    ;
 
 TERMINO
     : FACTOR TERMINO_AUX;
@@ -242,16 +306,36 @@ TERMINO_AUX
     : TERMINO_AUX2 TERMINO | ;
 
 TERMINO_AUX2
-    : times | divide;
+    : times {
+        pushOperator("times");
+        $$ = "times";
+    } 
+    | divide{
+        pushOperator("divide");
+        $$ = "divide";
+    }
+    ;
 
 FACTOR
     : FACTOR_AUX | FACTOR_AUX2;
 
 FACTOR_AUX
-    : lparen EXPRESION rparen;
+    : BEGINPAREN EXPRESION rparen;
+
+BEGINPAREN
+    : lparen {
+        pushOperator("lparen");
+    }
+    ;
 
 FACTOR_AUX2
-    : FACTOR_AUX3 VAR_CTE;
+    : FACTOR_AUX3 VAR_CTE_STACK;
+
+VAR_CTE_STACK
+    : VAR_CTE {
+        pushOperand($1.dir);
+    }
+    ;
 
 FACTOR_AUX3
     : plus | minus | ;
@@ -260,7 +344,14 @@ VAR_CTE
     : ID_ACCESS_VAR | cte_int | cte_float | cte_char;
 
 ASIGNACION
-    : ID_ACCESS_VAR equals EXPRESION semicolon;
+    : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon;
+
+EQUALSSIGN
+    : equals {
+        pushOperator("equals");
+        $$ = "equals";
+    }
+    ;
 
 RETORNO_FUNCION
     : return lparen EXP rparen semicolon;
