@@ -7,6 +7,15 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+
+  <ion-item>
+    <ion-label>Loaded Code</ion-label>
+    <ion-select [(ngModel)]="codeSelect" value="new" (ionChange)="loadCode()" okText="Load" cancelText="Cancel">
+      <ion-select-option value="new">New Code</ion-select-option>
+      <ion-select-option *ngFor="let code of codes" [value]="code">{{code.name}}</ion-select-option>
+    </ion-select>
+  </ion-item>
+
   <ion-card [hidden]="monacoEditor">
     <ion-card-header>
       <ion-card-title>Code</ion-card-title>
@@ -20,6 +29,8 @@
       </ngs-code-editor>
       <ion-button (click)="run()" slot="end">Run</ion-button>
       <ion-button (click)="share()" slot="end">Share</ion-button>
+      <ion-button (click)="save()" slot="end">Save</ion-button>
+      <ion-button (click)="delete()" slot="end">Delete</ion-button>
     </ion-card-content>
   </ion-card>
 
@@ -31,6 +42,8 @@
       <ion-textarea rows="15" cols="10" id="textArea" [(ngModel)]="codeTextArea" placeholder="Type Code Here"></ion-textarea>
       <ion-button (click)="run()" slot="end">Run</ion-button>
       <ion-button (click)="share()" slot="end">Share</ion-button>
+      <ion-button (click)="save()" slot="end">Save</ion-button>
+      <ion-button (click)="delete()" slot="end">Delete</ion-button>
     </ion-card-content>
   </ion-card>
 

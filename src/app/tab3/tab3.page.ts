@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Storage } from '@ionic/storage';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab3',
@@ -7,7 +9,7 @@ import { Component } from '@angular/core';
 })
 export class Tab3Page {
 
-  constructor() {}
+  constructor(private storage: Storage, public alertController: AlertController) {}
 
   share(){
     let newNavigator: any;
@@ -24,6 +26,27 @@ export class Tab3Page {
           e.preventDefault();
         };
     }
+  }
+
+  async clearStorage() {
+    const alert = await this.alertController.create({
+      header: "Clear Storage",
+      message: "This will delete all the saved code",
+      buttons: [
+        {
+            text: 'Cancel'
+        },
+        {
+            text: 'OK',
+            handler: async data => {
+              await this.storage.clear()
+              location.reload()
+            }
+        }
+    ]
+    });
+
+    await alert.present();
   }
 
 }
