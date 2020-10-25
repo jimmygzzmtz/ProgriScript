@@ -11,6 +11,9 @@
     var quads = [];
     var quadCount = 0;
 
+    var programName = "";
+    var currentFunctionId = "";
+
     //This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
     function fillMaps(){
         semCube.set("int,int,plus", "int");
@@ -80,13 +83,47 @@
     }
 
     // adds a variable to the variable table of a function in the directory
-    function createVariable(id, funcId, varType, varValue) {
+    function createVariable(id, funcId, varType) {
         var varTable = functionDirectory.get(funcId).varTable;
         if (!varTable.has(id)) {
-            varTable.set(id, {type: varType, value: varValue});
+            varTable.set(id, {type: varType, value: "null"});
         }
         else {
             // error, re-declaration of variable
+        }
+    }
+
+    // returns a variable, given its id and function id
+    function getVariable(id, funcId){
+        var varTable = functionDirectory.get(funcId).varTable;
+        if (varTable.has(id)) {
+            return varTable.get(id);
+        }
+        var globalVarTable = functionDirectory.get(programName).varTable;
+        if (globalVarTable.has(id)) {
+            return globalVarTable.get(id);
+        }
+        else {
+            // error, no variable with that id
+        }
+    }
+
+    // sets a value to a variable
+    function setVariableValue(id, funcId, varValue){
+        var varTable = functionDirectory.get(funcId).varTable;
+        if (varTable.has(id)) {
+            var tempVar = varTable.get(id);
+            varTable.set(id, {type: tempVar.type, value: varValue});
+            return;
+        }
+        var globalVarTable = functionDirectory.get(programName).varTable;
+        if (globalVarTable.has(id)) {
+            var tempVar = globalVarTable.get(id);
+            globalVarTable.set(id, {type: tempVar.type, value: varValue});
+            return;
+        }
+        else {
+            // error, no variable with that id
         }
     }
 
@@ -170,7 +207,14 @@ expressions
     : PROGRAM EOF;
 
 PROGRAM
-    : program id semicolon PROGRAM_AUX PROGRAM_AUX2 MAIN;
+    : PROGRAM_NAME semicolon PROGRAM_AUX PROGRAM_AUX2 MAIN;
+
+PROGRAM_NAME
+    : program id {
+        programName = $2;
+        currentFunctionId = programName;
+        createFunction(programName, "program");
+    };
 
 PROGRAM_AUX
     : VARS | ;
