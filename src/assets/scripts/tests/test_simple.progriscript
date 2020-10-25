@@ -1,0 +1,10 @@
+program test;
+var int j;
+main ( ){
+    j = 1;
+    if (j == 1) then
+        { return ( j ); }
+    else
+        { return ( j + 1); }
+}
+    
