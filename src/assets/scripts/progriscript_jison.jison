@@ -242,12 +242,28 @@ ESTATUTO
     : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION semicolon | ID_ACCESS_VAR semicolon;
 
 EXPRESION
-    : EXP EXPRESION_AUX;
+    : EXP_COMP EXPRESION_AUX;
 
 EXPRESION_AUX
-    : EXPRESION_AUX2 EXP EXPRESION_AUX | ;
+    : EXPRESION_AUX2 EXP_COMP EXPRESION_AUX | ;
 
-EXPRESION_AUX2
+EXPRESION_AUX
+    : and {
+        pushOperator("and");
+        $$ = "and";
+    } 
+    | or {
+        pushOperator("or");
+        $$ = "or";
+    };
+
+EXP_COMP
+    : EXP EXP_COMP_AUX;
+
+EXP_COMP_AUX
+    : EXP_COMP_AUX2 EXP EXP_COMP_AUX | ;
+
+EXP_COMP_AUX2
     : lessthan {
         pushOperator("lessthan");
         $$ = "lessthan";
@@ -263,14 +279,6 @@ EXPRESION_AUX2
     | isEqual {
         pushOperator("isEqual");
         $$ = "isEqual";
-    } 
-    | and {
-        pushOperator("and");
-        $$ = "and";
-    } 
-    | or {
-        pushOperator("or");
-        $$ = "or";
     } 
     | lessthanEqual {
         pushOperator("lessthanEqual");
