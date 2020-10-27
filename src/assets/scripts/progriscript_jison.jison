@@ -93,15 +93,32 @@
         }
     }
 
+    function variableExists(id, funcId) {
+        var varTable = functionDirectory.get(funcId).varTable;
+        var exists = varTable.has(id);
+        if (!exists && funcId != programName) {
+            varTable = functionDirectory.get(programName).varTable;
+            exists = varTable.has(id);
+        }
+        if (exists) {
+            return true;
+        }
+        else {
+            // error, no variable with that id
+        }
+    }
+
     // returns a variable, given its id and function id
-    function getVariable(id, funcId){
+    function getVariable(id, funcId) {
         var varTable = functionDirectory.get(funcId).varTable;
         if (varTable.has(id)) {
             return varTable.get(id);
         }
-        var globalVarTable = functionDirectory.get(programName).varTable;
-        if (globalVarTable.has(id)) {
-            return globalVarTable.get(id);
+        else if (funcId != programName) {
+            varTable = functionDirectory.get(programName).varTable;
+            if (varTable.has(id)) {
+                return varTable.get(id);
+            }
         }
         else {
             // error, no variable with that id
@@ -396,7 +413,12 @@ VAR_CTE
     : ID_ACCESS_VAR | cte_int | cte_float | cte_char;
 
 ASIGNACION
-    : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon;
+    : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon {
+        if (variableExists($1)) {
+            // pop operands and operator from stacks (?)
+            addQuad($2, $3, $1);
+        }
+    };
 
 EQUALSSIGN
     : equals {
