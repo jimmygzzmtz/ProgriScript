@@ -3,6 +3,7 @@
     var semCube = new Map();
     var operatorCategories = new Map();
     var functionDirectory = new Map();
+    var constTable = new Map();
 
     var stackOperators = [];
 	var stackOperands = [];
@@ -13,6 +14,25 @@
 
     var programName = "";
     var currentFunctionId = "";
+
+    // Counters for each dir section, position for each counter is StartingDir/10000
+    var counters = [];
+
+    // Starting dirs for each type and scope
+    const GLOBAL_INT = 0;
+    const GLOBAL_FLOAT = 10000;
+    const GLOBAL_CHAR = 20000;
+    const LOCAL_INT = 30000;
+    const LOCAL_FLOAT = 40000;
+    const LOCAL_CHAR = 50000;
+    const TEMP_INT = 60000;
+    const TEMP_FLOAT = 70000;
+    const TEMP_CHAR = 80000;
+    const TEMP_BOOL = 90000;
+    const CONST_INT = 100000;
+    const CONST_FLOAT = 110000;
+    const CONST_CHAR = 120000;
+    const CONST_LETRERO = 130000;
 
     //This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
     function fillMaps(){
@@ -149,12 +169,50 @@
         count++;
     }
 
+    function addConstant(val, startingDir) {
+        if (!constTable.has(val)) {
+            constTable.set(val, generateDir(startingDir));
+        }
+        return constTable.get(val);
+    }
+
     function pushOperator(operator){
         stackOperators.push(operator);
     }
 
     function pushOperand(operand){
         stackOperands.push(operand);
+    }
+
+    function generateDir(startingDir) {
+        // make copy of counter of direction type, and then add to counter
+        var dirCounter = counters[startingDir / 10000];
+        counters[startingDir / 10000]++;
+        
+        // return counter copy
+        return dirCounter;
+    }
+
+    function getTypeFromDir(dir) {
+        //depending on range get type
+        if ((dir >= GLOBAL_INT && dir < GLOBAL_FLOAT) || (dir >= LOCAL_INT && dir < LOCAL_FLOAT) 
+            || (dir >= TEMP_INT && dir < TEMP_FLOAT) || (dir >= CONST_INT && dir < CONST_FLOAT)) {
+                return "int";
+        }
+        if ((dir >= GLOBAL_FLOAT && dir < GLOBAL_CHAR) || (dir >= LOCAL_FLOAT && dir < LOCAL_CHAR) 
+            || (dir >= TEMP_FLOAT && dir < TEMP_CHAR) || (dir >= CONST_FLOAT && dir < CONST_CHAR)) {
+                return "float";
+        }
+        if ((dir >= GLOBAL_CHAR && dir < LOCAL_INT) || (dir >= LOCAL_CHAR && dir < TEMP_INT) 
+            || (dir >= TEMP_CHAR && dir < TEMP_BOOL) || (dir >= CONST_CHAR && dir < CONST_LETRERO)) {
+                return "char";
+        }
+        if (dir >= TEMP_BOOL && dir < CONST_INT){
+                return "bool";
+        }
+        if (dir >= CONST_LETRERO) {
+            return "letrero";
+        }
     }
 
 %}
@@ -264,7 +322,11 @@ ID_DECLARE_VAR_AUX
 
 // id | id[EXP]~[EXP]~
 ID_ACCESS_VAR
-    : id
+    : id {
+        // TODO: push dir instead of name into operand stack
+        stackOperands.push($1);
+        $$ = $1;
+    }
     | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
     | id lparen PARAMS_LLAMADA_FUNCION rparen
     | id lparen rparen;
@@ -398,7 +460,17 @@ BEGINPAREN
     ;
 
 FACTOR_AUX2
-    : VAR_CTE_STACK | FACTOR_AUX3 VAR_CTE_STACK;
+    : VAR_CTE_STACK {
+        $$ = $1;
+    }
+    | FACTOR_AUX3 VAR_CTE_STACK {
+        var val = $2;
+        // TODO: if val is not a number, error
+        if($1 == "minus"){
+            val = val * -1;
+        }
+        $$ = val;
+    };
 
 VAR_CTE_STACK
     : VAR_CTE {
@@ -407,10 +479,30 @@ VAR_CTE_STACK
     ;
 
 FACTOR_AUX3
-    : plus | minus;
+    : plus
+    | minus {
+        // TODO: check errors when VAR_CTE_STACK is not a number or a variable
+        $$ = "minus";
+    };
 
 VAR_CTE
-    : ID_ACCESS_VAR | cte_int | cte_float | cte_char;
+    : ID_ACCESS_VAR {
+        $$ = $1;
+    }
+    | cte_int {
+        var val = Number($1);
+        var resultDir = addConstant(val, CONST_INT);
+        $$ = {dir: resultDir};
+    }
+    | cte_float {
+        var val = Number($1);
+        var resultDir = addConstant(val, CONST_FLOAT);
+        $$ = {dir: resultDir};
+    }
+    | cte_char {
+        var resultDir = addConstant($1, CONST_CHAR);
+        $$ = {dir: resultDir};
+    };
 
 ASIGNACION
     : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon {
@@ -440,7 +532,11 @@ ESCRITURA
     : write lparen ESCRITURA_AUX ESCRITURA_AUX2 rparen semicolon;
 
 ESCRITURA_AUX
-    : EXPRESION | letrero;
+    : EXPRESION 
+    | letrero {
+        var resultDir = addConstant($1, CONST_LETRERO);
+        $$ = {dir: resultDir};
+    };
 
 ESCRITURA_AUX2
     : comma ESCRITURA_AUX ESCRITURA_AUX2 | ;
