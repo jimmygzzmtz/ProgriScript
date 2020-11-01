@@ -170,6 +170,7 @@
         }
     }
     
+    // adds a constant to the constTable and returns its dir
     function addConstant(val, startingDir) {
         if (!constTable.has(val)) {
             constTable.set(val, generateDir(startingDir));
@@ -346,7 +347,7 @@ ID_ACCESS_VAR
     : id {
         var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
         stackOperands.push(dir);
-        $$ = dir;
+        $$ = {dir: dir};
     }
     | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
     | id lparen PARAMS_LLAMADA_FUNCION rparen
@@ -485,17 +486,39 @@ FACTOR_AUX2
         $$ = $1;
     }
     | FACTOR_AUX3 VAR_CTE_STACK {
-        var val = $2;
-        // TODO: if val is not a number, error
-        if($1 == "minus"){
-            val = val * -1;
+
+        var operandDir = $2.dir;
+        var resultDir = operandDir;
+        
+        // check varType of operand  
+        operandVarType = getTypeFromDir($2.dir);  
+
+        // if operand type is not int or float, error  
+        if (operandVarType != "int" && operandVarType != "float") {
+            // error
         }
-        $$ = val;
+
+        // case for unary minus operator
+        if ($1 == "minus") {
+            // add -1 to constTable
+            minusOneDir = addConstant(-1, operandVarType);
+
+            resultType = operandVarType == "int" ? TEMP_INT : TEMP_FLOAT;
+
+            resultDir = generatedDir(resultType);
+            
+            // addQuad for -1 * operand received
+            addQuad("times", minusOneDir, operandDir, resultDir);
+            
+        }
+        
+        return resultDir;
     };
 
 VAR_CTE_STACK
     : VAR_CTE {
         pushOperand($1.dir);
+        $$ = $1;
     }
     ;
 
@@ -528,8 +551,9 @@ VAR_CTE
 ASIGNACION
     : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon {
         if (variableExists($1)) {
-            // pop operands and operator from stacks (?)
-            addQuad($2, $3, $1);
+            // TODO: pop operands and operator from stacks (?)
+            // TODO: corregir este cuadruplo
+            addQuad($2, $3, null $1);
         }
     };
 
