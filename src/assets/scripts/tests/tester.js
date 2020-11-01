@@ -1,14 +1,5 @@
-//import defaultExport from "./progriscript_jison";
-
 progriscript_jison = require("../progriscript_jison");
+const fs = require('fs');
 
-var program = "program test;\
-var int j, f;\
-main ( ){\
-    f = 6;\
-    j = 5;\
-    f = f + j - 5 * j;\
-}";
-    
+var program = fs.readFileSync("test.progriscript", "utf8");
 progriscript_jison.parse(program);
-//console.log(text);

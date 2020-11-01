@@ -1,6 +1,0 @@
-program test;
-var int j;
-main ( ){
-    1 + 2;
-}
-    
