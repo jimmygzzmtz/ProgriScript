@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Storage } from '@ionic/storage';
 import { AlertController } from '@ionic/angular';
 
+declare var require: any;
+
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -23,12 +25,22 @@ export class Tab1Page {
 
   theme = 'vs-dark';
 
-  codeTextArea: any = 'write "Hello World!"';
+  initialText = "program test;\n\
+var int j, f;\n\
+main ( ){\n\
+  f = 6;\n\
+  j = 5;\n\
+  f = f + j - 5 * j;\n\
+}\
+";
+
+  codeTextArea: any = this.initialText;
+  inputTextArea: any;
 
   model = {
     language: 'typescript',
     uri: 'main.ts',
-    value: 'write "Hello World!"',
+    value: this.initialText,
   };
 
   options = {
@@ -70,7 +82,25 @@ export class Tab1Page {
 
   run(){
     //console.log(this.model.value);
-    this.codeOutput = "Code Output";
+    var code = "";
+    if(this.monacoEditor == false){
+      code = this.model.value;
+    }
+    else{
+      code = this.codeTextArea;
+    }
+
+    //console.log(code);
+    var result = "";
+    try{
+      var progriscript_jison = require("../../assets/scripts/progriscript_jison");
+      var result = JSON.stringify(progriscript_jison.parse(code));
+    }
+    catch{
+      var result = "Compilation Error";
+    }
+    
+    this.codeOutput = result;
   }
 
   share(){
@@ -208,6 +238,10 @@ export class Tab1Page {
       this.codeSelect = "new";
       this.storage.set('codes', JSON.stringify(this.codes));
     }
+  }
+  
+  enterInput(){
+    console.log("enter input: " + this.inputTextArea);
   }
 
   ionViewWillEnter(){

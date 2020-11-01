@@ -355,6 +355,10 @@ expressions
         // TODO: return quads, funcs, constants for VM
         console.log("quads:");
         console.log(quads);
+
+        return {
+            quads: quads
+        }
     };
 
 PROGRAM
