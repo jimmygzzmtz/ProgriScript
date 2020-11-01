@@ -19,8 +19,8 @@
     var currentFunctionId = "";
     var currentType = "";
 
-    // Counters for each dir section, position for each counter is StartingDir/10000
-    var counters = [];
+    // 14 counters for each dir section, position for each counter is StartingDir/10000
+    var counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     // Starting dirs for each type and scope
     const GLOBAL_INT = 0;
@@ -42,15 +42,23 @@
     // Also initializes values for startingDirCodes map
     function fillMaps(){
         semCube.set("int,int,plus", "int");
-        semCube.set("int,int,arithmetic", "int");
+        semCube.set("int,int,minus", "int");
+        semCube.set("int,int,times", "int");
+        semCube.set("int,int,divide", "int");
         semCube.set("int,float,plus", "float");
-        semCube.set("int,float,arithmetic", "float");
+        semCube.set("int,float,minus", "float");
+        semCube.set("int,float,times", "float");
+        semCube.set("int,float,divide", "float");
         semCube.set("int,letrero,plus", "letrero");
         
         semCube.set("float,int,plus", "float");
-        semCube.set("float,int,arithmetic", "float");
+        semCube.set("float,int,minus", "float");
+        semCube.set("float,int,times", "float");
+        semCube.set("float,int,divide", "float");
         semCube.set("float,float,plus", "float");
-        semCube.set("float,float,arithmetic", "float");
+        semCube.set("float,float,minus", "float");
+        semCube.set("float,float,times", "float");
+        semCube.set("float,float,divide", "float");
         semCube.set("float,letrero,plus", "letrero");
         
         semCube.set("char,letrero,plus", "letrero");
@@ -60,31 +68,51 @@
         semCube.set("letrero,char,plus", "letrero");
         semCube.set("letrero,letrero,plus", "letrero");
         
-        semCube.set("int,int,equalComp", "bool");
-        semCube.set("int,float,equalComp", "bool");
-        semCube.set("float,int,equalComp", "bool");
-        semCube.set("float,float,equalComp", "bool");
+        semCube.set("int,int,isEqual", "bool");
+        semCube.set("int,int,isDifferent", "bool");
+        semCube.set("int,float,isEqual", "bool");
+        semCube.set("int,float,isDifferent", "bool");
+        semCube.set("float,int,isEqual", "bool");
+        semCube.set("float,int,isDifferent", "bool");
+        semCube.set("float,float,isEqual", "bool");
+        semCube.set("float,float,isDifferent", "bool");
         
-        semCube.set("int,int,numericComp", "bool");
-        semCube.set("int,float,numericComp", "bool");
-        semCube.set("float,int,numericComp", "bool");
-        semCube.set("float,float,numericComp", "bool");
+        semCube.set("int,int,lessthan", "bool");
+        semCube.set("int,int,greaterthan", "bool");
+        semCube.set("int,int,lessthanEqual", "bool");
+        semCube.set("int,int,greaterthanEqual", "bool");
+        semCube.set("int,float,lessthan", "bool");
+        semCube.set("int,float,greaterthan", "bool");
+        semCube.set("int,float,lessthanEqual", "bool");
+        semCube.set("int,float,greaterthanEqual", "bool");
+        semCube.set("float,int,lessthan", "bool");
+        semCube.set("float,int,greaterthan", "bool");
+        semCube.set("float,int,lessthanEqual", "bool");
+        semCube.set("float,int,greaterthanEqual", "bool");
+        semCube.set("float,float,lessthan", "bool");
+        semCube.set("float,float,greaterthan", "bool");
+        semCube.set("float,float,lessthanEqual", "bool");
+        semCube.set("float,float,greaterthanEqual", "bool");
         
-        semCube.set("char,char,equalComp", "bool");
-        semCube.set("char,letrero,equalComp", "bool");
-        semCube.set("letrero,letrero,equalComp", "bool");
-        semCube.set("letrero,char,equalComp", "bool");
+        semCube.set("char,char,isEqual", "bool");
+        semCube.set("char,char,isDifferent", "bool");
+        semCube.set("char,letrero,isEqual", "bool");
+        semCube.set("char,letrero,isDifferent", "bool");
+        semCube.set("letrero,letrero,isEqual", "bool");
+        semCube.set("letrero,letrero,isDifferent", "bool");
+        semCube.set("letrero,char,isEqual", "bool");
+        semCube.set("letrero,char,isDifferent", "bool");
         
         operatorCategories.set('+', "plus");
-        operatorCategories.set('-', "arithmetic");
-        operatorCategories.set('*', "arithmetic");
-        operatorCategories.set('/', "arithmetic");
-        operatorCategories.set('==', "equalComp");
-        operatorCategories.set('!=', "equalComp");
-        operatorCategories.set('<', "numericComp");
-        operatorCategories.set('<=', "numericComp");
-        operatorCategories.set('>', "numericComp");
-        operatorCategories.set('>=', "numericComp");
+        operatorCategories.set('-', "minus");
+        operatorCategories.set('*', "times");
+        operatorCategories.set('/', "divide");
+        operatorCategories.set('==', "isEqual");
+        operatorCategories.set('!=', "isDifferent");
+        operatorCategories.set('<', "lessthan");
+        operatorCategories.set('<=', "lessthanEqual");
+        operatorCategories.set('>', "greaterthan");
+        operatorCategories.set('>=', "greaterthanEqual");
 
         startingDirCodes.set("global,int", GLOBAL_INT);
         startingDirCodes.set("global,float", GLOBAL_FLOAT);
@@ -178,9 +206,33 @@
         return constTable.get(val);
     }
 
-    function addQuad(operator, dir1, dir2, dir3){
-        quads.push({operator: operator, dir1: dir1, dir2: dir2, dir3: dir3});
+    function addQuad() {
+        // pops
+        var dirRight = stackOperands.pop();
+        var dirLeft = stackOperands.pop();
+        var operator = stackOperators.pop();
+        
+        // use semantic cube to generate the direction for the temporary var
+        var semCubeKey = getTypeFromDir(dirLeft) + "," + getTypeFromDir(dirRight) + "," + operator;
+        console.log("semcubekey: " + semCubeKey);
+        var resultType = semCube.get(semCubeKey);
+
+        // TODO: if no value exists in semCube for the given key, error
+        if (resultType == undefined) {
+            // error TYPE_MISMATCH
+        }
+
+        console.log("temp," + resultType);
+        console.log(startingDirCodes.get("temp," + resultType));
+        var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+
+        // push new quad
+        quads.push({operator: operator, dir1: dirLeft, dir2: dirRight, dir3: dirTemp});
         quadCount++;
+
+        // add dir of temporary var to operand stack
+        pushOperand(dirTemp);
+        return dirTemp;
     }
 
     function pushOperator(operator){
@@ -193,9 +245,8 @@
 
     function generateDir(startingDir) {
         // make copy of counter of direction type, and then add to counter
-        var dirCounter = counters[startingDir / 10000];
+        var dirCounter = startingDir + counters[startingDir / 10000];
         counters[startingDir / 10000]++;
-        
         // return counter copy
         return dirCounter;
     }
@@ -290,7 +341,11 @@
 %% /* language grammar */
 
 expressions
-    : PROGRAM EOF;
+    : PROGRAM EOF{
+        // TODO: return quads, funcs, constants for VM
+        console.log("printing quads:");
+        console.log(quads);
+    };
 
 PROGRAM
     : PROGRAM_NAME semicolon PROGRAM_AUX PROGRAM_AUX2 MAIN;
@@ -436,7 +491,7 @@ EXP_COMP_AUX2
     ;
 
 EXP
-    : TERMINO EXP_AUX;
+    : TERMINO_WRAPPER EXP_AUX;
 
 EXP_AUX
     : EXP_AUX2 EXP | ;
@@ -452,8 +507,15 @@ EXP_AUX2
     }
     ;
 
+TERMINO_WRAPPER
+    : TERMINO {
+        if (stackOperators[stackOperators.length - 1] == "plus" || stackOperators[stackOperators.length - 1] == "minus") {
+            addQuad();
+        }
+    };
+
 TERMINO
-    : FACTOR TERMINO_AUX;
+    : FACTOR_WRAPPER TERMINO_AUX;
 
 TERMINO_AUX
     : TERMINO_AUX2 TERMINO | ;
@@ -468,6 +530,13 @@ TERMINO_AUX2
         $$ = "divide";
     }
     ;
+
+FACTOR_WRAPPER
+    : FACTOR {
+        if (stackOperators[stackOperators.length - 1] == "times" || stackOperators[stackOperators.length - 1] == "divide") {
+            addQuad();
+        }
+    };
 
 FACTOR
     : FACTOR_AUX | FACTOR_AUX2;
@@ -503,12 +572,13 @@ FACTOR_AUX2
             // add -1 to constTable
             minusOneDir = addConstant(-1, operandVarType);
 
-            resultType = operandVarType == "int" ? TEMP_INT : TEMP_FLOAT;
-
-            resultDir = generatedDir(resultType);
+            // push operator and operands to stack
+            pushOperator("times");
+            pushOperand(minusOneDir);
+            pushOperand(operandDir);
             
             // addQuad for -1 * operand received
-            addQuad("times", minusOneDir, operandDir, resultDir);
+            addQuad();
             
         }
         
@@ -553,7 +623,7 @@ ASIGNACION
         if (variableExists($1)) {
             // TODO: pop operands and operator from stacks (?)
             // TODO: corregir este cuadruplo
-            addQuad($2, $3, null $1);
+            // addQuad($2, $3, null $1);
         }
     };
 

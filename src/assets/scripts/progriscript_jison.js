@@ -72,22 +72,56 @@
   }
 */
 var progriscript_jison = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[15,38],$V1=[1,10],$V2=[2,7],$V3=[1,13],$V4=[15,38,43],$V5=[2,11],$V6=[1,16],$V7=[1,17],$V8=[1,18],$V9=[1,26],$Va=[2,13],$Vb=[1,30],$Vc=[7,17,24],$Vd=[1,38],$Ve=[12,16,29,45,70,71,83,84,87,88,90,94,98,100],$Vf=[1,67],$Vg=[1,76],$Vh=[1,80],$Vi=[1,78],$Vj=[1,79],$Vk=[1,81],$Vl=[1,82],$Vm=[2,36],$Vn=[1,85],$Vo=[2,81],$Vp=[2,50],$Vq=[1,97],$Vr=[1,98],$Vs=[1,99],$Vt=[7,17,24,30,56,57,58,61,62,63,64,65,66,70,71,75,76,86,99,101],$Vu=[7,17,24,56,57,58],$Vv=[2,55],$Vw=[1,104],$Vx=[1,105],$Vy=[1,106],$Vz=[1,107],$VA=[1,108],$VB=[1,109],$VC=[7,17,24,30,56,57,58,61,62,63,64,65,66,99,101],$VD=[7,17,24,30,56,57,58,61,62,63,64,65,66,70,71,99,101],$VE=[7,17,24,30,56,57,58,61,62,63,64,65,66,70,71,75,76,99,101],$VF=[12,16,29,70,71,83,84],$VG=[12,29,83,84],$VH=[1,128],$VI=[2,90],$VJ=[1,146],$VK=[2,95],$VL=[1,148],$VM=[17,24],$VN=[2,27],$VO=[1,157];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[15,38],$V1=[1,10],$V2=[2,7],$V3=[1,13],$V4=[15,38,43],$V5=[2,11],$V6=[1,16],$V7=[1,17],$V8=[1,18],$V9=[1,26],$Va=[2,13],$Vb=[1,30],$Vc=[7,17,24],$Vd=[1,38],$Ve=[12,16,29,45,70,71,85,86,89,90,92,96,100,102],$Vf=[1,67],$Vg=[1,78],$Vh=[1,82],$Vi=[1,80],$Vj=[1,81],$Vk=[1,83],$Vl=[1,84],$Vm=[2,36],$Vn=[1,87],$Vo=[2,83],$Vp=[2,50],$Vq=[1,99],$Vr=[1,100],$Vs=[1,101],$Vt=[7,17,24,30,56,57,58,61,62,63,64,65,66,70,71,76,77,88,101,103],$Vu=[7,17,24,56,57,58],$Vv=[2,55],$Vw=[1,106],$Vx=[1,107],$Vy=[1,108],$Vz=[1,109],$VA=[1,110],$VB=[1,111],$VC=[7,17,24,30,56,57,58,61,62,63,64,65,66,101,103],$VD=[7,17,24,30,56,57,58,61,62,63,64,65,66,70,71,101,103],$VE=[7,17,24,30,56,57,58,61,62,63,64,65,66,70,71,76,77,101,103],$VF=[12,16,29,70,71,85,86],$VG=[12,29,85,86],$VH=[1,130],$VI=[2,92],$VJ=[1,148],$VK=[2,97],$VL=[1,150],$VM=[17,24],$VN=[2,27],$VO=[1,159];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"expressions":3,"PROGRAM":4,"EOF":5,"PROGRAM_NAME":6,"semicolon":7,"PROGRAM_AUX":8,"PROGRAM_AUX2":9,"MAIN":10,"program":11,"id":12,"VARS":13,"FUNCION":14,"main":15,"lparen":16,"rparen":17,"BLOQUE":18,"var":19,"VARS_AUX":20,"TIPO":21,"ID_DECLARE_VAR":22,"VARS_AUX2":23,"comma":24,"int":25,"float":26,"char":27,"lsqbracket":28,"cte_int":29,"rsqbracket":30,"ID_DECLARE_VAR_AUX":31,"ID_ACCESS_VAR":32,"EXP":33,"ID_ACCESS_VAR_AUX":34,"PARAMS_LLAMADA_FUNCION":35,"EXPRESION":36,"PARAMS_LLAMADA_FUNCION_AUX":37,"module":38,"FUNCION_TIPO":39,"FUNCION_PARAM_LIST":40,"void":41,"FUNCION_PARAM_LIST_AUX":42,"lbracket":43,"BLOQUE_AUX":44,"rbracket":45,"ESTATUTO":46,"ASIGNACION":47,"LECTURA":48,"ESCRITURA":49,"DECISION_IF":50,"CONDICIONAL_WHILE":51,"NO_CONDICIONAL_FOR":52,"RETORNO_FUNCION":53,"EXP_COMP":54,"EXPRESION_AUX":55,"EXPRESION_AUX2":56,"and":57,"or":58,"EXP_COMP_AUX":59,"EXP_COMP_AUX2":60,"lessthan":61,"greaterthan":62,"isDifferent":63,"isEqual":64,"lessthanEqual":65,"greaterthanEqual":66,"TERMINO":67,"EXP_AUX":68,"EXP_AUX2":69,"plus":70,"minus":71,"FACTOR":72,"TERMINO_AUX":73,"TERMINO_AUX2":74,"times":75,"divide":76,"FACTOR_AUX":77,"FACTOR_AUX2":78,"BEGINPAREN":79,"VAR_CTE_STACK":80,"FACTOR_AUX3":81,"VAR_CTE":82,"cte_float":83,"cte_char":84,"EQUALSSIGN":85,"equals":86,"return":87,"read":88,"LECTURA_AUX":89,"write":90,"ESCRITURA_AUX":91,"ESCRITURA_AUX2":92,"letrero":93,"if":94,"then":95,"DECISION_IF_AUX2":96,"else":97,"while":98,"do":99,"for":100,"to":101,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"EOF",7:"semicolon",11:"program",12:"id",15:"main",16:"lparen",17:"rparen",19:"var",24:"comma",25:"int",26:"float",27:"char",28:"lsqbracket",29:"cte_int",30:"rsqbracket",38:"module",41:"void",43:"lbracket",45:"rbracket",56:"EXPRESION_AUX2",57:"and",58:"or",61:"lessthan",62:"greaterthan",63:"isDifferent",64:"isEqual",65:"lessthanEqual",66:"greaterthanEqual",70:"plus",71:"minus",75:"times",76:"divide",83:"cte_float",84:"cte_char",86:"equals",87:"return",88:"read",90:"write",93:"letrero",94:"if",95:"then",97:"else",98:"while",99:"do",100:"for",101:"to"},
-productions_: [0,[3,2],[4,5],[6,2],[8,1],[8,0],[9,2],[9,0],[10,4],[13,2],[20,5],[20,0],[23,3],[23,0],[21,1],[21,1],[21,1],[22,1],[22,5],[31,3],[31,0],[32,1],[32,5],[32,4],[32,3],[35,2],[37,3],[37,0],[34,3],[34,0],[14,9],[39,1],[39,1],[40,3],[40,0],[42,4],[42,0],[18,3],[44,2],[44,0],[46,1],[46,1],[46,1],[46,1],[46,1],[46,1],[46,1],[46,2],[36,2],[55,3],[55,0],[55,1],[55,1],[54,2],[59,3],[59,0],[60,1],[60,1],[60,1],[60,1],[60,1],[60,1],[33,2],[68,2],[68,0],[69,1],[69,1],[67,2],[73,2],[73,0],[74,1],[74,1],[72,1],[72,1],[77,3],[79,1],[78,1],[78,2],[80,1],[81,1],[81,1],[82,1],[82,1],[82,1],[82,1],[47,4],[85,1],[53,5],[48,6],[89,3],[89,0],[49,6],[91,1],[91,1],[92,3],[92,0],[50,7],[96,2],[96,0],[51,6],[52,8]],
+symbols_: {"error":2,"expressions":3,"PROGRAM":4,"EOF":5,"PROGRAM_NAME":6,"semicolon":7,"PROGRAM_AUX":8,"PROGRAM_AUX2":9,"MAIN":10,"program":11,"id":12,"VARS":13,"FUNCION":14,"main":15,"lparen":16,"rparen":17,"BLOQUE":18,"var":19,"VARS_AUX":20,"TIPO":21,"ID_DECLARE_VAR":22,"VARS_AUX2":23,"comma":24,"int":25,"float":26,"char":27,"lsqbracket":28,"cte_int":29,"rsqbracket":30,"ID_DECLARE_VAR_AUX":31,"ID_ACCESS_VAR":32,"EXP":33,"ID_ACCESS_VAR_AUX":34,"PARAMS_LLAMADA_FUNCION":35,"EXPRESION":36,"PARAMS_LLAMADA_FUNCION_AUX":37,"module":38,"FUNCION_TIPO":39,"FUNCION_PARAM_LIST":40,"void":41,"FUNCION_PARAM_LIST_AUX":42,"lbracket":43,"BLOQUE_AUX":44,"rbracket":45,"ESTATUTO":46,"ASIGNACION":47,"LECTURA":48,"ESCRITURA":49,"DECISION_IF":50,"CONDICIONAL_WHILE":51,"NO_CONDICIONAL_FOR":52,"RETORNO_FUNCION":53,"EXP_COMP":54,"EXPRESION_AUX":55,"EXPRESION_AUX2":56,"and":57,"or":58,"EXP_COMP_AUX":59,"EXP_COMP_AUX2":60,"lessthan":61,"greaterthan":62,"isDifferent":63,"isEqual":64,"lessthanEqual":65,"greaterthanEqual":66,"TERMINO_WRAPPER":67,"EXP_AUX":68,"EXP_AUX2":69,"plus":70,"minus":71,"TERMINO":72,"FACTOR_WRAPPER":73,"TERMINO_AUX":74,"TERMINO_AUX2":75,"times":76,"divide":77,"FACTOR":78,"FACTOR_AUX":79,"FACTOR_AUX2":80,"BEGINPAREN":81,"VAR_CTE_STACK":82,"FACTOR_AUX3":83,"VAR_CTE":84,"cte_float":85,"cte_char":86,"EQUALSSIGN":87,"equals":88,"return":89,"read":90,"LECTURA_AUX":91,"write":92,"ESCRITURA_AUX":93,"ESCRITURA_AUX2":94,"letrero":95,"if":96,"then":97,"DECISION_IF_AUX":98,"else":99,"while":100,"do":101,"for":102,"to":103,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"EOF",7:"semicolon",11:"program",12:"id",15:"main",16:"lparen",17:"rparen",19:"var",24:"comma",25:"int",26:"float",27:"char",28:"lsqbracket",29:"cte_int",30:"rsqbracket",38:"module",41:"void",43:"lbracket",45:"rbracket",56:"EXPRESION_AUX2",57:"and",58:"or",61:"lessthan",62:"greaterthan",63:"isDifferent",64:"isEqual",65:"lessthanEqual",66:"greaterthanEqual",70:"plus",71:"minus",76:"times",77:"divide",85:"cte_float",86:"cte_char",88:"equals",89:"return",90:"read",92:"write",95:"letrero",96:"if",97:"then",99:"else",100:"while",101:"do",102:"for",103:"to"},
+productions_: [0,[3,2],[4,5],[6,2],[8,1],[8,0],[9,2],[9,0],[10,4],[13,2],[20,5],[20,0],[23,3],[23,0],[21,1],[21,1],[21,1],[22,1],[22,5],[31,3],[31,0],[32,1],[32,5],[32,4],[32,3],[35,2],[37,3],[37,0],[34,3],[34,0],[14,9],[39,1],[39,1],[40,3],[40,0],[42,4],[42,0],[18,3],[44,2],[44,0],[46,1],[46,1],[46,1],[46,1],[46,1],[46,1],[46,1],[46,2],[36,2],[55,3],[55,0],[55,1],[55,1],[54,2],[59,3],[59,0],[60,1],[60,1],[60,1],[60,1],[60,1],[60,1],[33,2],[68,2],[68,0],[69,1],[69,1],[67,1],[72,2],[74,2],[74,0],[75,1],[75,1],[73,1],[78,1],[78,1],[79,3],[81,1],[80,1],[80,2],[82,1],[83,1],[83,1],[84,1],[84,1],[84,1],[84,1],[47,4],[87,1],[53,5],[48,6],[91,3],[91,0],[49,6],[93,1],[93,1],[94,3],[94,0],[50,7],[98,2],[98,0],[51,6],[52,8]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
 var $0 = $$.length - 1;
 switch (yystate) {
+case 1:
+
+        // TODO: return quads, funcs, constants for VM
+        console.log("printing quads:");
+        console.log(quads);
+    
+break;
 case 3:
 
         programName = $$[$0];
         currentFunctionId = programName;
         createFunction(programName, "program");
+    
+break;
+case 14:
+
+        currentType = "int";
+    
+break;
+case 15:
+
+        currentType = "float";
+    
+break;
+case 16:
+
+        currentType = "char";
+    
+break;
+case 17:
+
+        this.$ = createVariable($$[$0]);
+    
+break;
+case 21:
+
+        var dir = functionDirectory.get(currentFunctionId).varTable.get($$[$0]).dir;
+        stackOperands.push(dir);
+        this.$ = {dir: dir};
     
 break;
 case 51:
@@ -150,46 +184,131 @@ case 66:
         this.$ = "minus";
     
 break;
-case 70:
+case 67:
+
+        if (stackOperators[stackOperators.length - 1] == "plus" || stackOperators[stackOperators.length - 1] == "minus") {
+            addQuad();
+        }
+    
+break;
+case 71:
 
         pushOperator("times");
         this.$ = "times";
     
 break;
-case 71:
+case 72:
 
         pushOperator("divide");
         this.$ = "divide";
     
 break;
-case 75:
+case 73:
+
+        if (stackOperators[stackOperators.length - 1] == "times" || stackOperators[stackOperators.length - 1] == "divide") {
+            addQuad();
+        }
+    
+break;
+case 77:
 
         pushOperator("lparen");
     
 break;
-case 78:
+case 78: case 83:
+
+        this.$ = $$[$0];
+    
+break;
+case 79:
+
+
+        var operandDir = $$[$0].dir;
+        var resultDir = operandDir;
+        
+        // check varType of operand  
+        operandVarType = getTypeFromDir($$[$0].dir);  
+
+        // if operand type is not int or float, error  
+        if (operandVarType != "int" && operandVarType != "float") {
+            // error
+        }
+
+        // case for unary minus operator
+        if ($$[$0-1] == "minus") {
+            // add -1 to constTable
+            minusOneDir = addConstant(-1, operandVarType);
+
+            // push operator and operands to stack
+            pushOperator("times");
+            pushOperand(minusOneDir);
+            pushOperand(operandDir);
+            
+            // addQuad for -1 * operand received
+            addQuad();
+            
+        }
+        
+        return resultDir;
+    
+break;
+case 80:
 
         pushOperand($$[$0].dir);
+        this.$ = $$[$0];
+    
+break;
+case 82:
+
+        // TODO: check errors when VAR_CTE_STACK is not a number or a variable
+        this.$ = "minus";
+    
+break;
+case 84:
+
+        var val = Number($$[$0]);
+        var resultDir = addConstant(val, CONST_INT);
+        this.$ = {dir: resultDir};
     
 break;
 case 85:
 
-        if (variableExists($$[$0-3])) {
-            // pop operands and operator from stacks (?)
-            addQuad($$[$0-2], $$[$0-1], $$[$0-3]);
-        }
+        var val = Number($$[$0]);
+        var resultDir = addConstant(val, CONST_FLOAT);
+        this.$ = {dir: resultDir};
     
 break;
 case 86:
+
+        var resultDir = addConstant($$[$0], CONST_CHAR);
+        this.$ = {dir: resultDir};
+    
+break;
+case 87:
+
+        if (variableExists($$[$0-3])) {
+            // TODO: pop operands and operator from stacks (?)
+            // TODO: corregir este cuadruplo
+            // addQuad($$[$0-2], $$[$0-1], null $$[$0-3]);
+        }
+    
+break;
+case 88:
 
         pushOperator("equals");
         this.$ = "equals";
     
 break;
+case 95:
+
+        var resultDir = addConstant($$[$0], CONST_LETRERO);
+        this.$ = {dir: resultDir};
+    
+break;
 }
 },
-table: [{3:1,4:2,6:3,11:[1,4]},{1:[3]},{5:[1,5]},{7:[1,6]},{12:[1,7]},{1:[2,1]},o($V0,[2,5],{8:8,13:9,19:$V1}),{7:[2,3]},{9:11,14:12,15:$V2,38:$V3},o($V0,[2,4]),o($V4,$V5,{20:14,21:15,25:$V6,26:$V7,27:$V8}),{10:19,15:[1,20]},{9:21,14:12,15:$V2,38:$V3},{21:24,25:$V6,26:$V7,27:$V8,39:22,41:[1,23]},o($V4,[2,9]),{12:$V9,22:25},{12:[2,14]},{12:[2,15]},{12:[2,16]},{5:[2,2]},{16:[1,27]},{15:[2,6]},{12:[1,28]},{12:[2,31]},{12:[2,32]},{7:$Va,23:29,24:$Vb},o($Vc,[2,17],{28:[1,31]}),{17:[1,32]},{16:[1,33]},{7:[1,34]},{12:$V9,22:35},{29:[1,36]},{18:37,43:$Vd},{17:[2,34],21:40,25:$V6,26:$V7,27:$V8,40:39},o($V4,$V5,{21:15,20:41,25:$V6,26:$V7,27:$V8}),{7:$Va,23:42,24:$Vb},{30:[1,43]},{5:[2,8]},o($Ve,[2,39],{44:44}),{17:[1,45]},{12:$V9,22:46},o($V4,[2,10]),{7:[2,12]},o($Vc,[2,20],{31:47,28:[1,48]}),{12:$Vf,16:$Vg,29:$Vh,32:59,33:68,36:58,45:[1,49],46:50,47:51,48:52,49:53,50:54,51:55,52:56,53:57,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl,87:[1,65],88:[1,60],90:[1,61],94:[1,62],98:[1,63],100:[1,64]},{7:[1,83]},{17:$Vm,24:$Vn,42:84},o($Vc,[2,18]),{29:[1,86]},o([5,12,15,16,29,38,45,70,71,83,84,87,88,90,94,97,98,100],[2,37]),o($Ve,[2,38]),o($Ve,[2,40]),o($Ve,[2,41]),o($Ve,[2,42]),o($Ve,[2,43]),o($Ve,[2,44]),o($Ve,[2,45]),o($Ve,[2,46]),{7:[1,87]},o([7,56,57,58,61,62,63,64,65,66,70,71,75,76],$Vo,{85:88,86:[1,89]}),{16:[1,90]},{16:[1,91]},{16:[1,92]},{16:[1,93]},{12:[1,94]},{16:[1,95]},o($Vc,$Vp,{55:96,56:$Vq,57:$Vr,58:$Vs}),o($Vt,[2,21],{16:[1,101],28:[1,100]}),o($Vu,$Vv,{59:102,60:103,61:$Vw,62:$Vx,63:$Vy,64:$Vz,65:$VA,66:$VB}),o($VC,[2,64],{68:110,69:111,70:[1,112],71:[1,113]}),o($VD,[2,69],{73:114,74:115,75:[1,116],76:[1,117]}),o($VE,[2,72]),o($VE,[2,73]),{12:$Vf,16:$Vg,29:$Vh,32:119,33:68,36:118,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($VE,[2,76]),{12:$Vf,29:$Vh,32:119,80:120,82:77,83:$Vk,84:$Vl},o($VF,[2,75]),o($VE,[2,78]),o($VG,[2,79]),o($VG,[2,80]),o($VE,[2,82]),o($VE,[2,83]),o($VE,[2,84]),{13:121,19:$V1},{17:[2,33]},{21:122,25:$V6,26:$V7,27:$V8},{30:[1,123]},o($Ve,[2,47]),{12:$Vf,16:$Vg,29:$Vh,32:119,33:68,36:124,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($VF,[2,86]),{12:$Vf,32:125},{12:$Vf,16:$Vg,29:$Vh,32:119,33:68,36:127,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl,91:126,93:$VH},{12:$Vf,16:$Vg,29:$Vh,32:119,33:68,36:129,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},{12:$Vf,16:$Vg,29:$Vh,32:119,33:68,36:130,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},{86:[1,131]},{12:$Vf,16:$Vg,29:$Vh,32:119,33:132,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($Vc,[2,48]),{12:$Vf,16:$Vg,29:$Vh,32:119,33:68,54:133,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($Vc,[2,51]),o($Vc,[2,52]),{12:$Vf,16:$Vg,29:$Vh,32:119,33:134,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},{12:$Vf,16:$Vg,17:[1,136],29:$Vh,32:119,33:68,35:135,36:137,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($Vu,[2,53]),{12:$Vf,16:$Vg,29:$Vh,32:119,33:138,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($VF,[2,56]),o($VF,[2,57]),o($VF,[2,58]),o($VF,[2,59]),o($VF,[2,60]),o($VF,[2,61]),o($VC,[2,62]),{12:$Vf,16:$Vg,29:$Vh,32:119,33:139,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($VF,[2,65]),o($VF,[2,66]),o($VD,[2,67]),{12:$Vf,16:$Vg,29:$Vh,32:119,67:140,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($VF,[2,70]),o($VF,[2,71]),{17:[1,141]},o($VE,$Vo),o($VE,[2,77]),{18:142,43:$Vd},{12:$V9,22:143},o($Vc,[2,19]),{7:[1,144]},{17:$VI,24:$VJ,89:145},{17:$VK,24:$VL,92:147},o($VM,[2,92]),o($VM,[2,93]),{17:[1,149]},{17:[1,150]},{12:$Vf,16:$Vg,29:$Vh,32:119,33:151,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},{17:[1,152]},o($Vc,$Vp,{55:153,56:$Vq,57:$Vr,58:$Vs}),{30:[1,154]},{17:[1,155]},o($Vt,[2,24]),{17:$VN,24:$VO,37:156},o($Vu,$Vv,{60:103,59:158,61:$Vw,62:$Vx,63:$Vy,64:$Vz,65:$VA,66:$VB}),o($VC,[2,63]),o($VD,[2,68]),o($VE,[2,74]),o($V0,[2,30]),{17:$Vm,24:$Vn,42:159},o($Ve,[2,85]),{17:[1,160]},{12:$Vf,32:161},{17:[1,162]},{12:$Vf,16:$Vg,29:$Vh,32:119,33:68,36:127,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl,91:163,93:$VH},{95:[1,164]},{99:[1,165]},{101:[1,166]},{7:[1,167]},o($Vc,[2,49]),o($Vt,[2,29],{34:168,28:[1,169]}),o($Vt,[2,23]),{17:[2,25]},{12:$Vf,16:$Vg,29:$Vh,32:119,33:68,36:170,54:66,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($Vu,[2,54]),{17:[2,35]},{7:[1,171]},{17:$VI,24:$VJ,89:172},{7:[1,173]},{17:$VK,24:$VL,92:174},{18:175,43:$Vd},{18:176,43:$Vd},{12:$Vf,16:$Vg,29:$Vh,32:119,33:177,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},o($Ve,[2,87]),o($Vt,[2,22]),{12:$Vf,16:$Vg,29:$Vh,32:119,33:178,67:69,70:$Vi,71:$Vj,72:70,77:71,78:72,79:73,80:74,81:75,82:77,83:$Vk,84:$Vl},{17:$VN,24:$VO,37:179},o($Ve,[2,88]),{17:[2,89]},o($Ve,[2,91]),{17:[2,94]},o($Ve,[2,98],{96:180,97:[1,181]}),o($Ve,[2,99]),{99:[1,182]},{30:[1,183]},{17:[2,26]},o($Ve,[2,96]),{18:184,43:$Vd},{18:185,43:$Vd},o($Vt,[2,28]),o($Ve,[2,97]),o($Ve,[2,100])],
-defaultActions: {5:[2,1],7:[2,3],16:[2,14],17:[2,15],18:[2,16],19:[2,2],21:[2,6],23:[2,31],24:[2,32],37:[2,8],42:[2,12],84:[2,33],156:[2,25],159:[2,35],172:[2,89],174:[2,94],179:[2,26]},
+table: [{3:1,4:2,6:3,11:[1,4]},{1:[3]},{5:[1,5]},{7:[1,6]},{12:[1,7]},{1:[2,1]},o($V0,[2,5],{8:8,13:9,19:$V1}),{7:[2,3]},{9:11,14:12,15:$V2,38:$V3},o($V0,[2,4]),o($V4,$V5,{20:14,21:15,25:$V6,26:$V7,27:$V8}),{10:19,15:[1,20]},{9:21,14:12,15:$V2,38:$V3},{21:24,25:$V6,26:$V7,27:$V8,39:22,41:[1,23]},o($V4,[2,9]),{12:$V9,22:25},{12:[2,14]},{12:[2,15]},{12:[2,16]},{5:[2,2]},{16:[1,27]},{15:[2,6]},{12:[1,28]},{12:[2,31]},{12:[2,32]},{7:$Va,23:29,24:$Vb},o($Vc,[2,17],{28:[1,31]}),{17:[1,32]},{16:[1,33]},{7:[1,34]},{12:$V9,22:35},{29:[1,36]},{18:37,43:$Vd},{17:[2,34],21:40,25:$V6,26:$V7,27:$V8,40:39},o($V4,$V5,{21:15,20:41,25:$V6,26:$V7,27:$V8}),{7:$Va,23:42,24:$Vb},{30:[1,43]},{5:[2,8]},o($Ve,[2,39],{44:44}),{17:[1,45]},{12:$V9,22:46},o($V4,[2,10]),{7:[2,12]},o($Vc,[2,20],{31:47,28:[1,48]}),{12:$Vf,16:$Vg,29:$Vh,32:59,33:68,36:58,45:[1,49],46:50,47:51,48:52,49:53,50:54,51:55,52:56,53:57,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl,89:[1,65],90:[1,60],92:[1,61],96:[1,62],100:[1,63],102:[1,64]},{7:[1,85]},{17:$Vm,24:$Vn,42:86},o($Vc,[2,18]),{29:[1,88]},o([5,12,15,16,29,38,45,70,71,85,86,89,90,92,96,99,100,102],[2,37]),o($Ve,[2,38]),o($Ve,[2,40]),o($Ve,[2,41]),o($Ve,[2,42]),o($Ve,[2,43]),o($Ve,[2,44]),o($Ve,[2,45]),o($Ve,[2,46]),{7:[1,89]},o([7,56,57,58,61,62,63,64,65,66,70,71,76,77],$Vo,{87:90,88:[1,91]}),{16:[1,92]},{16:[1,93]},{16:[1,94]},{16:[1,95]},{12:[1,96]},{16:[1,97]},o($Vc,$Vp,{55:98,56:$Vq,57:$Vr,58:$Vs}),o($Vt,[2,21],{16:[1,103],28:[1,102]}),o($Vu,$Vv,{59:104,60:105,61:$Vw,62:$Vx,63:$Vy,64:$Vz,65:$VA,66:$VB}),o($VC,[2,64],{68:112,69:113,70:[1,114],71:[1,115]}),o($VD,[2,67]),o($VD,[2,70],{74:116,75:117,76:[1,118],77:[1,119]}),o($VE,[2,73]),o($VE,[2,74]),o($VE,[2,75]),{12:$Vf,16:$Vg,29:$Vh,32:121,33:68,36:120,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($VE,[2,78]),{12:$Vf,29:$Vh,32:121,82:122,84:79,85:$Vk,86:$Vl},o($VF,[2,77]),o($VE,[2,80]),o($VG,[2,81]),o($VG,[2,82]),o($VE,[2,84]),o($VE,[2,85]),o($VE,[2,86]),{13:123,19:$V1},{17:[2,33]},{21:124,25:$V6,26:$V7,27:$V8},{30:[1,125]},o($Ve,[2,47]),{12:$Vf,16:$Vg,29:$Vh,32:121,33:68,36:126,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($VF,[2,88]),{12:$Vf,32:127},{12:$Vf,16:$Vg,29:$Vh,32:121,33:68,36:129,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl,93:128,95:$VH},{12:$Vf,16:$Vg,29:$Vh,32:121,33:68,36:131,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},{12:$Vf,16:$Vg,29:$Vh,32:121,33:68,36:132,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},{88:[1,133]},{12:$Vf,16:$Vg,29:$Vh,32:121,33:134,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($Vc,[2,48]),{12:$Vf,16:$Vg,29:$Vh,32:121,33:68,54:135,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($Vc,[2,51]),o($Vc,[2,52]),{12:$Vf,16:$Vg,29:$Vh,32:121,33:136,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},{12:$Vf,16:$Vg,17:[1,138],29:$Vh,32:121,33:68,35:137,36:139,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($Vu,[2,53]),{12:$Vf,16:$Vg,29:$Vh,32:121,33:140,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($VF,[2,56]),o($VF,[2,57]),o($VF,[2,58]),o($VF,[2,59]),o($VF,[2,60]),o($VF,[2,61]),o($VC,[2,62]),{12:$Vf,16:$Vg,29:$Vh,32:121,33:141,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($VF,[2,65]),o($VF,[2,66]),o($VD,[2,68]),{12:$Vf,16:$Vg,29:$Vh,32:121,70:$Vi,71:$Vj,72:142,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($VF,[2,71]),o($VF,[2,72]),{17:[1,143]},o($VE,$Vo),o($VE,[2,79]),{18:144,43:$Vd},{12:$V9,22:145},o($Vc,[2,19]),{7:[1,146]},{17:$VI,24:$VJ,91:147},{17:$VK,24:$VL,94:149},o($VM,[2,94]),o($VM,[2,95]),{17:[1,151]},{17:[1,152]},{12:$Vf,16:$Vg,29:$Vh,32:121,33:153,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},{17:[1,154]},o($Vc,$Vp,{55:155,56:$Vq,57:$Vr,58:$Vs}),{30:[1,156]},{17:[1,157]},o($Vt,[2,24]),{17:$VN,24:$VO,37:158},o($Vu,$Vv,{60:105,59:160,61:$Vw,62:$Vx,63:$Vy,64:$Vz,65:$VA,66:$VB}),o($VC,[2,63]),o($VD,[2,69]),o($VE,[2,76]),o($V0,[2,30]),{17:$Vm,24:$Vn,42:161},o($Ve,[2,87]),{17:[1,162]},{12:$Vf,32:163},{17:[1,164]},{12:$Vf,16:$Vg,29:$Vh,32:121,33:68,36:129,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl,93:165,95:$VH},{97:[1,166]},{101:[1,167]},{103:[1,168]},{7:[1,169]},o($Vc,[2,49]),o($Vt,[2,29],{34:170,28:[1,171]}),o($Vt,[2,23]),{17:[2,25]},{12:$Vf,16:$Vg,29:$Vh,32:121,33:68,36:172,54:66,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($Vu,[2,54]),{17:[2,35]},{7:[1,173]},{17:$VI,24:$VJ,91:174},{7:[1,175]},{17:$VK,24:$VL,94:176},{18:177,43:$Vd},{18:178,43:$Vd},{12:$Vf,16:$Vg,29:$Vh,32:121,33:179,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},o($Ve,[2,89]),o($Vt,[2,22]),{12:$Vf,16:$Vg,29:$Vh,32:121,33:180,67:69,70:$Vi,71:$Vj,72:70,73:71,78:72,79:73,80:74,81:75,82:76,83:77,84:79,85:$Vk,86:$Vl},{17:$VN,24:$VO,37:181},o($Ve,[2,90]),{17:[2,91]},o($Ve,[2,93]),{17:[2,96]},o($Ve,[2,100],{98:182,99:[1,183]}),o($Ve,[2,101]),{101:[1,184]},{30:[1,185]},{17:[2,26]},o($Ve,[2,98]),{18:186,43:$Vd},{18:187,43:$Vd},o($Vt,[2,28]),o($Ve,[2,99]),o($Ve,[2,102])],
+defaultActions: {5:[2,1],7:[2,3],16:[2,14],17:[2,15],18:[2,16],19:[2,2],21:[2,6],23:[2,31],24:[2,32],37:[2,8],42:[2,12],86:[2,33],158:[2,25],161:[2,35],174:[2,91],176:[2,96],181:[2,26]},
 parseError: function parseError (str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -338,9 +457,12 @@ parse: function parse(input) {
 }};
 
 
+    // Maps declarations
     var semCube = new Map();
     var operatorCategories = new Map();
     var functionDirectory = new Map();
+    var constTable = new Map();
+    var startingDirCodes = new Map();
 
     var stackOperators = [];
 	var stackOperands = [];
@@ -349,21 +471,51 @@ parse: function parse(input) {
     var quads = [];
     var quadCount = 0;
 
+    // variables to know current state
     var programName = "";
     var currentFunctionId = "";
+    var currentType = "";
 
-    //This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
+    // 14 counters for each dir section, position for each counter is StartingDir/10000
+    var counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    // Starting dirs for each type and scope
+    const GLOBAL_INT = 0;
+    const GLOBAL_FLOAT = 10000;
+    const GLOBAL_CHAR = 20000;
+    const LOCAL_INT = 30000;
+    const LOCAL_FLOAT = 40000;
+    const LOCAL_CHAR = 50000;
+    const TEMP_INT = 60000;
+    const TEMP_FLOAT = 70000;
+    const TEMP_CHAR = 80000;
+    const TEMP_BOOL = 90000;
+    const CONST_INT = 100000;
+    const CONST_FLOAT = 110000;
+    const CONST_CHAR = 120000;
+    const CONST_LETRERO = 130000;
+
+    // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
+    // Also initializes values for startingDirCodes map
     function fillMaps(){
         semCube.set("int,int,plus", "int");
-        semCube.set("int,int,arithmetic", "int");
+        semCube.set("int,int,minus", "int");
+        semCube.set("int,int,times", "int");
+        semCube.set("int,int,divide", "int");
         semCube.set("int,float,plus", "float");
-        semCube.set("int,float,arithmetic", "float");
+        semCube.set("int,float,minus", "float");
+        semCube.set("int,float,times", "float");
+        semCube.set("int,float,divide", "float");
         semCube.set("int,letrero,plus", "letrero");
         
         semCube.set("float,int,plus", "float");
-        semCube.set("float,int,arithmetic", "float");
+        semCube.set("float,int,minus", "float");
+        semCube.set("float,int,times", "float");
+        semCube.set("float,int,divide", "float");
         semCube.set("float,float,plus", "float");
-        semCube.set("float,float,arithmetic", "float");
+        semCube.set("float,float,minus", "float");
+        semCube.set("float,float,times", "float");
+        semCube.set("float,float,divide", "float");
         semCube.set("float,letrero,plus", "letrero");
         
         semCube.set("char,letrero,plus", "letrero");
@@ -373,31 +525,66 @@ parse: function parse(input) {
         semCube.set("letrero,char,plus", "letrero");
         semCube.set("letrero,letrero,plus", "letrero");
         
-        semCube.set("int,int,equalComp", "bool");
-        semCube.set("int,float,equalComp", "bool");
-        semCube.set("float,int,equalComp", "bool");
-        semCube.set("float,float,equalComp", "bool");
+        semCube.set("int,int,isEqual", "bool");
+        semCube.set("int,int,isDifferent", "bool");
+        semCube.set("int,float,isEqual", "bool");
+        semCube.set("int,float,isDifferent", "bool");
+        semCube.set("float,int,isEqual", "bool");
+        semCube.set("float,int,isDifferent", "bool");
+        semCube.set("float,float,isEqual", "bool");
+        semCube.set("float,float,isDifferent", "bool");
         
-        semCube.set("int,int,numericComp", "bool");
-        semCube.set("int,float,numericComp", "bool");
-        semCube.set("float,int,numericComp", "bool");
-        semCube.set("float,float,numericComp", "bool");
+        semCube.set("int,int,lessthan", "bool");
+        semCube.set("int,int,greaterthan", "bool");
+        semCube.set("int,int,lessthanEqual", "bool");
+        semCube.set("int,int,greaterthanEqual", "bool");
+        semCube.set("int,float,lessthan", "bool");
+        semCube.set("int,float,greaterthan", "bool");
+        semCube.set("int,float,lessthanEqual", "bool");
+        semCube.set("int,float,greaterthanEqual", "bool");
+        semCube.set("float,int,lessthan", "bool");
+        semCube.set("float,int,greaterthan", "bool");
+        semCube.set("float,int,lessthanEqual", "bool");
+        semCube.set("float,int,greaterthanEqual", "bool");
+        semCube.set("float,float,lessthan", "bool");
+        semCube.set("float,float,greaterthan", "bool");
+        semCube.set("float,float,lessthanEqual", "bool");
+        semCube.set("float,float,greaterthanEqual", "bool");
         
-        semCube.set("char,char,equalComp", "bool");
-        semCube.set("char,letrero,equalComp", "bool");
-        semCube.set("letrero,letrero,equalComp", "bool");
-        semCube.set("letrero,char,equalComp", "bool");
+        semCube.set("char,char,isEqual", "bool");
+        semCube.set("char,char,isDifferent", "bool");
+        semCube.set("char,letrero,isEqual", "bool");
+        semCube.set("char,letrero,isDifferent", "bool");
+        semCube.set("letrero,letrero,isEqual", "bool");
+        semCube.set("letrero,letrero,isDifferent", "bool");
+        semCube.set("letrero,char,isEqual", "bool");
+        semCube.set("letrero,char,isDifferent", "bool");
         
         operatorCategories.set('+', "plus");
-        operatorCategories.set('-', "arithmetic");
-        operatorCategories.set('*', "arithmetic");
-        operatorCategories.set('/', "arithmetic");
-        operatorCategories.set('==', "equalComp");
-        operatorCategories.set('!=', "equalComp");
-        operatorCategories.set('<', "numericComp");
-        operatorCategories.set('<=', "numericComp");
-        operatorCategories.set('>', "numericComp");
-        operatorCategories.set('>=', "numericComp");
+        operatorCategories.set('-', "minus");
+        operatorCategories.set('*', "times");
+        operatorCategories.set('/', "divide");
+        operatorCategories.set('==', "isEqual");
+        operatorCategories.set('!=', "isDifferent");
+        operatorCategories.set('<', "lessthan");
+        operatorCategories.set('<=', "lessthanEqual");
+        operatorCategories.set('>', "greaterthan");
+        operatorCategories.set('>=', "greaterthanEqual");
+
+        startingDirCodes.set("global,int", GLOBAL_INT);
+        startingDirCodes.set("global,float", GLOBAL_FLOAT);
+        startingDirCodes.set("global,char", GLOBAL_CHAR);
+        startingDirCodes.set("local,int", LOCAL_INT);
+        startingDirCodes.set("local,float", LOCAL_FLOAT);
+        startingDirCodes.set("local,char", LOCAL_CHAR);
+        startingDirCodes.set("temp,int", TEMP_INT);
+        startingDirCodes.set("temp,float", TEMP_FLOAT);
+        startingDirCodes.set("temp,char", TEMP_CHAR);
+        startingDirCodes.set("temp,bool", TEMP_BOOL);
+        startingDirCodes.set("const,int", CONST_INT);
+        startingDirCodes.set("const,float", CONST_FLOAT);
+        startingDirCodes.set("const,char", CONST_CHAR);
+        startingDirCodes.set("const,letrero", CONST_LETRERO);
     }
 
     fillMaps();
@@ -421,10 +608,15 @@ parse: function parse(input) {
     }
 
     // adds a variable to the variable table of a function in the directory
-    function createVariable(id, funcId, varType) {
-        var varTable = functionDirectory.get(funcId).varTable;
+    // and returns the dir of the created variable
+    function createVariable(id) {
+        var varTable = functionDirectory.get(currentFunctionId).varTable;
         if (!varTable.has(id)) {
-            varTable.set(id, {type: varType, value: "null"});
+            var scope = scopeIsGlobal() ? "global" : "local";
+            var generatedDir = generateDir(startingDirCodes.get(scope + "," + currentType));
+
+            varTable.set(id, {type: currentType, dir: generatedDir});
+            return generatedDir;
         }
         else {
             // error, re-declaration of variable
@@ -434,7 +626,7 @@ parse: function parse(input) {
     function variableExists(id, funcId) {
         var varTable = functionDirectory.get(funcId).varTable;
         var exists = varTable.has(id);
-        if (!exists && funcId != programName) {
+        if (!exists && !scopeIsGlobal()) {
             varTable = functionDirectory.get(programName).varTable;
             exists = varTable.has(id);
         }
@@ -452,7 +644,7 @@ parse: function parse(input) {
         if (varTable.has(id)) {
             return varTable.get(id);
         }
-        else if (funcId != programName) {
+        else if (!scopeIsGlobal()) {
             varTable = functionDirectory.get(programName).varTable;
             if (varTable.has(id)) {
                 return varTable.get(id);
@@ -462,29 +654,42 @@ parse: function parse(input) {
             // error, no variable with that id
         }
     }
-
-    // sets a value to a variable
-    function setVariableValue(id, funcId, varValue){
-        var varTable = functionDirectory.get(funcId).varTable;
-        if (varTable.has(id)) {
-            var tempVar = varTable.get(id);
-            varTable.set(id, {type: tempVar.type, value: varValue});
-            return;
+    
+    // adds a constant to the constTable and returns its dir
+    function addConstant(val, startingDir) {
+        if (!constTable.has(val)) {
+            constTable.set(val, generateDir(startingDir));
         }
-        var globalVarTable = functionDirectory.get(programName).varTable;
-        if (globalVarTable.has(id)) {
-            var tempVar = globalVarTable.get(id);
-            globalVarTable.set(id, {type: tempVar.type, value: varValue});
-            return;
-        }
-        else {
-            // error, no variable with that id
-        }
+        return constTable.get(val);
     }
 
-    function addQuad(operator, dir1, dir2, dir3){
-        quads.push({operator: operator, dir1: dir1, dir2: dir2, dir3: dir3});
-        count++;
+    function addQuad() {
+        // pops
+        var dirRight = stackOperands.pop();
+        var dirLeft = stackOperands.pop();
+        var operator = stackOperators.pop();
+        
+        // use semantic cube to generate the direction for the temporary var
+        var semCubeKey = getTypeFromDir(dirLeft) + "," + getTypeFromDir(dirRight) + "," + operator;
+        console.log("semcubekey: " + semCubeKey);
+        var resultType = semCube.get(semCubeKey);
+
+        // TODO: if no value exists in semCube for the given key, error
+        if (resultType == undefined) {
+            // error TYPE_MISMATCH
+        }
+
+        console.log("temp," + resultType);
+        console.log(startingDirCodes.get("temp," + resultType));
+        var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+
+        // push new quad
+        quads.push({operator: operator, dir1: dirLeft, dir2: dirRight, dir3: dirTemp});
+        quadCount++;
+
+        // add dir of temporary var to operand stack
+        pushOperand(dirTemp);
+        return dirTemp;
     }
 
     function pushOperator(operator){
@@ -493,6 +698,40 @@ parse: function parse(input) {
 
     function pushOperand(operand){
         stackOperands.push(operand);
+    }
+
+    function generateDir(startingDir) {
+        // make copy of counter of direction type, and then add to counter
+        var dirCounter = startingDir + counters[startingDir / 10000];
+        counters[startingDir / 10000]++;
+        // return counter copy
+        return dirCounter;
+    }
+
+    function getTypeFromDir(dir) {
+        //depending on range get type
+        if ((dir >= GLOBAL_INT && dir < GLOBAL_FLOAT) || (dir >= LOCAL_INT && dir < LOCAL_FLOAT) 
+            || (dir >= TEMP_INT && dir < TEMP_FLOAT) || (dir >= CONST_INT && dir < CONST_FLOAT)) {
+                return "int";
+        }
+        if ((dir >= GLOBAL_FLOAT && dir < GLOBAL_CHAR) || (dir >= LOCAL_FLOAT && dir < LOCAL_CHAR) 
+            || (dir >= TEMP_FLOAT && dir < TEMP_CHAR) || (dir >= CONST_FLOAT && dir < CONST_CHAR)) {
+                return "float";
+        }
+        if ((dir >= GLOBAL_CHAR && dir < LOCAL_INT) || (dir >= LOCAL_CHAR && dir < TEMP_INT) 
+            || (dir >= TEMP_CHAR && dir < TEMP_BOOL) || (dir >= CONST_CHAR && dir < CONST_LETRERO)) {
+                return "char";
+        }
+        if (dir >= TEMP_BOOL && dir < CONST_INT){
+                return "bool";
+        }
+        if (dir >= CONST_LETRERO) {
+            return "letrero";
+        }
+    }
+
+    function scopeIsGlobal() {
+        return currentFunctionId == programName;
     }
 
 /* generated by jison-lex 0.3.4 */
@@ -841,29 +1080,29 @@ case 7:return 15
 break;
 case 8:return 38
 break;
-case 9:return 94
+case 9:return 96
 break;
-case 10:return 95
+case 10:return 97
 break;
-case 11:return 97
+case 11:return 99
 break;
-case 12:return 87
+case 12:return 89
 break;
-case 13:return 90
+case 13:return 92
 break;
-case 14:return 88
+case 14:return 90
 break;
-case 15:return 98
+case 15:return 100
 break;
-case 16:return 100
+case 16:return 102
 break;
-case 17:return 101
+case 17:return 103
 break;
-case 18:return 99
+case 18:return 101
 break;
 case 19:return 64
 break;
-case 20:return 86
+case 20:return 88
 break;
 case 21:return 'colon'
 break;
@@ -889,9 +1128,9 @@ case 31:return 70
 break;
 case 32:return 71
 break;
-case 33:return 75
+case 33:return 76
 break;
-case 34:return 76
+case 34:return 77
 break;
 case 35:return 65
 break;
@@ -913,11 +1152,11 @@ case 43:return 12
 break;
 case 44:return 29
 break;
-case 45:return 83
+case 45:return 85
 break;
-case 46:return 84
+case 46:return 86
 break;
-case 47:return 93
+case 47:return 95
 break;
 case 48:return 5
 break;
