@@ -3,9 +3,11 @@
 progriscript_jison = require("../progriscript_jison");
 
 var program = "program test;\
-var int j;\
+var int j, f;\
 main ( ){\
-    3 * 7 + 6 / 5 * 4;\
+    f = 6;\
+    j = 5;\
+    f = f + j - 5 * j;\
 }";
     
 progriscript_jison.parse(program);

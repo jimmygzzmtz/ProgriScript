@@ -2,7 +2,6 @@
 
     // Maps declarations
     var semCube = new Map();
-    var operatorCategories = new Map();
     var functionDirectory = new Map();
     var constTable = new Map();
     var startingDirCodes = new Map();
@@ -68,6 +67,7 @@
         semCube.set("letrero,char,plus", "letrero");
         semCube.set("letrero,letrero,plus", "letrero");
         
+        // int/float equal comparisons
         semCube.set("int,int,isEqual", "bool");
         semCube.set("int,int,isDifferent", "bool");
         semCube.set("int,float,isEqual", "bool");
@@ -76,7 +76,8 @@
         semCube.set("float,int,isDifferent", "bool");
         semCube.set("float,float,isEqual", "bool");
         semCube.set("float,float,isDifferent", "bool");
-        
+
+        // int/float numeric comparisons        
         semCube.set("int,int,lessthan", "bool");
         semCube.set("int,int,greaterthan", "bool");
         semCube.set("int,int,lessthanEqual", "bool");
@@ -94,6 +95,7 @@
         semCube.set("float,float,lessthanEqual", "bool");
         semCube.set("float,float,greaterthanEqual", "bool");
         
+        // char/letrero equal comparisons
         semCube.set("char,char,isEqual", "bool");
         semCube.set("char,char,isDifferent", "bool");
         semCube.set("char,letrero,isEqual", "bool");
@@ -102,17 +104,13 @@
         semCube.set("letrero,letrero,isDifferent", "bool");
         semCube.set("letrero,char,isEqual", "bool");
         semCube.set("letrero,char,isDifferent", "bool");
-        
-        operatorCategories.set('+', "plus");
-        operatorCategories.set('-', "minus");
-        operatorCategories.set('*', "times");
-        operatorCategories.set('/', "divide");
-        operatorCategories.set('==', "isEqual");
-        operatorCategories.set('!=', "isDifferent");
-        operatorCategories.set('<', "lessthan");
-        operatorCategories.set('<=', "lessthanEqual");
-        operatorCategories.set('>', "greaterthan");
-        operatorCategories.set('>=', "greaterthanEqual");
+
+        // assignment
+        semCube.set("int,int,equals", "int");
+        semCube.set("float,float,equals", "float");
+        semCube.set("char,char,equals", "char");
+        semCube.set("letrero,letrero,equals", "letrero");
+        semCube.set("float,int,equals", "float");
 
         startingDirCodes.set("global,int", GLOBAL_INT);
         startingDirCodes.set("global,float", GLOBAL_FLOAT);
@@ -133,10 +131,10 @@
     fillMaps();
 
     // returns the resulting type of an operation
-    function semanticCube(operand1, operand2, operator){
-        var opCategory = operatorCategories.get(operator);
-        var result = semCube.get(operand1 + "," + operand2 + "," + opCategory);
-        //if result == undefined, return Error
+    function semanticCube(operand1, operand2, operator) {
+        var typeOperand1 = getTypeFromDir(operand1);
+        var typeOperand2 = getTypeFromDir(operand2);
+        var result = semCube.get(typeOperand1 + "," + typeOperand2 + "," + operator);
         return result;
     }
 
@@ -166,12 +164,12 @@
         }
     }
 
-    function variableExists(id, funcId) {
-        var varTable = functionDirectory.get(funcId).varTable;
-        var exists = varTable.has(id);
+    function variableExists(name) {
+        var varTable = functionDirectory.get(currentFunctionId).varTable;
+        var exists = varTable.has(name);
         if (!exists && !scopeIsGlobal()) {
             varTable = functionDirectory.get(programName).varTable;
-            exists = varTable.has(id);
+            exists = varTable.has(name);
         }
         if (exists) {
             return true;
@@ -206,33 +204,41 @@
         return constTable.get(val);
     }
 
+    function printStacks(){
+        console.log("stacks:");
+        console.log(stackOperands);
+        console.log(stackOperators);
+    }
+
     function addQuad() {
+        //printStacks();
+
         // pops
         var dirRight = stackOperands.pop();
         var dirLeft = stackOperands.pop();
         var operator = stackOperators.pop();
         
         // use semantic cube to generate the direction for the temporary var
-        var semCubeKey = getTypeFromDir(dirLeft) + "," + getTypeFromDir(dirRight) + "," + operator;
-        console.log("semcubekey: " + semCubeKey);
-        var resultType = semCube.get(semCubeKey);
+        var resultType = semanticCube(dirLeft, dirRight, operator);
 
         // TODO: if no value exists in semCube for the given key, error
         if (resultType == undefined) {
             // error TYPE_MISMATCH
         }
 
-        console.log("temp," + resultType);
-        console.log(startingDirCodes.get("temp," + resultType));
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
         // push new quad
-        quads.push({operator: operator, dir1: dirLeft, dir2: dirRight, dir3: dirTemp});
-        quadCount++;
+        pushQuad(operator, dirLeft, dirRight, dirTemp);
 
         // add dir of temporary var to operand stack
         pushOperand(dirTemp);
         return dirTemp;
+    }
+
+    function pushQuad(operator, dir1, dir2, dir3) {
+        quads.push({operator: operator, dir1: dir1, dir2: dir2, dir3: dir3});
+        quadCount++;
     }
 
     function pushOperator(operator){
@@ -275,6 +281,10 @@
 
     function scopeIsGlobal() {
         return currentFunctionId == programName;
+    }
+
+    function top(stack) {
+        return stack[stack.length - 1];
     }
 
 %}
@@ -343,7 +353,7 @@
 expressions
     : PROGRAM EOF{
         // TODO: return quads, funcs, constants for VM
-        console.log("printing quads:");
+        console.log("quads:");
         console.log(quads);
     };
 
@@ -401,8 +411,9 @@ ID_DECLARE_VAR_AUX
 ID_ACCESS_VAR
     : id {
         var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
-        stackOperands.push(dir);
-        $$ = {dir: dir};
+        // TODO: error, variable is not declared (does not exist)
+        pushOperand(dir);
+        $$ = {name: $1, dir: dir};
     }
     | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
     | id lparen PARAMS_LLAMADA_FUNCION rparen
@@ -442,7 +453,7 @@ ESTATUTO
     : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION semicolon;
 
 EXPRESION
-    : EXP_COMP EXPRESION_AUX;
+    : EXP_COMP_WRAPPER EXPRESION_AUX;
 
 EXPRESION_AUX
     : EXPRESION_AUX2 EXP_COMP EXPRESION_AUX | ;
@@ -457,11 +468,18 @@ EXPRESION_AUX
         $$ = "or";
     };
 
+EXP_COMP_WRAPPER
+    : EXP_COMP {
+        if (top(stackOperators) == "and" || top(stackOperators) == "or") {
+            addQuad();
+        }
+    };
+
 EXP_COMP
-    : EXP EXP_COMP_AUX;
+    : EXP_WRAPPER EXP_COMP_AUX;
 
 EXP_COMP_AUX
-    : EXP_COMP_AUX2 EXP EXP_COMP_AUX | ;
+    : EXP_COMP_AUX2 EXP_COMP | ;
 
 EXP_COMP_AUX2
     : lessthan {
@@ -490,6 +508,16 @@ EXP_COMP_AUX2
     }
     ;
 
+EXP_WRAPPER
+    : EXP {
+        if (top(stackOperators) == "lessthan" || top(stackOperators) == "greaterthan"
+            || top(stackOperators) == "isDifferent" || top(stackOperators) == "isEqual"
+            || top(stackOperators) == "lessthanEqual" || top(stackOperators) == "greaterthanEqual") {
+                addQuad();
+        }
+    }
+    ;
+
 EXP
     : TERMINO_WRAPPER EXP_AUX;
 
@@ -509,7 +537,7 @@ EXP_AUX2
 
 TERMINO_WRAPPER
     : TERMINO {
-        if (stackOperators[stackOperators.length - 1] == "plus" || stackOperators[stackOperators.length - 1] == "minus") {
+        if (top(stackOperators) == "plus" || top(stackOperators) == "minus") {
             addQuad();
         }
     };
@@ -551,10 +579,10 @@ BEGINPAREN
     ;
 
 FACTOR_AUX2
-    : VAR_CTE_STACK {
+    : VAR_CTE {
         $$ = $1;
     }
-    | FACTOR_AUX3 VAR_CTE_STACK {
+    | FACTOR_AUX3 VAR_CTE {
 
         var operandDir = $2.dir;
         var resultDir = operandDir;
@@ -585,17 +613,10 @@ FACTOR_AUX2
         return resultDir;
     };
 
-VAR_CTE_STACK
-    : VAR_CTE {
-        pushOperand($1.dir);
-        $$ = $1;
-    }
-    ;
-
 FACTOR_AUX3
     : plus
     | minus {
-        // TODO: check errors when VAR_CTE_STACK is not a number or a variable
+        // TODO: check errors when VAR_CTE is not a number or a variable
         $$ = "minus";
     };
 
@@ -606,24 +627,37 @@ VAR_CTE
     | cte_int {
         var val = Number($1);
         var resultDir = addConstant(val, CONST_INT);
+        pushOperand(resultDir);
         $$ = {dir: resultDir};
     }
     | cte_float {
         var val = Number($1);
         var resultDir = addConstant(val, CONST_FLOAT);
+        pushOperand(resultDir);
         $$ = {dir: resultDir};
     }
     | cte_char {
         var resultDir = addConstant($1, CONST_CHAR);
+        pushOperand(resultDir);
         $$ = {dir: resultDir};
     };
 
 ASIGNACION
     : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon {
-        if (variableExists($1)) {
-            // TODO: pop operands and operator from stacks (?)
-            // TODO: corregir este cuadruplo
-            // addQuad($2, $3, null $1);
+        //printStacks();
+        if (variableExists($1.name)) {            
+            // pops
+            var dirRight = stackOperands.pop();
+            var dirLeft = stackOperands.pop();
+            var operator = stackOperators.pop();
+            
+            // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
+            if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
+                // TODO: Error type mismatch
+            }
+
+            // push new quad
+            pushQuad(operator, dirRight, dirLeft, null);
         }
     };
 
