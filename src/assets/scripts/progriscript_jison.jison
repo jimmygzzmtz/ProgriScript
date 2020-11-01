@@ -1,9 +1,11 @@
 %{
 
+    // Maps declarations
     var semCube = new Map();
     var operatorCategories = new Map();
     var functionDirectory = new Map();
     var constTable = new Map();
+    var startingDirCodes = new Map();
 
     var stackOperators = [];
 	var stackOperands = [];
@@ -12,8 +14,10 @@
     var quads = [];
     var quadCount = 0;
 
+    // variables to know current state
     var programName = "";
     var currentFunctionId = "";
+    var currentType = "";
 
     // Counters for each dir section, position for each counter is StartingDir/10000
     var counters = [];
@@ -34,7 +38,8 @@
     const CONST_CHAR = 120000;
     const CONST_LETRERO = 130000;
 
-    //This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
+    // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
+    // Also initializes values for startingDirCodes map
     function fillMaps(){
         semCube.set("int,int,plus", "int");
         semCube.set("int,int,arithmetic", "int");
@@ -80,6 +85,21 @@
         operatorCategories.set('<=', "numericComp");
         operatorCategories.set('>', "numericComp");
         operatorCategories.set('>=', "numericComp");
+
+        startingDirCodes.set("global,int", GLOBAL_INT);
+        startingDirCodes.set("global,float", GLOBAL_FLOAT);
+        startingDirCodes.set("global,char", GLOBAL_CHAR);
+        startingDirCodes.set("local,int", LOCAL_INT);
+        startingDirCodes.set("local,float", LOCAL_FLOAT);
+        startingDirCodes.set("local,char", LOCAL_CHAR);
+        startingDirCodes.set("temp,int", TEMP_INT);
+        startingDirCodes.set("temp,float", TEMP_FLOAT);
+        startingDirCodes.set("temp,char", TEMP_CHAR);
+        startingDirCodes.set("temp,bool", TEMP_BOOL);
+        startingDirCodes.set("const,int", CONST_INT);
+        startingDirCodes.set("const,float", CONST_FLOAT);
+        startingDirCodes.set("const,char", CONST_CHAR);
+        startingDirCodes.set("const,letrero", CONST_LETRERO);
     }
 
     fillMaps();
@@ -103,10 +123,15 @@
     }
 
     // adds a variable to the variable table of a function in the directory
-    function createVariable(id, funcId, varType) {
-        var varTable = functionDirectory.get(funcId).varTable;
+    // and returns the dir of the created variable
+    function createVariable(id) {
+        var varTable = functionDirectory.get(currentFunctionId).varTable;
         if (!varTable.has(id)) {
-            varTable.set(id, {type: varType, value: "null"});
+            var scope = scopeIsGlobal() ? "global" : "local";
+            var generatedDir = generateDir(startingDirCodes.get(scope + "," + currentType));
+
+            varTable.set(id, {type: currentType, dir: generatedDir});
+            return generatedDir;
         }
         else {
             // error, re-declaration of variable
@@ -116,7 +141,7 @@
     function variableExists(id, funcId) {
         var varTable = functionDirectory.get(funcId).varTable;
         var exists = varTable.has(id);
-        if (!exists && funcId != programName) {
+        if (!exists && !scopeIsGlobal()) {
             varTable = functionDirectory.get(programName).varTable;
             exists = varTable.has(id);
         }
@@ -134,7 +159,7 @@
         if (varTable.has(id)) {
             return varTable.get(id);
         }
-        else if (funcId != programName) {
+        else if (!scopeIsGlobal()) {
             varTable = functionDirectory.get(programName).varTable;
             if (varTable.has(id)) {
                 return varTable.get(id);
@@ -144,36 +169,17 @@
             // error, no variable with that id
         }
     }
-
-    // sets a value to a variable
-    function setVariableValue(id, funcId, varValue){
-        var varTable = functionDirectory.get(funcId).varTable;
-        if (varTable.has(id)) {
-            var tempVar = varTable.get(id);
-            varTable.set(id, {type: tempVar.type, value: varValue});
-            return;
-        }
-        var globalVarTable = functionDirectory.get(programName).varTable;
-        if (globalVarTable.has(id)) {
-            var tempVar = globalVarTable.get(id);
-            globalVarTable.set(id, {type: tempVar.type, value: varValue});
-            return;
-        }
-        else {
-            // error, no variable with that id
-        }
-    }
-
-    function addQuad(operator, dir1, dir2, dir3){
-        quads.push({operator: operator, dir1: dir1, dir2: dir2, dir3: dir3});
-        count++;
-    }
-
+    
     function addConstant(val, startingDir) {
         if (!constTable.has(val)) {
             constTable.set(val, generateDir(startingDir));
         }
         return constTable.get(val);
+    }
+
+    function addQuad(operator, dir1, dir2, dir3){
+        quads.push({operator: operator, dir1: dir1, dir2: dir2, dir3: dir3});
+        quadCount++;
     }
 
     function pushOperator(operator){
@@ -213,6 +219,10 @@
         if (dir >= CONST_LETRERO) {
             return "letrero";
         }
+    }
+
+    function scopeIsGlobal() {
+        return currentFunctionId == programName;
     }
 
 %}
@@ -310,11 +320,22 @@ VARS_AUX2
     : comma ID_DECLARE_VAR VARS_AUX2 | ;
 
 TIPO
-    : int | float | char;
+    : int {
+        currentType = "int";
+    }
+    | float {
+        currentType = "float";
+    }
+    | char {
+        currentType = "char";
+    };
 
 // id | id[INT]~[INT]~
 ID_DECLARE_VAR
-    : id | id lsqbracket cte_int rsqbracket ID_DECLARE_VAR_AUX;
+    : id {
+        $$ = createVariable($1);
+    }
+    | id lsqbracket cte_int rsqbracket ID_DECLARE_VAR_AUX;
 
 // [INT] | eps
 ID_DECLARE_VAR_AUX
@@ -323,9 +344,9 @@ ID_DECLARE_VAR_AUX
 // id | id[EXP]~[EXP]~
 ID_ACCESS_VAR
     : id {
-        // TODO: push dir instead of name into operand stack
-        stackOperands.push($1);
-        $$ = $1;
+        var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
+        stackOperands.push(dir);
+        $$ = dir;
     }
     | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
     | id lparen PARAMS_LLAMADA_FUNCION rparen
