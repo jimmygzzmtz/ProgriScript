@@ -134,6 +134,7 @@
     function semanticCube(operand1, operand2, operator) {
         var typeOperand1 = getTypeFromDir(operand1);
         var typeOperand2 = getTypeFromDir(operand2);
+        console.log(typeOperand1 + "," + typeOperand2 + "," + operator);
         var result = semCube.get(typeOperand1 + "," + typeOperand2 + "," + operator);
         return result;
     }
@@ -210,6 +211,10 @@
         console.log(stackOperators);
     }
 
+    function fillQuad(quadToFill) {
+        quads[quadToFill].dir2 = quadCount;
+    }
+
     function addQuad() {
         //printStacks();
 
@@ -220,6 +225,7 @@
         
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(dirLeft, dirRight, operator);
+        console.log("result type:" + resultType);
 
         // TODO: if no value exists in semCube for the given key, error
         if (resultType == undefined) {
@@ -285,6 +291,20 @@
 
     function top(stack) {
         return stack[stack.length - 1];
+    }
+
+    function printMap(map) {
+        console.log("{");
+        for (let key of map.keys()) {
+            var value = map.get(key);
+            console.log(key + ": " + JSON.stringify(map.get(key)) + ",");
+            if (map.get(key).varTable) {
+                console.log("VarTable of " + key + ":");
+                var varTable = map.get(key).varTable;
+                printMap(varTable);
+            }
+        }
+        console.log("}");
     }
 
     // reset variables
@@ -377,6 +397,12 @@ EXPRESSIONS
             const: constTable
         };
 
+        //console.log("constants:");
+        //printMap(constTable);
+
+        //console.log("functions:");
+        //printMap(functionDirectory);
+
         resetVariables();
 
         return returnObj;
@@ -435,10 +461,14 @@ ID_DECLARE_VAR_AUX
 // id | id[EXP]~[EXP]~
 ID_ACCESS_VAR
     : id {
-        var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
-        // TODO: error, variable is not declared (does not exist)
-        pushOperand(dir);
-        $$ = {name: $1, dir: dir};
+        if (variableExists($1)) {
+            var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
+            pushOperand(dir);
+            $$ = {name: $1, dir: dir};
+        }
+        else {
+            // error, variable is not declared (does not exist)
+        }
     }
     | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
     | id lparen PARAMS_LLAMADA_FUNCION rparen
@@ -670,20 +700,18 @@ VAR_CTE
 ASIGNACION
     : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon {
         //printStacks();
-        if (variableExists($1.name)) {            
-            // pops
-            var dirRight = stackOperands.pop();
-            var dirLeft = stackOperands.pop();
-            var operator = stackOperators.pop();
-            
-            // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
-            if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
-                // TODO: Error type mismatch
-            }
-
-            // push new quad
-            pushQuad(operator, dirRight, dirLeft, null);
+        // pops
+        var dirRight = stackOperands.pop();
+        var dirLeft = stackOperands.pop();
+        var operator = stackOperators.pop();
+        
+        // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
+        if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
+            // TODO: Error type mismatch
         }
+
+        // push new quad
+        pushQuad(operator, dirRight, dirLeft, null);
     };
 
 EQUALSSIGN
@@ -697,29 +725,82 @@ RETORNO_FUNCION
     : return lparen EXP rparen semicolon;
 
 LECTURA
-    : read lparen ID_ACCESS_VAR LECTURA_AUX rparen semicolon;
+    : read lparen ID_ACCESS_VAR_LECTURA LECTURA_AUX rparen semicolon;
 
 LECTURA_AUX
-    : comma ID_ACCESS_VAR LECTURA_AUX | ;
+    : comma ID_ACCESS_VAR_LECTURA LECTURA_AUX | ;
+
+ID_ACCESS_VAR_LECTURA
+    : ID_ACCESS_VAR {
+        // pop operand
+        var dirOperand = stackOperands.pop();
+
+        // push write quad with dir for each argument
+        pushQuad("read", dirOperand, null, null);
+    };
 
 ESCRITURA
-    : write lparen ESCRITURA_AUX ESCRITURA_AUX2 rparen semicolon;
+    : write lparen ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 rparen semicolon;
+
+ESCRITURA_AUX_WRAPPER
+    : ESCRITURA_AUX {
+        // pop operand
+        var dirOperand = stackOperands.pop();
+
+        // push write quad with dir for each argument
+        pushQuad("write", dirOperand, null, null);
+    };
 
 ESCRITURA_AUX
     : EXPRESION 
     | letrero {
         var resultDir = addConstant($1, CONST_LETRERO);
+        pushOperand(resultDir);
         $$ = {dir: resultDir};
     };
 
 ESCRITURA_AUX2
-    : comma ESCRITURA_AUX ESCRITURA_AUX2 | ;
+    : comma ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 | ;
 
 DECISION_IF
-    : if lparen EXPRESION rparen then BLOQUE DECISION_IF_AUX;
+    : if EXPRESION_IF then BLOQUE DECISION_IF_AUX {
+        var end = stackJumps.pop();
+        //end es el num del quad que vamos a rellenar
+        //quadcount es hacia donde va saltar (lo que va rellenar en el quad)
+        fillQuad(end);
+        //quads[end].dir2 = quadCount;
+        //end = pjumps.pop;
+        //fill(end, quadcount);
+    };
+
+EXPRESION_IF
+    : lparen EXPRESION rparen {
+        // check que expresion sea bool
+        var dirExpressionIf = stackOperands.pop();
+        if(getTypeFromDir(dirExpressionIf) == "bool"){
+            console.log("found bool");
+            
+            // dir2 of the gotof quad is the quad we will goto, will be filled later
+            pushQuad("gotof", dirExpressionIf, null, null);
+            //cuando llegas al else o al final del if, llamamos una funcion que hace pop del stackjumps y lo llena, usando la posicion de quadcount - 1
+            // push quadCount of the gotof quad 
+            stackJumps.push(quadCount - 1);
+        }
+        else {
+            // error, TYPE_MISMATCH
+        }
+    };
 
 DECISION_IF_AUX
-    : else BLOQUE | ;
+    : ELSE_START BLOQUE | ;
+
+ELSE_START
+    : else {
+        pushQuad("goto", null, null, null);
+        var posGotoF = stackJumps.pop();
+        stackJumps.push(quadCount - 1);
+        fillQuad(posGotoF, quadCount);
+    };
 
 CONDICIONAL_WHILE
     : while lparen EXPRESION rparen do BLOQUE;

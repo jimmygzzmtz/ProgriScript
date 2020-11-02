@@ -1,8 +1,13 @@
 program test;
 var int j, f;
 main ( ){
-    f = 6;
     j = 5;
-    f = f + j - 5 * j;
+    if(j == 5) then {
+        j = 1;
+    }
+    else {
+        j = 2;
+    }
+    j + 3;
 }
     
