@@ -75,7 +75,7 @@ var progriscript_jison = (function(){
 var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[15,38],$V1=[1,10],$V2=[2,7],$V3=[1,13],$V4=[15,38,43],$V5=[2,11],$V6=[1,16],$V7=[1,17],$V8=[1,18],$V9=[1,26],$Va=[2,13],$Vb=[1,30],$Vc=[7,17,24],$Vd=[1,38],$Ve=[12,16,29,45,72,73,86,87,90,91,93,97,101,103],$Vf=[1,67],$Vg=[1,80],$Vh=[1,81],$Vi=[1,84],$Vj=[1,85],$Vk=[1,82],$Vl=[1,83],$Vm=[2,36],$Vn=[1,88],$Vo=[2,84],$Vp=[2,50],$Vq=[1,100],$Vr=[1,101],$Vs=[1,102],$Vt=[7,17,24,30,56,58,59,63,64,65,66,67,68,72,73,78,79,89,102,104],$Vu=[7,17,24,56,58,59],$Vv=[7,17,24,30,56,58,59,63,64,65,66,67,68,102,104],$Vw=[7,17,24,30,56,58,59,63,64,65,66,67,68,72,73,102,104],$Vx=[7,17,24,30,56,58,59,63,64,65,66,67,68,72,73,78,79,102,104],$Vy=[12,16,29,72,73,86,87],$Vz=[12,29,86,87],$VA=[1,131],$VB=[2,93],$VC=[1,149],$VD=[2,98],$VE=[1,151],$VF=[17,24],$VG=[2,27],$VH=[1,160];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"expressions":3,"PROGRAM":4,"EOF":5,"PROGRAM_NAME":6,"semicolon":7,"PROGRAM_AUX":8,"PROGRAM_AUX2":9,"MAIN":10,"program":11,"id":12,"VARS":13,"FUNCION":14,"main":15,"lparen":16,"rparen":17,"BLOQUE":18,"var":19,"VARS_AUX":20,"TIPO":21,"ID_DECLARE_VAR":22,"VARS_AUX2":23,"comma":24,"int":25,"float":26,"char":27,"lsqbracket":28,"cte_int":29,"rsqbracket":30,"ID_DECLARE_VAR_AUX":31,"ID_ACCESS_VAR":32,"EXP":33,"ID_ACCESS_VAR_AUX":34,"PARAMS_LLAMADA_FUNCION":35,"EXPRESION":36,"PARAMS_LLAMADA_FUNCION_AUX":37,"module":38,"FUNCION_TIPO":39,"FUNCION_PARAM_LIST":40,"void":41,"FUNCION_PARAM_LIST_AUX":42,"lbracket":43,"BLOQUE_AUX":44,"rbracket":45,"ESTATUTO":46,"ASIGNACION":47,"LECTURA":48,"ESCRITURA":49,"DECISION_IF":50,"CONDICIONAL_WHILE":51,"NO_CONDICIONAL_FOR":52,"RETORNO_FUNCION":53,"EXP_COMP_WRAPPER":54,"EXPRESION_AUX":55,"EXPRESION_AUX2":56,"EXP_COMP":57,"and":58,"or":59,"EXP_WRAPPER":60,"EXP_COMP_AUX":61,"EXP_COMP_AUX2":62,"lessthan":63,"greaterthan":64,"isDifferent":65,"isEqual":66,"lessthanEqual":67,"greaterthanEqual":68,"TERMINO_WRAPPER":69,"EXP_AUX":70,"EXP_AUX2":71,"plus":72,"minus":73,"TERMINO":74,"FACTOR_WRAPPER":75,"TERMINO_AUX":76,"TERMINO_AUX2":77,"times":78,"divide":79,"FACTOR":80,"FACTOR_AUX":81,"FACTOR_AUX2":82,"BEGINPAREN":83,"VAR_CTE":84,"FACTOR_AUX3":85,"cte_float":86,"cte_char":87,"EQUALSSIGN":88,"equals":89,"return":90,"read":91,"LECTURA_AUX":92,"write":93,"ESCRITURA_AUX":94,"ESCRITURA_AUX2":95,"letrero":96,"if":97,"then":98,"DECISION_IF_AUX":99,"else":100,"while":101,"do":102,"for":103,"to":104,"$accept":0,"$end":1},
+symbols_: {"error":2,"EXPRESSIONS":3,"PROGRAM":4,"EOF":5,"PROGRAM_NAME":6,"semicolon":7,"PROGRAM_AUX":8,"PROGRAM_AUX2":9,"MAIN":10,"program":11,"id":12,"VARS":13,"FUNCION":14,"main":15,"lparen":16,"rparen":17,"BLOQUE":18,"var":19,"VARS_AUX":20,"TIPO":21,"ID_DECLARE_VAR":22,"VARS_AUX2":23,"comma":24,"int":25,"float":26,"char":27,"lsqbracket":28,"cte_int":29,"rsqbracket":30,"ID_DECLARE_VAR_AUX":31,"ID_ACCESS_VAR":32,"EXP":33,"ID_ACCESS_VAR_AUX":34,"PARAMS_LLAMADA_FUNCION":35,"EXPRESION":36,"PARAMS_LLAMADA_FUNCION_AUX":37,"module":38,"FUNCION_TIPO":39,"FUNCION_PARAM_LIST":40,"void":41,"FUNCION_PARAM_LIST_AUX":42,"lbracket":43,"BLOQUE_AUX":44,"rbracket":45,"ESTATUTO":46,"ASIGNACION":47,"LECTURA":48,"ESCRITURA":49,"DECISION_IF":50,"CONDICIONAL_WHILE":51,"NO_CONDICIONAL_FOR":52,"RETORNO_FUNCION":53,"EXP_COMP_WRAPPER":54,"EXPRESION_AUX":55,"EXPRESION_AUX2":56,"EXP_COMP":57,"and":58,"or":59,"EXP_WRAPPER":60,"EXP_COMP_AUX":61,"EXP_COMP_AUX2":62,"lessthan":63,"greaterthan":64,"isDifferent":65,"isEqual":66,"lessthanEqual":67,"greaterthanEqual":68,"TERMINO_WRAPPER":69,"EXP_AUX":70,"EXP_AUX2":71,"plus":72,"minus":73,"TERMINO":74,"FACTOR_WRAPPER":75,"TERMINO_AUX":76,"TERMINO_AUX2":77,"times":78,"divide":79,"FACTOR":80,"FACTOR_AUX":81,"FACTOR_AUX2":82,"BEGINPAREN":83,"VAR_CTE":84,"FACTOR_AUX3":85,"cte_float":86,"cte_char":87,"EQUALSSIGN":88,"equals":89,"return":90,"read":91,"LECTURA_AUX":92,"write":93,"ESCRITURA_AUX":94,"ESCRITURA_AUX2":95,"letrero":96,"if":97,"then":98,"DECISION_IF_AUX":99,"else":100,"while":101,"do":102,"for":103,"to":104,"$accept":0,"$end":1},
 terminals_: {2:"error",5:"EOF",7:"semicolon",11:"program",12:"id",15:"main",16:"lparen",17:"rparen",19:"var",24:"comma",25:"int",26:"float",27:"char",28:"lsqbracket",29:"cte_int",30:"rsqbracket",38:"module",41:"void",43:"lbracket",45:"rbracket",56:"EXPRESION_AUX2",58:"and",59:"or",63:"lessthan",64:"greaterthan",65:"isDifferent",66:"isEqual",67:"lessthanEqual",68:"greaterthanEqual",72:"plus",73:"minus",78:"times",79:"divide",86:"cte_float",87:"cte_char",89:"equals",90:"return",91:"read",93:"write",96:"letrero",97:"if",98:"then",100:"else",101:"while",102:"do",103:"for",104:"to"},
 productions_: [0,[3,2],[4,5],[6,2],[8,1],[8,0],[9,2],[9,0],[10,4],[13,2],[20,5],[20,0],[23,3],[23,0],[21,1],[21,1],[21,1],[22,1],[22,5],[31,3],[31,0],[32,1],[32,5],[32,4],[32,3],[35,2],[37,3],[37,0],[34,3],[34,0],[14,9],[39,1],[39,1],[40,3],[40,0],[42,4],[42,0],[18,3],[44,2],[44,0],[46,1],[46,1],[46,1],[46,1],[46,1],[46,1],[46,1],[46,2],[36,2],[55,3],[55,0],[55,1],[55,1],[54,1],[57,2],[61,2],[61,0],[62,1],[62,1],[62,1],[62,1],[62,1],[62,1],[60,1],[33,2],[70,2],[70,0],[71,1],[71,1],[69,1],[74,2],[76,2],[76,0],[77,1],[77,1],[75,1],[80,1],[80,1],[81,3],[83,1],[82,1],[82,2],[85,1],[85,1],[84,1],[84,1],[84,1],[84,1],[47,4],[88,1],[53,5],[48,6],[92,3],[92,0],[49,6],[94,1],[94,1],[95,3],[95,0],[50,7],[99,2],[99,0],[51,6],[52,8]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
@@ -89,9 +89,15 @@ case 1:
         console.log("quads:");
         console.log(quads);
 
-        return {
-            quads: quads
-        }
+        var returnObj = {
+            quads: quads,
+            funcs: functionDirectory,
+            const: constTable
+        };
+
+        resetVariables();
+
+        return returnObj;
     
 break;
 case 3:
@@ -770,6 +776,21 @@ parse: function parse(input) {
 
     function top(stack) {
         return stack[stack.length - 1];
+    }
+
+    // reset variables
+    function resetVariables(){
+        functionDirectory.clear();
+        constTable.clear();
+        stackOperands = [];
+        stackOperands = [];
+        stackJumps = [];
+        quads = [];
+        quadCount = 0;
+        programName = "";
+        currentFunctionId = "";
+        currentType = "";
+        counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
 /* generated by jison-lex 0.3.4 */
