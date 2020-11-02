@@ -287,6 +287,21 @@
         return stack[stack.length - 1];
     }
 
+    // reset variables
+    function resetVariables(){
+        functionDirectory.clear();
+        constTable.clear();
+        stackOperands = [];
+        stackOperands = [];
+        stackJumps = [];
+        quads = [];
+        quadCount = 0;
+        programName = "";
+        currentFunctionId = "";
+        currentType = "";
+        counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    }
+
 %}
 
 /* lexical grammar */
@@ -346,19 +361,25 @@
 
 /lex
 
-%start expressions
+%start EXPRESSIONS
 
 %% /* language grammar */
 
-expressions
+EXPRESSIONS
     : PROGRAM EOF{
         // TODO: return quads, funcs, constants for VM
         console.log("quads:");
         console.log(quads);
 
-        return {
-            quads: quads
-        }
+        var returnObj = {
+            quads: quads,
+            funcs: functionDirectory,
+            const: constTable
+        };
+
+        resetVariables();
+
+        return returnObj;
     };
 
 PROGRAM
