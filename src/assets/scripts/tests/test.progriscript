@@ -1,8 +1,8 @@
 program test;
 var int j, f;
 main ( ){
-    f = 6;
     j = 5;
-    f = f + j - 5 * j;
+    write (j);
+    read(f,j);
 }
     

@@ -287,6 +287,20 @@
         return stack[stack.length - 1];
     }
 
+    function printMap(map) {
+        console.log("{");
+        for (let key of map.keys()) {
+            var value = map.get(key);
+            console.log(key + ": " + JSON.stringify(map.get(key)) + ",");
+            if (map.get(key).varTable) {
+                console.log("VarTable of " + key + ":");
+                var varTable = map.get(key).varTable;
+                printMap(varTable);
+            }
+        }
+        console.log("}");
+    }
+
     // reset variables
     function resetVariables(){
         functionDirectory.clear();
@@ -377,6 +391,12 @@ EXPRESSIONS
             const: constTable
         };
 
+        //console.log("constants:");
+        //printMap(constTable);
+
+        //console.log("functions:");
+        //printMap(functionDirectory);
+
         resetVariables();
 
         return returnObj;
@@ -435,10 +455,14 @@ ID_DECLARE_VAR_AUX
 // id | id[EXP]~[EXP]~
 ID_ACCESS_VAR
     : id {
-        var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
-        // TODO: error, variable is not declared (does not exist)
-        pushOperand(dir);
-        $$ = {name: $1, dir: dir};
+        if (variableExists($1)) {
+            var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
+            pushOperand(dir);
+            $$ = {name: $1, dir: dir};
+        }
+        else {
+            // error, variable is not declared (does not exist)
+        }
     }
     | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
     | id lparen PARAMS_LLAMADA_FUNCION rparen
@@ -670,20 +694,18 @@ VAR_CTE
 ASIGNACION
     : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon {
         //printStacks();
-        if (variableExists($1.name)) {            
-            // pops
-            var dirRight = stackOperands.pop();
-            var dirLeft = stackOperands.pop();
-            var operator = stackOperators.pop();
-            
-            // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
-            if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
-                // TODO: Error type mismatch
-            }
-
-            // push new quad
-            pushQuad(operator, dirRight, dirLeft, null);
+        // pops
+        var dirRight = stackOperands.pop();
+        var dirLeft = stackOperands.pop();
+        var operator = stackOperators.pop();
+        
+        // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
+        if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
+            // TODO: Error type mismatch
         }
+
+        // push new quad
+        pushQuad(operator, dirRight, dirLeft, null);
     };
 
 EQUALSSIGN
@@ -697,23 +719,42 @@ RETORNO_FUNCION
     : return lparen EXP rparen semicolon;
 
 LECTURA
-    : read lparen ID_ACCESS_VAR LECTURA_AUX rparen semicolon;
+    : read lparen ID_ACCESS_VAR_LECTURA LECTURA_AUX rparen semicolon;
 
 LECTURA_AUX
-    : comma ID_ACCESS_VAR LECTURA_AUX | ;
+    : comma ID_ACCESS_VAR_LECTURA LECTURA_AUX | ;
+
+ID_ACCESS_VAR_LECTURA
+    : ID_ACCESS_VAR {
+        // pop operand
+        var dirOperand = stackOperands.pop();
+
+        // push write quad with dir for each argument
+        pushQuad("read", dirOperand, null, null);
+    };
 
 ESCRITURA
-    : write lparen ESCRITURA_AUX ESCRITURA_AUX2 rparen semicolon;
+    : write lparen ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 rparen semicolon;
+
+ESCRITURA_AUX_WRAPPER
+    : ESCRITURA_AUX {
+        // pop operand
+        var dirOperand = stackOperands.pop();
+
+        // push write quad with dir for each argument
+        pushQuad("write", dirOperand, null, null);
+    };
 
 ESCRITURA_AUX
     : EXPRESION 
     | letrero {
         var resultDir = addConstant($1, CONST_LETRERO);
+        pushOperand(resultDir);
         $$ = {dir: resultDir};
     };
 
 ESCRITURA_AUX2
-    : comma ESCRITURA_AUX ESCRITURA_AUX2 | ;
+    : comma ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 | ;
 
 DECISION_IF
     : if lparen EXPRESION rparen then BLOQUE DECISION_IF_AUX;
