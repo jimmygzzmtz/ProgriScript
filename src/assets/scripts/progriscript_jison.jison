@@ -134,6 +134,7 @@
     function semanticCube(operand1, operand2, operator) {
         var typeOperand1 = getTypeFromDir(operand1);
         var typeOperand2 = getTypeFromDir(operand2);
+        console.log(typeOperand1 + "," + typeOperand2 + "," + operator);
         var result = semCube.get(typeOperand1 + "," + typeOperand2 + "," + operator);
         return result;
     }
@@ -210,6 +211,10 @@
         console.log(stackOperators);
     }
 
+    function fillQuad(quadToFill) {
+        quads[quadToFill].dir2 = quadCount;
+    }
+
     function addQuad() {
         //printStacks();
 
@@ -220,6 +225,7 @@
         
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(dirLeft, dirRight, operator);
+        console.log("result type:" + resultType);
 
         // TODO: if no value exists in semCube for the given key, error
         if (resultType == undefined) {
@@ -757,10 +763,44 @@ ESCRITURA_AUX2
     : comma ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 | ;
 
 DECISION_IF
-    : if lparen EXPRESION rparen then BLOQUE DECISION_IF_AUX;
+    : if EXPRESION_IF then BLOQUE DECISION_IF_AUX {
+        var end = stackJumps.pop();
+        //end es el num del quad que vamos a rellenar
+        //quadcount es hacia donde va saltar (lo que va rellenar en el quad)
+        fillQuad(end);
+        //quads[end].dir2 = quadCount;
+        //end = pjumps.pop;
+        //fill(end, quadcount);
+    };
+
+EXPRESION_IF
+    : lparen EXPRESION rparen {
+        // check que expresion sea bool
+        var dirExpressionIf = stackOperands.pop();
+        if(getTypeFromDir(dirExpressionIf) == "bool"){
+            console.log("found bool");
+            
+            // dir2 of the gotof quad is the quad we will goto, will be filled later
+            pushQuad("gotof", dirExpressionIf, null, null);
+            //cuando llegas al else o al final del if, llamamos una funcion que hace pop del stackjumps y lo llena, usando la posicion de quadcount - 1
+            // push quadCount of the gotof quad 
+            stackJumps.push(quadCount - 1);
+        }
+        else {
+            // error, TYPE_MISMATCH
+        }
+    };
 
 DECISION_IF_AUX
-    : else BLOQUE | ;
+    : ELSE_START BLOQUE | ;
+
+ELSE_START
+    : else {
+        pushQuad("goto", null, null, null);
+        var posGotoF = stackJumps.pop();
+        stackJumps.push(quadCount - 1);
+        fillQuad(posGotoF, quadCount);
+    };
 
 CONDICIONAL_WHILE
     : while lparen EXPRESION rparen do BLOQUE;

@@ -2,7 +2,12 @@ program test;
 var int j, f;
 main ( ){
     j = 5;
-    write (j);
-    read(f,j);
+    if(j == 5) then {
+        j = 1;
+    }
+    else {
+        j = 2;
+    }
+    j + 3;
 }
     
