@@ -37,6 +37,9 @@
     const CONST_CHAR = 120000;
     const CONST_LETRERO = 130000;
 
+    // for variables lists
+    var forVars = [];
+
     // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
     // Also initializes values for startingDirCodes map
     function fillMaps(){
@@ -134,7 +137,7 @@
     function semanticCube(operand1, operand2, operator) {
         var typeOperand1 = getTypeFromDir(operand1);
         var typeOperand2 = getTypeFromDir(operand2);
-        console.log(typeOperand1 + "," + typeOperand2 + "," + operator);
+        //console.log(typeOperand1 + "," + typeOperand2 + "," + operator);
         var result = semCube.get(typeOperand1 + "," + typeOperand2 + "," + operator);
         return result;
     }
@@ -225,7 +228,7 @@
         
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(dirLeft, dirRight, operator);
-        console.log("result type:" + resultType);
+        //console.log("result type:" + resultType);
 
         // TODO: if no value exists in semCube for the given key, error
         if (resultType == undefined) {
@@ -320,6 +323,7 @@
         currentFunctionId = "";
         currentType = "";
         counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        forVars = [];
     }
 
 %}
@@ -460,6 +464,12 @@ ID_DECLARE_VAR_AUX
 
 // id | id[EXP]~[EXP]~
 ID_ACCESS_VAR
+    : ID_SIMPLE_VAR
+    | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
+    | id lparen PARAMS_LLAMADA_FUNCION rparen
+    | id lparen rparen;
+
+ID_SIMPLE_VAR
     : id {
         if (variableExists($1)) {
             var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
@@ -469,10 +479,7 @@ ID_ACCESS_VAR
         else {
             // error, variable is not declared (does not exist)
         }
-    }
-    | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
-    | id lparen PARAMS_LLAMADA_FUNCION rparen
-    | id lparen rparen;
+    };
 
 PARAMS_LLAMADA_FUNCION
     : EXPRESION PARAMS_LLAMADA_FUNCION_AUX;
@@ -803,7 +810,82 @@ ELSE_START
     };
 
 CONDICIONAL_WHILE
-    : while lparen EXPRESION rparen do BLOQUE;
+    : WHILE_START EXPRESION_IF do BLOQUE{
+        var endJump = stackJumps.pop();
+        var returnJump = stackJumps.pop();
+        pushQuad("goto", returnJump, null, null);
+        fillQuad(endJump, quadCount);
+    };
+
+WHILE_START
+    : while {
+        stackJumps.push(quadCount);
+    };
 
 NO_CONDICIONAL_FOR
-    : for id equals EXP to EXP do BLOQUE;
+    : for ID_WRAPPER equals FOR_EXP1 to FOR_EXP2 do BLOQUE {
+        // get for control variable
+        var vControl = top(forVars).vControl;
+
+        pushQuad("plus", vControl, addConstant(1, CONST_INT), vControl);
+        var quadGotoFFor = stackJumps.pop();
+        var quadComparisonFor = stackJumps.pop();
+
+        pushQuad("goto", quadComparisonFor, null, null);
+        quads[quadGotoFFor].dir2 = quadCount;
+
+        // pop control variable from array of control variables
+        forVars.pop();
+    };
+
+ID_WRAPPER
+    : ID_SIMPLE_VAR {
+        if (getTypeFromDir($1.dir) != "int" && getTypeFromDir($1.dir) != "float") {
+            // error: type mismatch
+        }
+    };
+
+FOR_EXP1
+    : EXP {
+        var exp = stackOperands.pop();
+        if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
+            // error: type mismatch
+        }
+        else {
+            // pop control variable from operand stack and save it internally
+            var vControl = stackOperands.pop();
+            forVars.push({vControl: vControl, vFinal: null});
+
+            // check that control variable and exp are of compatible data types
+            var resultType = semanticCube(getTypeFromDir(vControl), getTypeFromDir(exp), "equals");
+            if (resultType == undefined) {
+                // error TYPE_MISMATCH
+            }
+            pushQuad("equals", exp, vControl, null);
+        }
+    };
+
+FOR_EXP2
+    : EXP {
+        var exp = stackOperands.pop();
+        if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
+            // error: type mismatch
+        }
+        else {
+            var vControl = top(forVars).vControl;
+
+            // use semantic cube to generate the direction for the temporary var
+            var resultType = semanticCube(vControl, exp, "lessthan");
+            if (resultType == undefined) {
+                // error TYPE_MISMATCH
+            }
+            var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+
+            // quad for comparison in for loop
+            pushQuad("lessthan", vControl, exp, dirTemp);
+
+            stackJumps.push(quadCount - 1);
+            pushQuad("gotoF", dirTemp, null, null);
+            stackJumps.push(quadCount - 1);
+        }
+    };
