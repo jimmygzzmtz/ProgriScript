@@ -69,7 +69,8 @@
                 break;
         }
 
-        throw new Error(message);
+        // TO-DO: change to "Compilation error on line x:"
+        throw new Error("Compilation error: " + message);
     }
 
     // for variables lists
@@ -540,8 +541,16 @@ ID_SIMPLE_VAR
         }
     };
 
+ID_LLAMADA_FUNCION
+    : id {
+        // Verify that the function id exists in the functionDirectory
+        if (!functionDirectory.has(id)) {
+            flagError(ERROR_UNKNOWN_VARIABLE);
+        }
+    };
+
 PARAMS_LLAMADA_FUNCION
-    : EXPRESION PARAMS_LLAMADA_FUNCION_AUX;
+    : EXPRESION PARAMS_LLAMADA_FUNCION_AUX | ;
 
 PARAMS_LLAMADA_FUNCION_AUX
     : comma EXPRESION PARAMS_LLAMADA_FUNCION_AUX

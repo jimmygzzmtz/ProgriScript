@@ -37,8 +37,47 @@
     const CONST_CHAR = 120000;
     const CONST_LETRERO = 130000;
 
+    // Error codes
+    const ERROR_TYPE_MISMATCH = 1;
+    const ERROR_VAR_REDECLATION = 2;
+    const ERROR_FUNC_REDECLARATION = 3;
+    const ERROR_UNKNOWN_VARIABLE = 4;
+    const ERROR_NO_RETURN_STATEMENT = 5;
+    const ERROR_ARITHMETIC_NON_NUMBER = 6;
+
+    // Func
+    function flagError(errorCode){
+        var message = "";
+        switch (errorCode) {
+            case ERROR_TYPE_MISMATCH:
+                message = "Type Mismatch";
+                break;
+            case ERROR_VAR_REDECLATION:
+                message = "Variable Redeclaration";
+                break;
+            case ERROR_FUNC_REDECLARATION:
+                message = "Function Redeclaration";
+                break;
+            case ERROR_UNKNOWN_VARIABLE:
+                message = "Unknown Variable";
+                break;
+            case ERROR_NO_RETURN_STATEMENT:
+                message = "No return statement";
+                break;
+            case ERROR_ARITHMETIC_NON_NUMBER:
+                message = "Arithmetic operation with non-numbers";
+                break;
+        }
+
+        // TO-DO: change to "Compilation error on line x:"
+        throw new Error("Compilation error: " + message);
+    }
+
     // for variables lists
     var forVars = [];
+
+    // for function calls
+    var calledFuncs = [];
 
     // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
     // Also initializes values for startingDirCodes map
@@ -145,10 +184,13 @@
     // adds a function to the function directory
     function createFunction(id, funcType) {
         if (!functionDirectory.has(id)) {
-            functionDirectory.set(id, {type: funcType, varTable: new Map()});
+            currentFunctionId = id;
+            functionDirectory.set(id, {type: funcType, varTable: new Map(), params: [], quadCounter: 0, 
+            initialCounters: counters, tempVarsUsed: 0, foundReturnStatement: false});
         }
         else {
             // error, re-declaration of function
+            flagError(ERROR_FUNC_REDECLARATION);
         }
     }
 
@@ -165,6 +207,7 @@
         }
         else {
             // error, re-declaration of variable
+            flagError(ERROR_VAR_REDECLATION);
         }
     }
 
@@ -180,6 +223,7 @@
         }
         else {
             // error, no variable with that id
+            flagError(ERROR_UNKNOWN_VARIABLE);
         }
     }
 
@@ -197,6 +241,7 @@
         }
         else {
             // error, no variable with that id
+            flagError(ERROR_UNKNOWN_VARIABLE);
         }
     }
     
@@ -233,6 +278,7 @@
         // TODO: if no value exists in semCube for the given key, error
         if (resultType == undefined) {
             // error TYPE_MISMATCH
+            flagError(ERROR_TYPE_MISMATCH);
         }
 
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
@@ -324,6 +370,7 @@
         currentType = "";
         counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         forVars = [];
+        calledFuncs = [];
     }
 
 %}
@@ -392,6 +439,8 @@
 EXPRESSIONS
     : PROGRAM EOF{
         // TODO: return quads, funcs, constants for VM
+        pushQuad("end", null, null, null);
+
         console.log("quads:");
         console.log(quads);
 
@@ -417,9 +466,13 @@ PROGRAM
 
 PROGRAM_NAME
     : program id {
+        pushQuad("goto", null, null, null);
+        stackJumps.push(quadCount - 1);
+
         programName = $2;
-        currentFunctionId = programName;
+        //currentFunctionId = programName;
         createFunction(programName, "program");
+        calledFuncs.push(programName);
     };
 
 PROGRAM_AUX
@@ -429,7 +482,13 @@ PROGRAM_AUX2
     : FUNCION PROGRAM_AUX2 | ;
 
 MAIN
-    : main lparen rparen BLOQUE;
+    : MAIN_WRAPPER BLOQUE;
+
+MAIN_WRAPPER
+    : main lparen rparen {
+        var posGotoMain = stackJumps.pop();
+        fillQuad(posGotoMain);
+    };
 
 VARS
     : var VARS_AUX;
@@ -478,6 +537,15 @@ ID_SIMPLE_VAR
         }
         else {
             // error, variable is not declared (does not exist)
+            flagError(ERROR_UNKNOWN_VARIABLE);
+        }
+    };
+
+ID_LLAMADA_FUNCION
+    : id {
+        // Verify that the function id exists in the functionDirectory
+        if (!functionDirectory.has(id)) {
+            flagError(ERROR_UNKNOWN_VARIABLE);
         }
     };
 
@@ -494,13 +562,63 @@ ID_ACCESS_VAR_AUX
 
 // module void|TIPO id (list[TIPO id ...]); VARS {BLOQUE}
 FUNCION
-    : module FUNCION_TIPO id lparen FUNCION_PARAM_LIST rparen semicolon VARS BLOQUE;
+    : module FUNCION_ID_WRAPPER lparen FUNCION_PARAM_LIST rparen semicolon VARS_FUNC BLOQUE {
+        // punto 7
+        // check if non-void function has a return statement
+        if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
+            // ERROR: no return statement in non-void function
+            flagError(ERROR_NO_RETURN_STATEMENT);
+        }
+
+        // save number of temporal variables used
+        var numberTemporalVarsUsed = 0;
+        for (var i = 6; i <= 9; i++) {
+            numberTemporalVarsUsed += counters[i] - functionDirectory.get(currentFunctionId).initialCounters[i];
+        } 
+        functionDirectory.get(currentFunctionId).tempVarsUsed = numberTemporalVarsUsed;
+
+        // release dirs for local variables, temps and consts
+        counters = functionDirectory.get(currentFunctionId).initialCounters;
+        pushQuad("endFunc", null, null, null);
+
+        // change currentFunctionId back to the previous function
+        calledFuncs.pop();
+        currentFunctionId = top(calledFuncs);
+    };
+
+// wrapper de id = punto 1
+// checar que no existe la function id en la funcTable, ya lo hace createFunction
+// cuando hagamos agregar a funcTable, tenemos que cambiar currentfunctionid, ya lo hace createFunction
+// hacer copia de los counters, lo hace createFunction
+FUNCION_ID_WRAPPER
+    : FUNCION_TIPO id {
+        createFunction($2, $1);
+        calledFuncs.push($2);
+    };
+
+// wrapper de VARS = punto 5 y 6
+VARS_FUNC
+    : VARS_FUNC_AUX {
+        // el punto 5 es mamada
+        // punto 6
+        functionDirectory.get(currentFunctionId).quadCounter = quadCount;
+    };
+
+VARS_FUNC_AUX
+    : VARS | ;
 
 FUNCION_TIPO
     : void | TIPO;
 
 FUNCION_PARAM_LIST
     : TIPO ID_DECLARE_VAR FUNCION_PARAM_LIST_AUX | ;
+
+// wrapper de id_declare_var = punto 2 y 3
+VAR_FUNC_PARAM
+    : TIPO ID_DECLARE_VAR {
+        // pushear a params de la funcion el tipo
+        functionDirectory.get(currentFunctionId).params.push($1);
+    };
 
 FUNCION_PARAM_LIST_AUX
     : comma TIPO ID_DECLARE_VAR FUNCION_PARAM_LIST_AUX | ;
@@ -655,6 +773,7 @@ FACTOR_AUX2
         // if operand type is not int or float, error  
         if (operandVarType != "int" && operandVarType != "float") {
             // error
+            flagError(ERROR_ARITHMETIC_NON_NUMBER);
         }
 
         // case for unary minus operator
@@ -715,6 +834,7 @@ ASIGNACION
         // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
         if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
             // TODO: Error type mismatch
+            flagError(ERROR_TYPE_MISMATCH);
         }
 
         // push new quad
@@ -729,7 +849,10 @@ EQUALSSIGN
     ;
 
 RETORNO_FUNCION
-    : return lparen EXP rparen semicolon;
+    : return lparen EXP rparen semicolon {
+        functionDirectory.get(currentFunctionId).foundReturnStatement = true;
+        //guardar resultado de exp, y luego la parte que mando a llamar esta funcion se hace un cuadruplo de asignacion con esa direccion
+    };
 
 LECTURA
     : read lparen ID_ACCESS_VAR_LECTURA LECTURA_AUX rparen semicolon;
@@ -785,7 +908,7 @@ EXPRESION_IF
         // check que expresion sea bool
         var dirExpressionIf = stackOperands.pop();
         if(getTypeFromDir(dirExpressionIf) == "bool"){
-            console.log("found bool");
+            //console.log("found bool");
             
             // dir2 of the gotof quad is the quad we will goto, will be filled later
             pushQuad("gotof", dirExpressionIf, null, null);
@@ -795,6 +918,7 @@ EXPRESION_IF
         }
         else {
             // error, TYPE_MISMATCH
+            flagError(ERROR_TYPE_MISMATCH);
         }
     };
 
@@ -806,7 +930,7 @@ ELSE_START
         pushQuad("goto", null, null, null);
         var posGotoF = stackJumps.pop();
         stackJumps.push(quadCount - 1);
-        fillQuad(posGotoF, quadCount);
+        fillQuad(posGotoF);
     };
 
 CONDICIONAL_WHILE
@@ -814,7 +938,7 @@ CONDICIONAL_WHILE
         var endJump = stackJumps.pop();
         var returnJump = stackJumps.pop();
         pushQuad("goto", returnJump, null, null);
-        fillQuad(endJump, quadCount);
+        fillQuad(endJump);
     };
 
 WHILE_START
@@ -842,6 +966,7 @@ ID_WRAPPER
     : ID_SIMPLE_VAR {
         if (getTypeFromDir($1.dir) != "int" && getTypeFromDir($1.dir) != "float") {
             // error: type mismatch
+            flagError(ERROR_TYPE_MISMATCH);
         }
     };
 
@@ -850,6 +975,7 @@ FOR_EXP1
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
             // error: type mismatch
+            flagError(ERROR_TYPE_MISMATCH);
         }
         else {
             // pop control variable from operand stack and save it internally
@@ -860,6 +986,7 @@ FOR_EXP1
             var resultType = semanticCube(getTypeFromDir(vControl), getTypeFromDir(exp), "equals");
             if (resultType == undefined) {
                 // error TYPE_MISMATCH
+                flagError(ERROR_TYPE_MISMATCH);
             }
             pushQuad("equals", exp, vControl, null);
         }
@@ -870,6 +997,7 @@ FOR_EXP2
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
             // error: type mismatch
+            flagError(ERROR_TYPE_MISMATCH);
         }
         else {
             var vControl = top(forVars).vControl;
@@ -878,6 +1006,7 @@ FOR_EXP2
             var resultType = semanticCube(vControl, exp, "lessthan");
             if (resultType == undefined) {
                 // error TYPE_MISMATCH
+                flagError(ERROR_TYPE_MISMATCH);
             }
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 

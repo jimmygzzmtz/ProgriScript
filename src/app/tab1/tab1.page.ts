@@ -96,8 +96,8 @@ main ( ){\n\
       var progriscript_jison = require("../../assets/scripts/progriscript_jison");
       var result = JSON.stringify(progriscript_jison.parse(code));
     }
-    catch{
-      var result = "Compilation Error";
+    catch(error){
+      result = error.message;
     }
     
     this.codeOutput = result;

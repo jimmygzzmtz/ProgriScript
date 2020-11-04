@@ -1,12 +1,14 @@
 program test;
 var int j, f, z;
+
+module void hola(); 
+{
+    6 + 2;
+}
+
 main ( ){
     f = 5;
-    for j = 1 to 5+2 do {
-        for z = 8 to 11 do {
-            f = f + 1;
-        }
+    if(f == 5) then{
+        write("hola");
     }
-    f = 6;
-}
-    
+} 
