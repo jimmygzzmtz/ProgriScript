@@ -425,6 +425,9 @@ PROGRAM
 
 PROGRAM_NAME
     : program id {
+        pushQuad("goto", null, null, null);
+        stackJumps.push(quadCount - 1);
+
         programName = $2;
         //currentFunctionId = programName;
         createFunction(programName, "program");
@@ -438,7 +441,13 @@ PROGRAM_AUX2
     : FUNCION PROGRAM_AUX2 | ;
 
 MAIN
-    : main lparen rparen BLOQUE;
+    : MAIN_WRAPPER BLOQUE;
+
+MAIN_WRAPPER
+    : main lparen rparen {
+        var posGotoMain = stackJumps.pop();
+        fillQuad(posGotoMain);
+    };
 
 VARS
     : var VARS_AUX;
@@ -867,7 +876,7 @@ ELSE_START
         pushQuad("goto", null, null, null);
         var posGotoF = stackJumps.pop();
         stackJumps.push(quadCount - 1);
-        fillQuad(posGotoF, quadCount);
+        fillQuad(posGotoF);
     };
 
 CONDICIONAL_WHILE
@@ -875,7 +884,7 @@ CONDICIONAL_WHILE
         var endJump = stackJumps.pop();
         var returnJump = stackJumps.pop();
         pushQuad("goto", returnJump, null, null);
-        fillQuad(endJump, quadCount);
+        fillQuad(endJump);
     };
 
 WHILE_START
