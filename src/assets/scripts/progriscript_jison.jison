@@ -525,8 +525,8 @@ ID_DECLARE_VAR_AUX
 ID_ACCESS_VAR
     : ID_SIMPLE_VAR
     | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
-    | id lparen PARAMS_LLAMADA_FUNCION rparen
-    | id lparen rparen;
+    | id lparen PARAMS_LLAMADA_FUNCION rparen;
+    //| id lparen rparen;
 
 ID_SIMPLE_VAR
     : id {
@@ -544,9 +544,12 @@ ID_SIMPLE_VAR
 ID_LLAMADA_FUNCION
     : id {
         // Verify that the function id exists in the functionDirectory
-        if (!functionDirectory.has(id)) {
+        if (!functionDirectory.has($1)) {
             flagError(ERROR_UNKNOWN_VARIABLE);
         }
+
+        var size = functionDirectory.get($1).varTable.keys().length + functionDirectory.get($1).tempVarsUsed;
+        pushQuad("era", size, null, null);
     };
 
 PARAMS_LLAMADA_FUNCION
