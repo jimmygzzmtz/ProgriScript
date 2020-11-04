@@ -40,6 +40,9 @@
     // for variables lists
     var forVars = [];
 
+    // for function calls
+    var calledFuncs = [];
+
     // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
     // Also initializes values for startingDirCodes map
     function fillMaps(){
@@ -145,7 +148,9 @@
     // adds a function to the function directory
     function createFunction(id, funcType) {
         if (!functionDirectory.has(id)) {
-            functionDirectory.set(id, {type: funcType, varTable: new Map()});
+            currentFunctionId = id;
+            functionDirectory.set(id, {type: funcType, varTable: new Map(), params: [], quadCounter: 0, 
+            initialCounters: counters, tempVarsUsed: 0, foundReturnStatement: false});
         }
         else {
             // error, re-declaration of function
@@ -324,6 +329,7 @@
         currentType = "";
         counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         forVars = [];
+        calledFuncs = [];
     }
 
 %}
@@ -392,6 +398,8 @@
 EXPRESSIONS
     : PROGRAM EOF{
         // TODO: return quads, funcs, constants for VM
+        pushQuad("end", null, null, null);
+
         console.log("quads:");
         console.log(quads);
 
@@ -418,8 +426,9 @@ PROGRAM
 PROGRAM_NAME
     : program id {
         programName = $2;
-        currentFunctionId = programName;
+        //currentFunctionId = programName;
         createFunction(programName, "program");
+        calledFuncs.push(programName);
     };
 
 PROGRAM_AUX
@@ -494,13 +503,62 @@ ID_ACCESS_VAR_AUX
 
 // module void|TIPO id (list[TIPO id ...]); VARS {BLOQUE}
 FUNCION
-    : module FUNCION_TIPO id lparen FUNCION_PARAM_LIST rparen semicolon VARS BLOQUE;
+    : module FUNCION_ID_WRAPPER lparen FUNCION_PARAM_LIST rparen semicolon VARS_FUNC BLOQUE {
+        // punto 7
+        // check if non-void function has a return statement
+        if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
+            // ERROR: no return statement in non-void function
+        }
+
+        // save number of temporal variables used
+        var numberTemporalVarsUsed = 0;
+        for (var i = 6; i <= 9; i++) {
+            numberTemporalVarsUsed += counters[i] - functionDirectory.get(currentFunctionId).initialCounters[i];
+        } 
+        functionDirectory.get(currentFunctionId).tempVarsUsed = numberTemporalVarsUsed;
+
+        // release dirs for local variables, temps and consts
+        counters = functionDirectory.get(currentFunctionId).initialCounters;
+        pushQuad("endFunc", null, null, null);
+
+        // change currentFunctionId back to the previous function
+        calledFuncs.pop();
+        currentFunctionId = top(calledFuncs);
+    };
+
+// wrapper de id = punto 1
+// checar que no existe la function id en la funcTable, ya lo hace createFunction
+// cuando hagamos agregar a funcTable, tenemos que cambiar currentfunctionid, ya lo hace createFunction
+// hacer copia de los counters, lo hace createFunction
+FUNCION_ID_WRAPPER
+    : FUNCION_TIPO id {
+        createFunction($2, $1);
+        calledFuncs.push($2);
+    };
+
+// wrapper de VARS = punto 5 y 6
+VARS_FUNC
+    : VARS_FUNC_AUX {
+        // el punto 5 es mamada
+        // punto 6
+        functionDirectory.get(currentFunctionId).quadCounter = quadCount;
+    };
+
+VARS_FUNC_AUX
+    : VARS | ;
 
 FUNCION_TIPO
     : void | TIPO;
 
 FUNCION_PARAM_LIST
     : TIPO ID_DECLARE_VAR FUNCION_PARAM_LIST_AUX | ;
+
+// wrapper de id_declare_var = punto 2 y 3
+VAR_FUNC_PARAM
+    : TIPO ID_DECLARE_VAR {
+        // pushear a params de la funcion el tipo
+        functionDirectory.get(currentFunctionId).params.push($1);
+    };
 
 FUNCION_PARAM_LIST_AUX
     : comma TIPO ID_DECLARE_VAR FUNCION_PARAM_LIST_AUX | ;
@@ -729,7 +787,10 @@ EQUALSSIGN
     ;
 
 RETORNO_FUNCION
-    : return lparen EXP rparen semicolon;
+    : return lparen EXP rparen semicolon {
+        functionDirectory.get(currentFunctionId).foundReturnStatement = true;
+        //guardar resultado de exp, y luego la parte que mando a llamar esta funcion se hace un cuadruplo de asignacion con esa direccion
+    };
 
 LECTURA
     : read lparen ID_ACCESS_VAR_LECTURA LECTURA_AUX rparen semicolon;
