@@ -37,6 +37,41 @@
     const CONST_CHAR = 120000;
     const CONST_LETRERO = 130000;
 
+    // Error codes
+    const ERROR_TYPE_MISMATCH = 1;
+    const ERROR_VAR_REDECLATION = 2;
+    const ERROR_FUNC_REDECLARATION = 3;
+    const ERROR_UNKNOWN_VARIABLE = 4;
+    const ERROR_NO_RETURN_STATEMENT = 5;
+    const ERROR_ARITHMETIC_NON_NUMBER = 6;
+
+    // Func
+    function flagError(errorCode){
+        var message = "";
+        switch (errorCode) {
+            case ERROR_TYPE_MISMATCH:
+                message = "Type Mismatch";
+                break;
+            case ERROR_VAR_REDECLATION:
+                message = "Variable Redeclaration";
+                break;
+            case ERROR_FUNC_REDECLARATION:
+                message = "Function Redeclaration";
+                break;
+            case ERROR_UNKNOWN_VARIABLE:
+                message = "Unknown Variable";
+                break;
+            case ERROR_NO_RETURN_STATEMENT:
+                message = "No return statement";
+                break;
+            case ERROR_ARITHMETIC_NON_NUMBER:
+                message = "Arithmetic operation with non-numbers";
+                break;
+        }
+
+        throw new Error(message);
+    }
+
     // for variables lists
     var forVars = [];
 
@@ -154,6 +189,7 @@
         }
         else {
             // error, re-declaration of function
+            flagError(ERROR_FUNC_REDECLARATION);
         }
     }
 
@@ -170,6 +206,7 @@
         }
         else {
             // error, re-declaration of variable
+            flagError(ERROR_VAR_REDECLATION);
         }
     }
 
@@ -185,6 +222,7 @@
         }
         else {
             // error, no variable with that id
+            flagError(ERROR_UNKNOWN_VARIABLE);
         }
     }
 
@@ -202,6 +240,7 @@
         }
         else {
             // error, no variable with that id
+            flagError(ERROR_UNKNOWN_VARIABLE);
         }
     }
     
@@ -238,6 +277,7 @@
         // TODO: if no value exists in semCube for the given key, error
         if (resultType == undefined) {
             // error TYPE_MISMATCH
+            flagError(ERROR_TYPE_MISMATCH);
         }
 
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
@@ -496,6 +536,7 @@ ID_SIMPLE_VAR
         }
         else {
             // error, variable is not declared (does not exist)
+            flagError(ERROR_UNKNOWN_VARIABLE);
         }
     };
 
@@ -517,6 +558,7 @@ FUNCION
         // check if non-void function has a return statement
         if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
             // ERROR: no return statement in non-void function
+            flagError(ERROR_NO_RETURN_STATEMENT);
         }
 
         // save number of temporal variables used
@@ -722,6 +764,7 @@ FACTOR_AUX2
         // if operand type is not int or float, error  
         if (operandVarType != "int" && operandVarType != "float") {
             // error
+            flagError(ERROR_ARITHMETIC_NON_NUMBER);
         }
 
         // case for unary minus operator
@@ -782,6 +825,7 @@ ASIGNACION
         // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
         if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
             // TODO: Error type mismatch
+            flagError(ERROR_TYPE_MISMATCH);
         }
 
         // push new quad
@@ -855,7 +899,7 @@ EXPRESION_IF
         // check que expresion sea bool
         var dirExpressionIf = stackOperands.pop();
         if(getTypeFromDir(dirExpressionIf) == "bool"){
-            console.log("found bool");
+            //console.log("found bool");
             
             // dir2 of the gotof quad is the quad we will goto, will be filled later
             pushQuad("gotof", dirExpressionIf, null, null);
@@ -865,6 +909,7 @@ EXPRESION_IF
         }
         else {
             // error, TYPE_MISMATCH
+            flagError(ERROR_TYPE_MISMATCH);
         }
     };
 
@@ -912,6 +957,7 @@ ID_WRAPPER
     : ID_SIMPLE_VAR {
         if (getTypeFromDir($1.dir) != "int" && getTypeFromDir($1.dir) != "float") {
             // error: type mismatch
+            flagError(ERROR_TYPE_MISMATCH);
         }
     };
 
@@ -920,6 +966,7 @@ FOR_EXP1
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
             // error: type mismatch
+            flagError(ERROR_TYPE_MISMATCH);
         }
         else {
             // pop control variable from operand stack and save it internally
@@ -930,6 +977,7 @@ FOR_EXP1
             var resultType = semanticCube(getTypeFromDir(vControl), getTypeFromDir(exp), "equals");
             if (resultType == undefined) {
                 // error TYPE_MISMATCH
+                flagError(ERROR_TYPE_MISMATCH);
             }
             pushQuad("equals", exp, vControl, null);
         }
@@ -940,6 +988,7 @@ FOR_EXP2
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
             // error: type mismatch
+            flagError(ERROR_TYPE_MISMATCH);
         }
         else {
             var vControl = top(forVars).vControl;
@@ -948,6 +997,7 @@ FOR_EXP2
             var resultType = semanticCube(vControl, exp, "lessthan");
             if (resultType == undefined) {
                 // error TYPE_MISMATCH
+                flagError(ERROR_TYPE_MISMATCH);
             }
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 

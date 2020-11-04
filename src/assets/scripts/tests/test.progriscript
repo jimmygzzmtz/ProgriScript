@@ -1,11 +1,14 @@
 program test;
 var int j, f, z;
 
-module void test(); 
+module void hola(); 
 {
     6 + 2;
 }
 
 main ( ){
     f = 5;
+    if(f == 5) then{
+        write("hola");
+    }
 } 
