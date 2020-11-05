@@ -17,6 +17,7 @@
     var programName = "";
     var currentFunctionId = "";
     var currentType = "";
+    var lastReadId = "";
 
     // 14 counters for each dir section, position for each counter is StartingDir/10000
     var counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -44,6 +45,7 @@
     const ERROR_UNKNOWN_VARIABLE = 4;
     const ERROR_NO_RETURN_STATEMENT = 5;
     const ERROR_ARITHMETIC_NON_NUMBER = 6;
+    const ERROR_UNKNOWN_FUNCTION = 7;
 
     // Func
     function flagError(errorCode){
@@ -67,6 +69,9 @@
             case ERROR_ARITHMETIC_NON_NUMBER:
                 message = "Arithmetic operation with non-numbers";
                 break;
+            case ERROR_UNKNOWN_FUNCTION:
+                message = "Unknown Function";
+                break;
         }
 
         // TO-DO: change to "Compilation error on line x:"
@@ -78,6 +83,9 @@
 
     // for function calls
     var calledFuncs = [];
+
+    // for function signature and parameter type checking 
+    var calledParams = [];
 
     // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
     // Also initializes values for startingDirCodes map
@@ -176,7 +184,6 @@
     function semanticCube(operand1, operand2, operator) {
         var typeOperand1 = getTypeFromDir(operand1);
         var typeOperand2 = getTypeFromDir(operand2);
-        //console.log(typeOperand1 + "," + typeOperand2 + "," + operator);
         var result = semCube.get(typeOperand1 + "," + typeOperand2 + "," + operator);
         return result;
     }
@@ -185,8 +192,9 @@
     function createFunction(id, funcType) {
         if (!functionDirectory.has(id)) {
             currentFunctionId = id;
-            functionDirectory.set(id, {type: funcType, varTable: new Map(), params: [], quadCounter: 0, 
-            initialCounters: counters, tempVarsUsed: 0, foundReturnStatement: false});
+            var countersCopy = counters.slice(0);
+            functionDirectory.set(id, {type: funcType, varTable: new Map(), params: [], quadCounter: 0, paramCounter: 0, 
+            initialCounters: countersCopy, tempVarsUsed: 0, foundReturnStatement: false});
         }
         else {
             // error, re-declaration of function
@@ -273,7 +281,6 @@
         
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(dirLeft, dirRight, operator);
-        //console.log("result type:" + resultType);
 
         // TODO: if no value exists in semCube for the given key, error
         if (resultType == undefined) {
@@ -371,6 +378,7 @@
         counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         forVars = [];
         calledFuncs = [];
+        lastReadId = "";
     }
 
 %}
@@ -523,17 +531,32 @@ ID_DECLARE_VAR_AUX
 
 // id | id[EXP]~[EXP]~
 ID_ACCESS_VAR
-    : ID_SIMPLE_VAR
-    | id lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
-    | id lparen PARAMS_LLAMADA_FUNCION rparen;
+    : ID_WRAPPER ID_SIMPLE_VAR
+    | ID_WRAPPER lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
+    | ID_WRAPPER lparen ID_LLAMADA_FUNCION PARAMS_LLAMADA_FUNCION rparen {
+        if (top(calledParams).params.length != top(calledParams).paramCounter) {
+            // error, wrong number of parameters in function call
+        }
+
+        // generate quad(gosub, procedure-name, initial-address (quad in which func starts))
+        pushQuad("goSub", top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
+        
+        calledParams.pop();
+        calledFuncs.pop();
+    };
     //| id lparen rparen;
 
-ID_SIMPLE_VAR
+ID_WRAPPER
     : id {
-        if (variableExists($1)) {
-            var dir = functionDirectory.get(currentFunctionId).varTable.get($1).dir;
+        lastReadId = $1;
+    };
+
+ID_SIMPLE_VAR
+    : {
+        if (variableExists(lastReadId)) {
+            var dir = getVariable(lastReadId, currentFunctionId).dir;
             pushOperand(dir);
-            $$ = {name: $1, dir: dir};
+            $$ = {name: lastReadId, dir: dir};
         }
         else {
             // error, variable is not declared (does not exist)
@@ -542,22 +565,41 @@ ID_SIMPLE_VAR
     };
 
 ID_LLAMADA_FUNCION
-    : id {
-        // Verify that the function id exists in the functionDirectory
-        if (!functionDirectory.has($1)) {
-            flagError(ERROR_UNKNOWN_VARIABLE);
+    : {
+        // check that function id exists in functionDirectory
+        if (!functionDirectory.has(lastReadId)) {
+            flagError(ERROR_UNKNOWN_FUNCTION);
         }
 
-        var size = functionDirectory.get($1).varTable.keys().length + functionDirectory.get($1).tempVarsUsed;
+        calledFuncs.push(lastReadId);
+        calledParams.push({params: functionDirectory.get(lastReadId).params, paramCounter: 0})
+
+        // generate ERA size quad
+        var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
         pushQuad("era", size, null, null);
     };
 
 PARAMS_LLAMADA_FUNCION
-    : EXPRESION PARAMS_LLAMADA_FUNCION_AUX | ;
+    : PARAM PARAMS_LLAMADA_FUNCION_AUX | ;
 
 PARAMS_LLAMADA_FUNCION_AUX
-    : comma EXPRESION PARAMS_LLAMADA_FUNCION_AUX
+    : comma PARAM PARAMS_LLAMADA_FUNCION_AUX
     | ;
+
+PARAM
+    : EXPRESION {
+        var dir = stackOperands.pop();
+        // stretch: cast int from EXPRESION to float, in order to match param type, if its the case
+        var params = top(calledParams).params;
+        var paramCounter = top(calledParams).paramCounter;
+        if (getTypeFromDir(dir) != params[paramCounter]) {
+            flagError(ERROR_TYPE_MISMATCH);
+        }
+
+        pushQuad("parameter", dir, paramCounter, null);
+
+        top(calledParams).paramCounter++;
+    };
 
 // [EXP] | eps
 ID_ACCESS_VAR_AUX
@@ -576,7 +618,7 @@ FUNCION
         // save number of temporal variables used
         var numberTemporalVarsUsed = 0;
         for (var i = 6; i <= 9; i++) {
-            numberTemporalVarsUsed += counters[i] - functionDirectory.get(currentFunctionId).initialCounters[i];
+            numberTemporalVarsUsed += (counters[i] - functionDirectory.get(currentFunctionId).initialCounters[i]);
         } 
         functionDirectory.get(currentFunctionId).tempVarsUsed = numberTemporalVarsUsed;
 
@@ -613,18 +655,18 @@ VARS_FUNC_AUX
 FUNCION_TIPO
     : void | TIPO;
 
-FUNCION_PARAM_LIST
-    : TIPO ID_DECLARE_VAR FUNCION_PARAM_LIST_AUX | ;
-
 // wrapper de id_declare_var = punto 2 y 3
 VAR_FUNC_PARAM
     : TIPO ID_DECLARE_VAR {
         // pushear a params de la funcion el tipo
         functionDirectory.get(currentFunctionId).params.push($1);
     };
+    
+FUNCION_PARAM_LIST
+    : VAR_FUNC_PARAM FUNCION_PARAM_LIST_AUX | ;
 
 FUNCION_PARAM_LIST_AUX
-    : comma TIPO ID_DECLARE_VAR FUNCION_PARAM_LIST_AUX | ;
+    : comma VAR_FUNC_PARAM FUNCION_PARAM_LIST_AUX | ;
 
 BLOQUE
     : lbracket BLOQUE_AUX rbracket;
@@ -911,7 +953,6 @@ EXPRESION_IF
         // check que expresion sea bool
         var dirExpressionIf = stackOperands.pop();
         if(getTypeFromDir(dirExpressionIf) == "bool"){
-            //console.log("found bool");
             
             // dir2 of the gotof quad is the quad we will goto, will be filled later
             pushQuad("gotof", dirExpressionIf, null, null);
@@ -950,7 +991,7 @@ WHILE_START
     };
 
 NO_CONDICIONAL_FOR
-    : for ID_WRAPPER equals FOR_EXP1 to FOR_EXP2 do BLOQUE {
+    : for ID_WRAPPER CHECK_IS_NUMBER equals FOR_EXP1 to FOR_EXP2 do BLOQUE {
         // get for control variable
         var vControl = top(forVars).vControl;
 
@@ -965,7 +1006,7 @@ NO_CONDICIONAL_FOR
         forVars.pop();
     };
 
-ID_WRAPPER
+CHECK_IS_NUMBER
     : ID_SIMPLE_VAR {
         if (getTypeFromDir($1.dir) != "int" && getTypeFromDir($1.dir) != "float") {
             // error: type mismatch

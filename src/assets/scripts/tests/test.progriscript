@@ -1,14 +1,17 @@
 program test;
 var int j, f, z;
 
-module void hola(); 
+module void hola(int a, int b); 
 {
-    6 + 2;
+    a = a + b;
+}
+
+module void hola2(int a, int z);
+{
+    z = a * f;
 }
 
 main ( ){
-    f = 5;
-    for j = 1 to 7 do{
-        write("hola");
-    }
+    hola(j, f);
+    hola2(1,2);
 }
