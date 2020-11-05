@@ -986,7 +986,7 @@ FOR_EXP1
             forVars.push({vControl: vControl, vFinal: null});
 
             // check that control variable and exp are of compatible data types
-            var resultType = semanticCube(getTypeFromDir(vControl), getTypeFromDir(exp), "equals");
+            var resultType = semanticCube(vControl, exp, "equals");
             if (resultType == undefined) {
                 // error TYPE_MISMATCH
                 flagError(ERROR_TYPE_MISMATCH);

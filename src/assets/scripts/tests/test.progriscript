@@ -8,7 +8,7 @@ module void hola();
 
 main ( ){
     f = 5;
-    if(f == 5) then{
+    for j = 1 to 7 do{
         write("hola");
     }
-} 
+}
