@@ -620,7 +620,7 @@ ID_ACCESS_VAR_AUX
 
 // module void|TIPO id (list[TIPO id ...]); VARS {BLOQUE}
 FUNCION
-    : module FUNCION_ID_WRAPPER lparen FUNCION_PARAM_LIST rparen semicolon VARS_FUNC BLOQUE {
+    : module FUNCION_ID_WRAPPER lparen FUNCION_PARAM_LIST rparen VARS_FUNC BLOQUE {
         // punto 7
         // check if non-void function has a return statement
         if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
@@ -825,51 +825,34 @@ FACTOR_AUX2
     : VAR_CTE {
         $$ = $1;
     }
-    | FACTOR_AUX3 VAR_CTE {
-        
+    | minus VAR_CTE {
         var operandDir = stackOperands.pop();
         
         // check varType of operand  
         operandVarType = getTypeFromDir(operandDir);  
-
         // if operand type is not int or float, error  
         if (operandVarType != "int" && operandVarType != "float") {
             flagError(ERROR_ARITHMETIC_NON_NUMBER);
         }
 
-        // case for unary minus operator
-        if ($1 == "minus") {
-            // add -1 to constTable
-            minusOneDir = addConstant(-1, operandVarType == "int" ? CONST_INT : CONST_FLOAT);
-        
-            // use semantic cube to generate the direction for the temporary var
-            var resultType = semanticCube(minusOneDir, operandDir, "times");
-
-            if (resultType == undefined) {
-                console.log("Entered type mismatch in unary minus");
-                flagError(ERROR_TYPE_MISMATCH);
-            }
-
-            var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
-
-            // push quad for -1 * operand received
-            pushQuad("times", minusOneDir, operandDir, dirTemp);
-
-            // add dir of temporary var to operand stack
-            pushOperand(dirTemp);
-
-            $$ = {dir: dirTemp};
-            
+        // add -1 to constTable
+        minusOneDir = addConstant(-1, operandVarType == "int" ? CONST_INT : CONST_FLOAT);
+    
+        // use semantic cube to generate the direction for the temporary var
+        var resultType = semanticCube(minusOneDir, operandDir, "times");
+        if (resultType == undefined) {
+            console.log("Entered type mismatch in unary minus");
+            flagError(ERROR_TYPE_MISMATCH);
         }
-        
-        $$ = $2;
-    };
 
-FACTOR_AUX3
-    : plus
-    | minus {
-        // TODO: check errors when VAR_CTE is not a number or a variable
-        $$ = "minus";
+        var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+
+        // push quad for -1 * operand received
+        pushQuad("times", minusOneDir, operandDir, dirTemp);
+
+        // add dir of temporary var to operand stack
+        pushOperand(dirTemp);
+        $$ = {dir: dirTemp};
     };
 
 VAR_CTE
