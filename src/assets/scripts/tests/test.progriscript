@@ -1,11 +1,11 @@
 program test;
 var int j, f, z;
 
-module int hola();
+module int hola(int a, int b, int c);
 {
     return (1);
 }
 
 main ( ){ 
-    j = -hola();
+    j = hola(1,2,3,4);
 }

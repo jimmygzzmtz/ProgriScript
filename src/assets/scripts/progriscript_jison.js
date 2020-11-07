@@ -148,8 +148,11 @@ break;
 case 24:
 
         if (top(calledParams).params.length != top(calledParams).paramCounter) {
-            // error, wrong number of parameters in function call
+            flagError(ERROR_WRONG_NUM_PARAMS);
         }
+
+        console.log("params lenght: " + top(calledParams).params.length);
+        console.log("param counter: " + top(calledParams).paramCounter);
 
         // generate quad(gosub, procedure-name, initial-address (quad in which func starts))
         pushQuad("goSub", top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
@@ -210,6 +213,9 @@ case 32:
         // stretch: cast int from EXPRESION to float, in order to match param type, if its the case
         var params = top(calledParams).params;
         var paramCounter = top(calledParams).paramCounter;
+        if (paramCounter >= params.length) {
+            flagError(ERROR_WRONG_NUM_PARAMS);
+        }
         if (getTypeFromDir(dir) != params[paramCounter]) {
             flagError(ERROR_TYPE_MISMATCH);
         }
@@ -843,6 +849,7 @@ parse: function parse(input) {
     const ERROR_NO_RETURN_STATEMENT = 5;
     const ERROR_ARITHMETIC_NON_NUMBER = 6;
     const ERROR_UNKNOWN_FUNCTION = 7;
+    const ERROR_WRONG_NUM_PARAMS = 8;
 
     // Func
     function flagError(errorCode){
@@ -868,6 +875,9 @@ parse: function parse(input) {
                 break;
             case ERROR_UNKNOWN_FUNCTION:
                 message = "Unknown Function";
+                break;
+            case ERROR_WRONG_NUM_PARAMS:
+                message = "Wrong number of parameters in function call";
                 break;
         }
 
