@@ -54,6 +54,7 @@
     const ERROR_ARITHMETIC_NON_NUMBER = 6;
     const ERROR_UNKNOWN_FUNCTION = 7;
     const ERROR_WRONG_NUM_PARAMS = 8;
+    const ERROR_EXP_PAREN = 9;
 
     // Func
     function flagError(errorCode){
@@ -82,6 +83,9 @@
                 break;
             case ERROR_WRONG_NUM_PARAMS:
                 message = "Wrong number of parameters in function call";
+                break;
+            case ERROR_EXP_PAREN:
+                message = "Error in expression inside parenthesis";
                 break;
         }
 
@@ -813,7 +817,12 @@ FACTOR
     : FACTOR_AUX | FACTOR_AUX2;
 
 FACTOR_AUX
-    : BEGINPAREN EXPRESION rparen;
+    : BEGINPAREN EXPRESION rparen {
+        var topOp = stackOperators.pop();
+        if (topOp != "lparen") {
+            flagError(ERROR_EXP_PAREN);
+        }
+    };
 
 BEGINPAREN
     : lparen {

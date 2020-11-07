@@ -373,6 +373,14 @@ case 85:
         }
     
 break;
+case 88:
+
+        var topOp = stackOperators.pop();
+        if (topOp != "lparen") {
+            flagError(ERROR_EXP_PAREN);
+        }
+    
+break;
 case 89:
 
         pushOperator("lparen");
@@ -831,6 +839,7 @@ parse: function parse(input) {
     const ERROR_ARITHMETIC_NON_NUMBER = 6;
     const ERROR_UNKNOWN_FUNCTION = 7;
     const ERROR_WRONG_NUM_PARAMS = 8;
+    const ERROR_EXP_PAREN = 9;
 
     // Func
     function flagError(errorCode){
@@ -859,6 +868,9 @@ parse: function parse(input) {
                 break;
             case ERROR_WRONG_NUM_PARAMS:
                 message = "Wrong number of parameters in function call";
+                break;
+            case ERROR_EXP_PAREN:
+                message = "Error in expression inside parenthesis";
                 break;
         }
 
