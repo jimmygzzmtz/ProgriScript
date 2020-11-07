@@ -819,12 +819,11 @@ FACTOR_AUX2
         $$ = $1;
     }
     | FACTOR_AUX3 VAR_CTE {
-
-        var operandDir = $2.dir;
-        var resultDir = operandDir;
+        
+        var operandDir = stackOperands.pop();
         
         // check varType of operand  
-        operandVarType = getTypeFromDir($2.dir);  
+        operandVarType = getTypeFromDir(operandDir);  
 
         // if operand type is not int or float, error  
         if (operandVarType != "int" && operandVarType != "float") {
@@ -834,19 +833,29 @@ FACTOR_AUX2
         // case for unary minus operator
         if ($1 == "minus") {
             // add -1 to constTable
-            minusOneDir = addConstant(-1, operandVarType);
+            minusOneDir = addConstant(-1, operandVarType == "int" ? CONST_INT : CONST_FLOAT);
+        
+            // use semantic cube to generate the direction for the temporary var
+            var resultType = semanticCube(minusOneDir, operandDir, "times");
 
-            // push operator and operands to stack
-            pushOperator("times");
-            pushOperand(minusOneDir);
-            pushOperand(operandDir);
-            
-            // addQuad for -1 * operand received
-            addQuad();
+            if (resultType == undefined) {
+                console.log("Entered type mismatch in unary minus");
+                flagError(ERROR_TYPE_MISMATCH);
+            }
+
+            var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+
+            // push quad for -1 * operand received
+            pushQuad("times", minusOneDir, operandDir, dirTemp);
+
+            // add dir of temporary var to operand stack
+            pushOperand(dirTemp);
+
+            $$ = {dir: dirTemp};
             
         }
         
-        return resultDir;
+        $$ = $2;
     };
 
 FACTOR_AUX3
