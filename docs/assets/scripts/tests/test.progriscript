@@ -1,17 +1,6 @@
 program test;
 var int j, f, z;
 
-module void hola(int a, int b); 
-{
-    a = a + b;
-}
-
-module void hola2(int a, int z);
-{
-    z = a * f;
-}
-
-main ( ){
-    hola(j, f);
-    hola2(1,2);
+main ( ){ 
+    j = 5 - (1 +2 / 3 -4 ) * 5 + 8;
 }
