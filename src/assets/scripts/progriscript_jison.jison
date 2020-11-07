@@ -13,6 +13,13 @@
     var quads = [];
     var quadCount = 0;
 
+    // for variables lists
+    var forVars = [];
+    // for function calls
+    var calledFuncs = [];
+    // for function signature and parameter type checking 
+    var calledParams = [];
+
     // variables to know current state
     var programName = "";
     var currentFunctionId = "";
@@ -77,15 +84,6 @@
         // TO-DO: change to "Compilation error on line x:"
         throw new Error("Compilation error: " + message);
     }
-
-    // for variables lists
-    var forVars = [];
-
-    // for function calls
-    var calledFuncs = [];
-
-    // for function signature and parameter type checking 
-    var calledParams = [];
 
     // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
     // Also initializes values for startingDirCodes map
@@ -194,10 +192,9 @@
             currentFunctionId = id;
             var countersCopy = counters.slice(0);
             functionDirectory.set(id, {type: funcType, varTable: new Map(), params: [], quadCounter: 0, paramCounter: 0, 
-            initialCounters: countersCopy, tempVarsUsed: 0, foundReturnStatement: false});
+            initialCounters: countersCopy, tempVarsUsed: 0, foundReturnStatement: false, returnDirs: []});
         }
         else {
-            // error, re-declaration of function
             flagError(ERROR_FUNC_REDECLARATION);
         }
     }
@@ -214,7 +211,6 @@
             return generatedDir;
         }
         else {
-            // error, re-declaration of variable
             flagError(ERROR_VAR_REDECLATION);
         }
     }
@@ -230,7 +226,6 @@
             return true;
         }
         else {
-            // error, no variable with that id
             flagError(ERROR_UNKNOWN_VARIABLE);
         }
     }
@@ -248,7 +243,6 @@
             }
         }
         else {
-            // error, no variable with that id
             flagError(ERROR_UNKNOWN_VARIABLE);
         }
     }
@@ -282,9 +276,7 @@
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(dirLeft, dirRight, operator);
 
-        // TODO: if no value exists in semCube for the given key, error
         if (resultType == undefined) {
-            // error TYPE_MISMATCH
             flagError(ERROR_TYPE_MISMATCH);
         }
 
@@ -378,6 +370,7 @@
         counters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         forVars = [];
         calledFuncs = [];
+        calledParams = [];
         lastReadId = "";
     }
 
@@ -540,7 +533,21 @@ ID_ACCESS_VAR
 
         // generate quad(gosub, procedure-name, initial-address (quad in which func starts))
         pushQuad("goSub", top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
-        
+
+        // generate temp dir for return value of the called function
+        var returnType = functionDirectory.get(top(calledFuncs)).type;
+        if (returnType != "void") {
+            var returnTemp = generateDir(startingDirCodes.get("temp," + returnType));
+            stackOperands.push(returnTemp);
+
+            functionDirectory.get(top(calledFuncs)).returnDirs.push(returnTemp);
+            $$ = {dir: returnTemp};
+        }
+        else {
+            // return invalid dir in the case of void
+            $$ = {dir: -1};
+        }
+
         calledParams.pop();
         calledFuncs.pop();
     };
@@ -559,7 +566,6 @@ ID_SIMPLE_VAR
             $$ = {name: lastReadId, dir: dir};
         }
         else {
-            // error, variable is not declared (does not exist)
             flagError(ERROR_UNKNOWN_VARIABLE);
         }
     };
@@ -611,7 +617,6 @@ FUNCION
         // punto 7
         // check if non-void function has a return statement
         if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
-            // ERROR: no return statement in non-void function
             flagError(ERROR_NO_RETURN_STATEMENT);
         }
 
@@ -622,8 +627,14 @@ FUNCION
         } 
         functionDirectory.get(currentFunctionId).tempVarsUsed = numberTemporalVarsUsed;
 
-        // release dirs for local variables, temps and consts
-        counters = functionDirectory.get(currentFunctionId).initialCounters;
+        // release dirs for local variables, temps. Consts are NOT released
+        var counterTemps = [counters[10], counters[11], counters[12], counters[13]];
+        counters = functionDirectory.get(currentFunctionId).initialCounters.slice(0);
+        counters[10] = counterTemps[0];
+        counters[11] = counterTemps[1];
+        counters[12] = counterTemps[2];
+        counters[13] = counterTemps[3];
+
         pushQuad("endFunc", null, null, null);
 
         // change currentFunctionId back to the previous function
@@ -817,7 +828,6 @@ FACTOR_AUX2
 
         // if operand type is not int or float, error  
         if (operandVarType != "int" && operandVarType != "float") {
-            // error
             flagError(ERROR_ARITHMETIC_NON_NUMBER);
         }
 
@@ -878,7 +888,6 @@ ASIGNACION
         
         // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
         if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
-            // TODO: Error type mismatch
             flagError(ERROR_TYPE_MISMATCH);
         }
 
@@ -896,7 +905,24 @@ EQUALSSIGN
 RETORNO_FUNCION
     : return lparen EXP rparen semicolon {
         functionDirectory.get(currentFunctionId).foundReturnStatement = true;
-        //guardar resultado de exp, y luego la parte que mando a llamar esta funcion se hace un cuadruplo de asignacion con esa direccion
+        
+        var exp = stackOperands.pop();
+        
+        // Check that the type of the returned exp is the same as the function type
+        if (functionDirectory.get(currentFunctionId).type != getTypeFromDir(exp)) {
+            flagError(ERROR_TYPE_MISMATCH);
+        }
+
+        // If exp is not a temp, generate a temporary copy (to not use the variable dir, as its value may change)
+        if (exp < 60000 || exp > 99999) {
+            var dirTemp = generateDir(startingDirCodes.get("temp," + getTypeFromDir(exp)));
+            pushQuad("equals", exp, dirTemp, null);
+
+            exp = dirTemp;
+        }
+
+        // push new quad
+        pushQuad("return", exp, null, null);
     };
 
 LECTURA
@@ -961,7 +987,6 @@ EXPRESION_IF
             stackJumps.push(quadCount - 1);
         }
         else {
-            // error, TYPE_MISMATCH
             flagError(ERROR_TYPE_MISMATCH);
         }
     };
@@ -1009,7 +1034,6 @@ NO_CONDICIONAL_FOR
 CHECK_IS_NUMBER
     : ID_SIMPLE_VAR {
         if (getTypeFromDir($1.dir) != "int" && getTypeFromDir($1.dir) != "float") {
-            // error: type mismatch
             flagError(ERROR_TYPE_MISMATCH);
         }
     };
@@ -1018,7 +1042,6 @@ FOR_EXP1
     : EXP {
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
-            // error: type mismatch
             flagError(ERROR_TYPE_MISMATCH);
         }
         else {
@@ -1029,7 +1052,6 @@ FOR_EXP1
             // check that control variable and exp are of compatible data types
             var resultType = semanticCube(vControl, exp, "equals");
             if (resultType == undefined) {
-                // error TYPE_MISMATCH
                 flagError(ERROR_TYPE_MISMATCH);
             }
             pushQuad("equals", exp, vControl, null);
@@ -1040,7 +1062,6 @@ FOR_EXP2
     : EXP {
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
-            // error: type mismatch
             flagError(ERROR_TYPE_MISMATCH);
         }
         else {
@@ -1049,7 +1070,6 @@ FOR_EXP2
             // use semantic cube to generate the direction for the temporary var
             var resultType = semanticCube(vControl, exp, "lessthan");
             if (resultType == undefined) {
-                // error TYPE_MISMATCH
                 flagError(ERROR_TYPE_MISMATCH);
             }
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));

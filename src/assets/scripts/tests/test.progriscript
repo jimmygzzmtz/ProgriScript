@@ -1,17 +1,20 @@
 program test;
 var int j, f, z;
 
-module void hola(int a, int b); 
+module int hola(int a, int b); 
 {
     a = a + b;
+    return (a + 1);
 }
 
-module void hola2(int a, int z);
+module int hola2(int a, int b); 
+var int i;
 {
-    z = a * f;
+    a = a + b;
+    i = hola(3,4);
+    return (i);
 }
 
 main ( ){
-    hola(j, f);
-    hola2(1,2);
+    z = hola2(1, 2);
 }
