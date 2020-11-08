@@ -140,7 +140,7 @@ case 3:
 
         programName = $$[$0];
         //currentFunctionId = programName;
-        createFunction(programName, "program");
+        createFunction(programName, "program", _$[$0].first_line);
         calledFuncs.push(programName);
     
 break;
@@ -167,13 +167,13 @@ case 17:
 break;
 case 18:
 
-        this.$ = createVariable($$[$0]);
+        this.$ = createVariable($$[$0], _$[$0].first_line);
     
 break;
 case 24:
 
         if (top(calledParams).params.length != top(calledParams).paramCounter) {
-            flagError(ERROR_WRONG_NUM_PARAMS);
+            flagError(ERROR_WRONG_NUM_PARAMS, _$[$0-4].first_line);
         }
 
         // generate quad(gosub, procedure-name, initial-address (quad in which func starts))
@@ -204,13 +204,10 @@ case 25:
 break;
 case 26:
 
-        if (variableExists(lastReadId)) {
-            var dir = getVariable(lastReadId, currentFunctionId).dir;
+        if (variableExists(lastReadId, _$[$0].first_line)) {
+            var dir = getVariable(lastReadId, currentFunctionId, _$[$0].first_line).dir;
             pushOperand(dir);
             this.$ = {name: lastReadId, dir: dir};
-        }
-        else {
-            flagError(ERROR_UNKNOWN_VARIABLE);
         }
     
 break;
@@ -218,7 +215,7 @@ case 27:
 
         // check that function id exists in functionDirectory
         if (!functionDirectory.has(lastReadId)) {
-            flagError(ERROR_UNKNOWN_FUNCTION);
+            flagError(ERROR_UNKNOWN_FUNCTION, _$[$0].first_line);
         }
 
         calledFuncs.push(lastReadId);
@@ -236,10 +233,10 @@ case 32:
         var params = top(calledParams).params;
         var paramCounter = top(calledParams).paramCounter;
         if (paramCounter >= params.length) {
-            flagError(ERROR_WRONG_NUM_PARAMS);
+            flagError(ERROR_WRONG_NUM_PARAMS, _$[$0].first_line);
         }
         if (getTypeFromDir(dir) != params[paramCounter]) {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, _$[$0].first_line);
         }
 
         pushQuad(OP_PARAMETER, dir, paramCounter, null);
@@ -252,7 +249,7 @@ case 35:
         // punto 7
         // check if non-void function has a return statement
         if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
-            flagError(ERROR_NO_RETURN_STATEMENT);
+            flagError(ERROR_NO_RETURN_STATEMENT, _$[$0-6].first_line);
         }
 
         // save number of temporal variables used
@@ -279,7 +276,7 @@ case 35:
 break;
 case 36:
 
-        createFunction($$[$0], $$[$0-1]);
+        createFunction($$[$0], $$[$0-1], _$[$0].first_line);
         calledFuncs.push($$[$0]);
     
 break;
@@ -305,7 +302,7 @@ break;
 case 62:
 
         if (top(stackOperators) == OP_OR) {
-            addQuad();
+            addQuad(_$[$0-1].first_line);
         }
     
 break;
@@ -318,7 +315,7 @@ break;
 case 66:
 
         if (top(stackOperators) == OP_AND) {
-            addQuad();
+            addQuad(_$[$0-1].first_line);
         }
     
 break;
@@ -363,7 +360,7 @@ case 75:
         if (top(stackOperators) == OP_LESSTHAN || top(stackOperators) == OP_GREATERTHAN
             || top(stackOperators) == OP_ISDIFFERENT || top(stackOperators) == OP_ISEQUAL
             || top(stackOperators) == OP_LESSTHANEQUAL || top(stackOperators) == OP_GREATERTHANEQUAL) {
-                addQuad();
+                addQuad(_$[$0-1].first_line);
         }
     
 break;
@@ -382,7 +379,7 @@ break;
 case 80:
 
         if (top(stackOperators) == OP_PLUS || top(stackOperators) == OP_MINUS) {
-            addQuad();
+            addQuad(_$[$0-1].first_line);
         }
     
 break;
@@ -401,7 +398,7 @@ break;
 case 85:
 
         if (top(stackOperators) == OP_TIMES || top(stackOperators) == OP_DIVIDE) {
-            addQuad();
+            addQuad(_$[$0].first_line);
         }
     
 break;
@@ -409,7 +406,7 @@ case 88:
 
         var topOp = stackOperators.pop();
         if (topOp != "lparen") {
-            flagError(ERROR_EXP_PAREN);
+            flagError(ERROR_EXP_PAREN, _$[$0-2].first_line);
         }
     
 break;
@@ -431,7 +428,7 @@ case 91:
         operandVarType = getTypeFromDir(operandDir);  
         // if operand type is not int or float, error  
         if (operandVarType != "int" && operandVarType != "float") {
-            flagError(ERROR_ARITHMETIC_NON_NUMBER);
+            flagError(ERROR_ARITHMETIC_NON_NUMBER, _$[$0-1].first_line);
         }
 
         // add -1 to constTable
@@ -440,8 +437,7 @@ case 91:
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(minusOneDir, operandDir, "times");
         if (resultType == undefined) {
-            console.log("Entered type mismatch in unary minus");
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, _$[$0-1].first_line);
         }
 
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
@@ -487,7 +483,7 @@ case 96:
         
         // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
         if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, _$[$0-3].first_line);
         }
 
         // push new quad
@@ -508,7 +504,7 @@ case 98:
         
         // Check that the type of the returned exp is the same as the function type
         if (functionDirectory.get(currentFunctionId).type != getTypeFromDir(exp)) {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, _$[$0-4].first_line);
         }
 
         // If exp is not a temp, generate a temporary copy (to not use the variable dir, as its value may change)
@@ -572,7 +568,7 @@ case 110:
             stackJumps.push(quadCount - 1);
         }
         else {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, _$[$0-2].first_line);
         }
     
 break;
@@ -616,7 +612,7 @@ break;
 case 117:
 
         if (getTypeFromDir($$[$0].dir) != "int" && getTypeFromDir($$[$0].dir) != "float") {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, _$[$0].first_line);
         }
     
 break;
@@ -624,7 +620,7 @@ case 118:
 
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, _$[$0].first_line);
         }
         else {
             // pop control variable from operand stack and save it internally
@@ -634,7 +630,7 @@ case 118:
             // check that control variable and exp are of compatible data types
             var resultType = semanticCube(vControl, exp, "equals");
             if (resultType == undefined) {
-                flagError(ERROR_TYPE_MISMATCH);
+                flagError(ERROR_TYPE_MISMATCH, _$[$0].first_line);
             }
             pushQuad(OP_EQUALS, exp, vControl, null);
         }
@@ -644,7 +640,7 @@ case 119:
 
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, _$[$0].first_line);
         }
         else {
             var vControl = top(forVars).vControl;
@@ -652,7 +648,7 @@ case 119:
             // use semantic cube to generate the direction for the temporary var
             var resultType = semanticCube(vControl, exp, "lessthan");
             if (resultType == undefined) {
-                flagError(ERROR_TYPE_MISMATCH);
+                flagError(ERROR_TYPE_MISMATCH, _$[$0].first_line);
             }
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
@@ -899,7 +895,7 @@ parse: function parse(input) {
     const ERROR_EXP_PAREN = 9;
 
     // Func
-    function flagError(errorCode){
+    function flagError(errorCode, lineNumber=0){
         var message = "";
         switch (errorCode) {
             case ERROR_TYPE_MISMATCH:
@@ -932,7 +928,7 @@ parse: function parse(input) {
         }
 
         // TO-DO: change to "Compilation error on line x:"
-        throw new Error("Compilation error: " + message);
+        throw new Error("Compilation error on line " + lineNumber + ": " + message);
     }
 
     // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
@@ -1041,7 +1037,7 @@ parse: function parse(input) {
     }
 
     // adds a function to the function directory
-    function createFunction(id, funcType) {
+    function createFunction(id, funcType, lineNumber) {
         if (!functionDirectory.has(id)) {
             currentFunctionId = id;
             var countersCopy = counters.slice(0);
@@ -1049,13 +1045,13 @@ parse: function parse(input) {
             initialCounters: countersCopy, tempVarsUsed: 0, foundReturnStatement: false, returnDirs: []});
         }
         else {
-            flagError(ERROR_FUNC_REDECLARATION);
+            flagError(ERROR_FUNC_REDECLARATION, lineNumber);
         }
     }
 
     // adds a variable to the variable table of a function in the directory
     // and returns the dir of the created variable
-    function createVariable(id) {
+    function createVariable(id, lineNumber) {
         var varTable = functionDirectory.get(currentFunctionId).varTable;
         if (!varTable.has(id)) {
             var scope = scopeIsGlobal() ? "global" : "local";
@@ -1065,11 +1061,11 @@ parse: function parse(input) {
             return generatedDir;
         }
         else {
-            flagError(ERROR_VAR_REDECLATION);
+            flagError(ERROR_VAR_REDECLATION, lineNumber);
         }
     }
 
-    function variableExists(name) {
+    function variableExists(name, lineNumber) {
         var varTable = functionDirectory.get(currentFunctionId).varTable;
         var exists = varTable.has(name);
         if (!exists && !scopeIsGlobal()) {
@@ -1080,12 +1076,12 @@ parse: function parse(input) {
             return true;
         }
         else {
-            flagError(ERROR_UNKNOWN_VARIABLE);
+            flagError(ERROR_UNKNOWN_VARIABLE, lineNumber);
         }
     }
 
     // returns a variable, given its id and function id
-    function getVariable(id, funcId) {
+    function getVariable(id, funcId, lineNumber) {
         var varTable = functionDirectory.get(funcId).varTable;
         if (varTable.has(id)) {
             return varTable.get(id);
@@ -1097,7 +1093,7 @@ parse: function parse(input) {
             }
         }
         else {
-            flagError(ERROR_UNKNOWN_VARIABLE);
+            flagError(ERROR_UNKNOWN_VARIABLE, lineNumber);
         }
     }
     
@@ -1119,7 +1115,7 @@ parse: function parse(input) {
         quads[quadToFill].dir2 = quadCount;
     }
 
-    function addQuad() {
+    function addQuad(lineNumber) {
         // pops
         var dirRight = stackOperands.pop();
         var dirLeft = stackOperands.pop();
@@ -1129,7 +1125,7 @@ parse: function parse(input) {
         var resultType = semanticCube(dirLeft, dirRight, operator);
 
         if (resultType == undefined) {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, lineNumber);
         }
 
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
