@@ -88,21 +88,46 @@ case 1:
         // TODO: return quads, funcs, constants for VM
         pushQuad("end", null, null, null);
 
-        console.log("quads:");
-        console.log(quads);
+        //console.log("quads:");
+        //console.log(quads);
 
+        // create funcDirectory for VM, that only sends data needed by VM
+        var vmFuncs = new Map();
+
+        for (let key of functionDirectory.keys()) {
+            var value = functionDirectory.get(key);
+            vmFuncs.set(key, {tempVarsUsed: value.tempVarsUsed, varsTableKeyLength: value.varTable.size,
+                returnDirs: value.returnDirs});
+        }
+
+        // create constTable for VM, that uses dir as the key
+        var vmConsts = {int: [], float: [], char: [], letrero: []};
+
+        for (let key of constTable.keys()) {
+            var dir = constTable.get(key);
+            if (dir >= CONST_INT && dir < CONST_FLOAT) {
+                vmConsts.int[dir - CONST_INT] = key;
+            }
+            else if (dir >= CONST_FLOAT && dir < CONST_CHAR) {
+                vmConsts.float[dir - CONST_FLOAT] = key; 
+            }
+            else if (dir >= CONST_CHAR && dir < CONST_LETRERO) {
+                vmConsts.char[dir - CONST_CHAR] = key; 
+            }
+            else if (dir >= CONST_LETRERO) {
+                vmConsts.letrero[dir - CONST_LETRERO] = key; 
+            }
+        }
+        
+        // data sent to VM
         var returnObj = {
             quads: quads,
-            funcs: functionDirectory,
-            const: constTable
+            funcs: vmFuncs,
+            constTable: vmConsts,
+            programName: programName
         };
 
-        //console.log("constants:");
-        //printMap(constTable);
-
-        //console.log("functions:");
-        //printMap(functionDirectory);
-
+        // Resets variables and releases Memory
         resetVariables();
 
         return returnObj;
@@ -1583,9 +1608,9 @@ case 42:return 68
 break;
 case 43:return 12
 break;
-case 44:return 30
+case 44:return 94
 break;
-case 45:return 94
+case 45:return 30
 break;
 case 46:return 95
 break;
@@ -1595,7 +1620,7 @@ case 48:return 5
 break;
 }
 },
-rules: [/^(?:\s+)/,/^(?:var\b)/,/^(?:int\b)/,/^(?:float\b)/,/^(?:char\b)/,/^(?:void\b)/,/^(?:program\b)/,/^(?:main\b)/,/^(?:module\b)/,/^(?:if\b)/,/^(?:then\b)/,/^(?:else\b)/,/^(?:return\b)/,/^(?:write\b)/,/^(?:read\b)/,/^(?:while\b)/,/^(?:for\b)/,/^(?:to\b)/,/^(?:do\b)/,/^(?:==)/,/^(?:=)/,/^(?::)/,/^(?:;)/,/^(?:,)/,/^(?:\{)/,/^(?:\})/,/^(?:\[)/,/^(?:\])/,/^(?:\()/,/^(?:\))/,/^(?:\+)/,/^(?:\+)/,/^(?:-)/,/^(?:\*)/,/^(?:\/)/,/^(?:<=)/,/^(?:>=)/,/^(?:<)/,/^(?:>)/,/^(?:!=)/,/^(?:!)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:[a-zA-Z_][a-zA-Z_0-9]*)/,/^(?:\d+)/,/^(?:\d+\.\d+)/,/^(?:'.')/,/^(?:".*")/,/^(?:$)/],
+rules: [/^(?:\s+)/,/^(?:var\b)/,/^(?:int\b)/,/^(?:float\b)/,/^(?:char\b)/,/^(?:void\b)/,/^(?:program\b)/,/^(?:main\b)/,/^(?:module\b)/,/^(?:if\b)/,/^(?:then\b)/,/^(?:else\b)/,/^(?:return\b)/,/^(?:write\b)/,/^(?:read\b)/,/^(?:while\b)/,/^(?:for\b)/,/^(?:to\b)/,/^(?:do\b)/,/^(?:==)/,/^(?:=)/,/^(?::)/,/^(?:;)/,/^(?:,)/,/^(?:\{)/,/^(?:\})/,/^(?:\[)/,/^(?:\])/,/^(?:\()/,/^(?:\))/,/^(?:\+)/,/^(?:\+)/,/^(?:-)/,/^(?:\*)/,/^(?:\/)/,/^(?:<=)/,/^(?:>=)/,/^(?:<)/,/^(?:>)/,/^(?:!=)/,/^(?:!)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:[a-zA-Z_][a-zA-Z_0-9]*)/,/^(?:\d+\.\d+)/,/^(?:\d+)/,/^(?:'.')/,/^(?:".*")/,/^(?:$)/],
 conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48],"inclusive":true}}
 });
 return lexer;

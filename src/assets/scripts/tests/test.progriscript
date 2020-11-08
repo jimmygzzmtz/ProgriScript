@@ -1,6 +1,13 @@
 program test;
 var int j, f, z;
+float x;
+
+module float hola() {
+    return (1.2);
+}
 
 main ( ){ 
-    j = 5 - (1 +2 / 3 -4 ) * 5 + 8;
+    x = 1.2 * 3.4;
+    x = hola();
+    x = hola();
 }
