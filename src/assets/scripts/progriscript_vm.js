@@ -23,6 +23,31 @@ const CONST_FLOAT = 110000;
 const CONST_CHAR = 120000;
 const CONST_LETRERO = 130000;
 
+// Operation codes
+const OP_READ = "read";
+const OP_WRITE = "write";
+const OP_EQUALS = "equals";
+const OP_PLUS = "plus";
+const OP_MINUS = "minus";
+const OP_TIMES = "times";
+const OP_DIVIDE = "divide";
+const OP_LESSTHAN = "lessthan";
+const OP_GREATERTHAN = "greaterthan";
+const OP_LESSTHANEQUAL = "lessthanEqual";
+const OP_GREATERTHANEQUAL = "greaterthanEqual";
+const OP_ISDIFFERENT = "isDifferent";
+const OP_ISEQUAL = "isEqual";
+const OP_AND = "and";
+const OP_OR = "or";
+const OP_GOTO = "goto";
+const OP_GOTOF = "gotoF";
+const OP_ERA = "era";
+const OP_PARAMETER = "parameter";
+const OP_GOSUB = "goSub";
+const OP_RETURN = "return";
+const OP_ENDFUNC = "endFunc";
+const OP_END = "end";
+
 class Memory {
     constructor(functionId) {
         this.functionId = functionId;
@@ -62,5 +87,76 @@ function iterateQuads() {
 }
 
 function executeQuad(quad) {
-    //switch()
+    switch(quad.operator){
+        case OP_READ:
+            //do stuff
+            //call async function that will await an input
+            break;
+        case OP_WRITE:
+            //do stuff
+            break;
+        case OP_EQUALS:
+            //do stuff
+            break;
+        case OP_PLUS:
+            //do stuff
+            break;
+        case OP_MINUS:
+            //do stuff
+            break;
+        case OP_TIMES:
+            //do stuff
+            break;
+        case OP_DIVIDE:
+            //do stuff
+            break;
+        case OP_LESSTHAN:
+            //do stuff
+            break;
+        case OP_GREATERTHAN:
+            //do stuff
+            break;
+        case OP_LESSTHANEQUAL:
+            //do stuff
+            break;
+        case OP_GREATERTHANEQUAL:
+            //do stuff
+            break;
+        case OP_ISDIFFERENT:
+            //do stuff
+            break;
+        case OP_ISEQUAL:
+            //do stuff
+            break;
+        case OP_AND:
+            //do stuff
+            break;
+        case OP_OR:
+            //do stuff
+            break;
+        case OP_GOTO:
+            //do stuff
+            break;
+        case OP_GOTOF:
+            //do stuff
+            break;
+        case OP_ERA:
+            //do stuff
+            break;
+        case OP_PARAMETER:
+            //do stuff
+            break;
+        case OP_GOSUB:
+            //do stuff
+            break;
+        case OP_RETURN:
+            //do stuff
+            break;
+        case OP_ENDFUNC:
+            //do stuff
+            break;
+        case OP_END:
+            //do stuff
+            break;
+    }
 }

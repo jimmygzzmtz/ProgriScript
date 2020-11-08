@@ -86,7 +86,7 @@ switch (yystate) {
 case 1:
 
         // TODO: return quads, funcs, constants for VM
-        pushQuad("end", null, null, null);
+        pushQuad(OP_END, null, null, null);
 
         //console.log("quads:");
         //console.log(quads);
@@ -135,7 +135,7 @@ case 1:
 break;
 case 3:
 
-        pushQuad("goto", null, null, null);
+        pushQuad(OP_GOTO, null, null, null);
         stackJumps.push(quadCount - 1);
 
         programName = $$[$0];
@@ -177,7 +177,7 @@ case 24:
         }
 
         // generate quad(gosub, procedure-name, initial-address (quad in which func starts))
-        pushQuad("goSub", top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
+        pushQuad(OP_GOSUB, top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
 
         // generate temp dir for return value of the called function
         var returnType = functionDirectory.get(top(calledFuncs)).type;
@@ -226,7 +226,7 @@ case 27:
 
         // generate ERA size quad
         var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
-        pushQuad("era", size, null, null);
+        pushQuad(OP_ERA, size, null, null);
     
 break;
 case 32:
@@ -242,7 +242,7 @@ case 32:
             flagError(ERROR_TYPE_MISMATCH);
         }
 
-        pushQuad("parameter", dir, paramCounter, null);
+        pushQuad(OP_PARAMETER, dir, paramCounter, null);
 
         top(calledParams).paramCounter++;
     
@@ -270,7 +270,7 @@ case 35:
         counters[12] = counterTemps[2];
         counters[13] = counterTemps[3];
 
-        pushQuad("endFunc", null, null, null);
+        pushQuad(OP_ENDFUNC, null, null, null);
 
         // change currentFunctionId back to the previous function
         calledFuncs.pop();
@@ -298,102 +298,102 @@ case 42:
 break;
 case 61:
 
-        pushOperator("and");
-        this.$ = "and";
+        pushOperator(OP_AND);
+        this.$ = OP_AND;
     
 break;
 case 62:
 
-        pushOperator("or");
-        this.$ = "or";
+        pushOperator(OP_OR);
+        this.$ = OP_OR;
     
 break;
 case 63:
 
-        if (top(stackOperators) == "and" || top(stackOperators) == "or") {
+        if (top(stackOperators) == OP_AND || top(stackOperators) == OP_OR) {
             addQuad();
         }
     
 break;
 case 67:
 
-        pushOperator("lessthan");
-        this.$ = "lessthan";
+        pushOperator(OP_LESSTHAN);
+        this.$ = OP_LESSTHAN;
     
 break;
 case 68:
 
-        pushOperator("greaterthan");
-        this.$ = "greaterthan";
+        pushOperator(OP_GREATERTHAN);
+        this.$ = OP_GREATERTHAN;
     
 break;
 case 69:
 
-        pushOperator("isDifferent");
-        this.$ = "isDifferent";
+        pushOperator(OP_ISDIFFERENT);
+        this.$ = OP_ISDIFFERENT;
     
 break;
 case 70:
 
-        pushOperator("isEqual");
-        this.$ = "isEqual";
+        pushOperator(OP_ISEQUAL);
+        this.$ = OP_ISEQUAL;
     
 break;
 case 71:
 
-        pushOperator("lessthanEqual");
-        this.$ = "lessthanEqual";
+        pushOperator(OP_LESSTHANEQUAL);
+        this.$ = OP_LESSTHANEQUAL;
     
 break;
 case 72:
 
-        pushOperator("greaterthanEqual");
-        this.$ = "greaterthanEqual";
+        pushOperator(OP_GREATERTHANEQUAL);
+        this.$ = OP_GREATERTHANEQUAL;
     
 break;
 case 73:
 
-        if (top(stackOperators) == "lessthan" || top(stackOperators) == "greaterthan"
-            || top(stackOperators) == "isDifferent" || top(stackOperators) == "isEqual"
-            || top(stackOperators) == "lessthanEqual" || top(stackOperators) == "greaterthanEqual") {
+        if (top(stackOperators) == OP_LESSTHAN || top(stackOperators) == OP_GREATERTHAN
+            || top(stackOperators) == OP_ISDIFFERENT || top(stackOperators) == OP_ISEQUAL
+            || top(stackOperators) == OP_LESSTHANEQUAL || top(stackOperators) == OP_GREATERTHANEQUAL) {
                 addQuad();
         }
     
 break;
 case 77:
 
-        pushOperator("plus");
-        this.$ = "plus";
+        pushOperator(OP_PLUS);
+        this.$ = OP_PLUS;
     
 break;
 case 78:
 
-        pushOperator("minus");
-        this.$ = "minus";
+        pushOperator(OP_MINUS);
+        this.$ = OP_MINUS;
     
 break;
 case 79:
 
-        if (top(stackOperators) == "plus" || top(stackOperators) == "minus") {
+        if (top(stackOperators) == OP_PLUS || top(stackOperators) == OP_MINUS) {
             addQuad();
         }
     
 break;
 case 83:
 
-        pushOperator("times");
-        this.$ = "times";
+        pushOperator(OP_TIMES);
+        this.$ = OP_TIMES;
     
 break;
 case 84:
 
-        pushOperator("divide");
-        this.$ = "divide";
+        pushOperator(OP_DIVIDE);
+        this.$ = OP_DIVIDE;
     
 break;
 case 85:
 
-        if (stackOperators[stackOperators.length - 1] == "times" || stackOperators[stackOperators.length - 1] == "divide") {
+        if (top(stackOperators) == OP_TIMES || top(stackOperators) == OP_DIVIDE) {
             addQuad();
         }
     
@@ -440,7 +440,7 @@ case 91:
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
         // push quad for -1 * operand received
-        pushQuad("times", minusOneDir, operandDir, dirTemp);
+        pushQuad(OP_TIMES, minusOneDir, operandDir, dirTemp);
 
         // add dir of temporary var to operand stack
         pushOperand(dirTemp);
@@ -489,8 +489,8 @@ case 96:
 break;
 case 97:
 
-        pushOperator("equals");
-        this.$ = "equals";
+        pushOperator(OP_EQUALS);
+        this.$ = OP_EQUALS;
     
 break;
 case 98:
@@ -507,13 +507,13 @@ case 98:
         // If exp is not a temp, generate a temporary copy (to not use the variable dir, as its value may change)
         if (exp < 60000 || exp > 99999) {
             var dirTemp = generateDir(startingDirCodes.get("temp," + getTypeFromDir(exp)));
-            pushQuad("equals", exp, dirTemp, null);
+            pushQuad(OP_EQUALS, exp, dirTemp, null);
 
             exp = dirTemp;
         }
 
         // push new quad
-        pushQuad("return", exp, null, null);
+        pushQuad(OP_RETURN, exp, null, null);
     
 break;
 case 102:
@@ -522,7 +522,7 @@ case 102:
         var dirOperand = stackOperands.pop();
 
         // push write quad with dir for each argument
-        pushQuad("read", dirOperand, null, null);
+        pushQuad(OP_READ, dirOperand, null, null);
     
 break;
 case 104:
@@ -531,7 +531,7 @@ case 104:
         var dirOperand = stackOperands.pop();
 
         // push write quad with dir for each argument
-        pushQuad("write", dirOperand, null, null);
+        pushQuad(OP_WRITE, dirOperand, null, null);
     
 break;
 case 106:
@@ -556,10 +556,10 @@ case 110:
 
         // check que expresion sea bool
         var dirExpressionIf = stackOperands.pop();
-        if(getTypeFromDir(dirExpressionIf) == "bool"){
+        if (getTypeFromDir(dirExpressionIf) == "bool") {
             
             // dir2 of the gotof quad is the quad we will goto, will be filled later
-            pushQuad("gotof", dirExpressionIf, null, null);
+            pushQuad(OP_GOTOF, dirExpressionIf, null, null);
             //cuando llegas al else o al final del if, llamamos una funcion que hace pop del stackjumps y lo llena, usando la posicion de quadcount - 1
             // push quadCount of the gotof quad 
             stackJumps.push(quadCount - 1);
@@ -571,7 +571,7 @@ case 110:
 break;
 case 113:
 
-        pushQuad("goto", null, null, null);
+        pushQuad(OP_GOTO, null, null, null);
         var posGotoF = stackJumps.pop();
         stackJumps.push(quadCount - 1);
         fillQuad(posGotoF);
@@ -581,7 +581,7 @@ case 114:
 
         var endJump = stackJumps.pop();
         var returnJump = stackJumps.pop();
-        pushQuad("goto", returnJump, null, null);
+        pushQuad(OP_GOTO, returnJump, null, null);
         fillQuad(endJump);
     
 break;
@@ -595,11 +595,11 @@ case 116:
         // get for control variable
         var vControl = top(forVars).vControl;
 
-        pushQuad("plus", vControl, addConstant(1, CONST_INT), vControl);
+        pushQuad(OP_PLUS, vControl, addConstant(1, CONST_INT), vControl);
         var quadGotoFFor = stackJumps.pop();
         var quadComparisonFor = stackJumps.pop();
 
-        pushQuad("goto", quadComparisonFor, null, null);
+        pushQuad(OP_GOTO, quadComparisonFor, null, null);
         quads[quadGotoFFor].dir2 = quadCount;
 
         // pop control variable from array of control variables
@@ -629,7 +629,7 @@ case 118:
             if (resultType == undefined) {
                 flagError(ERROR_TYPE_MISMATCH);
             }
-            pushQuad("equals", exp, vControl, null);
+            pushQuad(OP_EQUALS, exp, vControl, null);
         }
     
 break;
@@ -650,10 +650,10 @@ case 119:
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
             // quad for comparison in for loop
-            pushQuad("lessthan", vControl, exp, dirTemp);
+            pushQuad(OP_LESSTHAN, vControl, exp, dirTemp);
 
             stackJumps.push(quadCount - 1);
-            pushQuad("gotoF", dirTemp, null, null);
+            pushQuad(OP_GOTOF, dirTemp, null, null);
             stackJumps.push(quadCount - 1);
         }
     
@@ -854,6 +854,31 @@ parse: function parse(input) {
     const CONST_FLOAT = 110000;
     const CONST_CHAR = 120000;
     const CONST_LETRERO = 130000;
+
+    // Operation codes
+    const OP_READ = "read";
+    const OP_WRITE = "write";
+    const OP_EQUALS = "equals";
+    const OP_PLUS = "plus";
+    const OP_MINUS = "minus";
+    const OP_TIMES = "times";
+    const OP_DIVIDE = "divide";
+    const OP_LESSTHAN = "lessthan";
+    const OP_GREATERTHAN = "greaterthan";
+    const OP_LESSTHANEQUAL = "lessthanEqual";
+    const OP_GREATERTHANEQUAL = "greaterthanEqual";
+    const OP_ISDIFFERENT = "isDifferent";
+    const OP_ISEQUAL = "isEqual";
+    const OP_AND = "and";
+    const OP_OR = "or";
+    const OP_GOTO = "goto";
+    const OP_GOTOF = "gotoF";
+    const OP_ERA = "era";
+    const OP_PARAMETER = "parameter";
+    const OP_GOSUB = "goSub";
+    const OP_RETURN = "return";
+    const OP_ENDFUNC = "endFunc";
+    const OP_END = "end";
 
     // Error codes
     const ERROR_TYPE_MISMATCH = 1;

@@ -45,6 +45,31 @@
     const CONST_CHAR = 120000;
     const CONST_LETRERO = 130000;
 
+    // Operation codes
+    const OP_READ = "read";
+    const OP_WRITE = "write";
+    const OP_EQUALS = "equals";
+    const OP_PLUS = "plus";
+    const OP_MINUS = "minus";
+    const OP_TIMES = "times";
+    const OP_DIVIDE = "divide";
+    const OP_LESSTHAN = "lessthan";
+    const OP_GREATERTHAN = "greaterthan";
+    const OP_LESSTHANEQUAL = "lessthanEqual";
+    const OP_GREATERTHANEQUAL = "greaterthanEqual";
+    const OP_ISDIFFERENT = "isDifferent";
+    const OP_ISEQUAL = "isEqual";
+    const OP_AND = "and";
+    const OP_OR = "or";
+    const OP_GOTO = "goto";
+    const OP_GOTOF = "gotoF";
+    const OP_ERA = "era";
+    const OP_PARAMETER = "parameter";
+    const OP_GOSUB = "goSub";
+    const OP_RETURN = "return";
+    const OP_ENDFUNC = "endFunc";
+    const OP_END = "end";
+
     // Error codes
     const ERROR_TYPE_MISMATCH = 1;
     const ERROR_VAR_REDECLATION = 2;
@@ -448,7 +473,7 @@
 EXPRESSIONS
     : PROGRAM EOF{
         // TODO: return quads, funcs, constants for VM
-        pushQuad("end", null, null, null);
+        pushQuad(OP_END, null, null, null);
 
         //console.log("quads:");
         //console.log(quads);
@@ -500,7 +525,7 @@ PROGRAM
 
 PROGRAM_NAME
     : program id {
-        pushQuad("goto", null, null, null);
+        pushQuad(OP_GOTO, null, null, null);
         stackJumps.push(quadCount - 1);
 
         programName = $2;
@@ -565,7 +590,7 @@ ID_ACCESS_VAR
         }
 
         // generate quad(gosub, procedure-name, initial-address (quad in which func starts))
-        pushQuad("goSub", top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
+        pushQuad(OP_GOSUB, top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
 
         // generate temp dir for return value of the called function
         var returnType = functionDirectory.get(top(calledFuncs)).type;
@@ -615,7 +640,7 @@ ID_LLAMADA_FUNCION
 
         // generate ERA size quad
         var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
-        pushQuad("era", size, null, null);
+        pushQuad(OP_ERA, size, null, null);
     };
 
 PARAMS_LLAMADA_FUNCION
@@ -638,7 +663,7 @@ PARAM
             flagError(ERROR_TYPE_MISMATCH);
         }
 
-        pushQuad("parameter", dir, paramCounter, null);
+        pushQuad(OP_PARAMETER, dir, paramCounter, null);
 
         top(calledParams).paramCounter++;
     };
@@ -671,7 +696,7 @@ FUNCION
         counters[12] = counterTemps[2];
         counters[13] = counterTemps[3];
 
-        pushQuad("endFunc", null, null, null);
+        pushQuad(OP_ENDFUNC, null, null, null);
 
         // change currentFunctionId back to the previous function
         calledFuncs.pop();
@@ -732,17 +757,17 @@ EXPRESION_AUX
 
 EXPRESION_AUX
     : and {
-        pushOperator("and");
-        $$ = "and";
+        pushOperator(OP_AND);
+        $$ = OP_AND;
     } 
     | or {
-        pushOperator("or");
-        $$ = "or";
+        pushOperator(OP_OR);
+        $$ = OP_OR;
     };
 
 EXP_COMP_WRAPPER
     : EXP_COMP {
-        if (top(stackOperators) == "and" || top(stackOperators) == "or") {
+        if (top(stackOperators) == OP_AND || top(stackOperators) == OP_OR) {
             addQuad();
         }
     };
@@ -755,36 +780,36 @@ EXP_COMP_AUX
 
 EXP_COMP_AUX2
     : lessthan {
-        pushOperator("lessthan");
-        $$ = "lessthan";
+        pushOperator(OP_LESSTHAN);
+        $$ = OP_LESSTHAN;
     } 
     | greaterthan {
-        pushOperator("greaterthan");
-        $$ = "greaterthan";
+        pushOperator(OP_GREATERTHAN);
+        $$ = OP_GREATERTHAN;
     } 
     | isDifferent {
-        pushOperator("isDifferent");
-        $$ = "isDifferent";
+        pushOperator(OP_ISDIFFERENT);
+        $$ = OP_ISDIFFERENT;
     } 
     | isEqual {
-        pushOperator("isEqual");
-        $$ = "isEqual";
+        pushOperator(OP_ISEQUAL);
+        $$ = OP_ISEQUAL;
     } 
     | lessthanEqual {
-        pushOperator("lessthanEqual");
-        $$ = "lessthanEqual";
+        pushOperator(OP_LESSTHANEQUAL);
+        $$ = OP_LESSTHANEQUAL;
     } 
     | greaterthanEqual {
-        pushOperator("greaterthanEqual");
-        $$ = "greaterthanEqual";
+        pushOperator(OP_GREATERTHANEQUAL);
+        $$ = OP_GREATERTHANEQUAL;
     }
     ;
 
 EXP_WRAPPER
     : EXP {
-        if (top(stackOperators) == "lessthan" || top(stackOperators) == "greaterthan"
-            || top(stackOperators) == "isDifferent" || top(stackOperators) == "isEqual"
-            || top(stackOperators) == "lessthanEqual" || top(stackOperators) == "greaterthanEqual") {
+        if (top(stackOperators) == OP_LESSTHAN || top(stackOperators) == OP_GREATERTHAN
+            || top(stackOperators) == OP_ISDIFFERENT || top(stackOperators) == OP_ISEQUAL
+            || top(stackOperators) == OP_LESSTHANEQUAL || top(stackOperators) == OP_GREATERTHANEQUAL) {
                 addQuad();
         }
     }
@@ -798,18 +823,18 @@ EXP_AUX
 
 EXP_AUX2
     : plus {
-        pushOperator("plus");
-        $$ = "plus";
+        pushOperator(OP_PLUS);
+        $$ = OP_PLUS;
     } 
     | minus{
-        pushOperator("minus");
-        $$ = "minus";
+        pushOperator(OP_MINUS);
+        $$ = OP_MINUS;
     }
     ;
 
 TERMINO_WRAPPER
     : TERMINO {
-        if (top(stackOperators) == "plus" || top(stackOperators) == "minus") {
+        if (top(stackOperators) == OP_PLUS || top(stackOperators) == OP_MINUS) {
             addQuad();
         }
     };
@@ -822,18 +847,18 @@ TERMINO_AUX
 
 TERMINO_AUX2
     : times {
-        pushOperator("times");
-        $$ = "times";
+        pushOperator(OP_TIMES);
+        $$ = OP_TIMES;
     } 
     | divide{
-        pushOperator("divide");
-        $$ = "divide";
+        pushOperator(OP_DIVIDE);
+        $$ = OP_DIVIDE;
     }
     ;
 
 FACTOR_WRAPPER
     : FACTOR {
-        if (stackOperators[stackOperators.length - 1] == "times" || stackOperators[stackOperators.length - 1] == "divide") {
+        if (top(stackOperators) == OP_TIMES || top(stackOperators) == OP_DIVIDE) {
             addQuad();
         }
     };
@@ -882,7 +907,7 @@ FACTOR_AUX2
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
         // push quad for -1 * operand received
-        pushQuad("times", minusOneDir, operandDir, dirTemp);
+        pushQuad(OP_TIMES, minusOneDir, operandDir, dirTemp);
 
         // add dir of temporary var to operand stack
         pushOperand(dirTemp);
@@ -930,8 +955,8 @@ ASIGNACION
 
 EQUALSSIGN
     : equals {
-        pushOperator("equals");
-        $$ = "equals";
+        pushOperator(OP_EQUALS);
+        $$ = OP_EQUALS;
     }
     ;
 
@@ -949,13 +974,13 @@ RETORNO_FUNCION
         // If exp is not a temp, generate a temporary copy (to not use the variable dir, as its value may change)
         if (exp < 60000 || exp > 99999) {
             var dirTemp = generateDir(startingDirCodes.get("temp," + getTypeFromDir(exp)));
-            pushQuad("equals", exp, dirTemp, null);
+            pushQuad(OP_EQUALS, exp, dirTemp, null);
 
             exp = dirTemp;
         }
 
         // push new quad
-        pushQuad("return", exp, null, null);
+        pushQuad(OP_RETURN, exp, null, null);
     };
 
 LECTURA
@@ -970,7 +995,7 @@ ID_ACCESS_VAR_LECTURA
         var dirOperand = stackOperands.pop();
 
         // push write quad with dir for each argument
-        pushQuad("read", dirOperand, null, null);
+        pushQuad(OP_READ, dirOperand, null, null);
     };
 
 ESCRITURA
@@ -982,7 +1007,7 @@ ESCRITURA_AUX_WRAPPER
         var dirOperand = stackOperands.pop();
 
         // push write quad with dir for each argument
-        pushQuad("write", dirOperand, null, null);
+        pushQuad(OP_WRITE, dirOperand, null, null);
     };
 
 ESCRITURA_AUX
@@ -1011,10 +1036,10 @@ EXPRESION_IF
     : lparen EXPRESION rparen {
         // check que expresion sea bool
         var dirExpressionIf = stackOperands.pop();
-        if(getTypeFromDir(dirExpressionIf) == "bool"){
+        if (getTypeFromDir(dirExpressionIf) == "bool") {
             
             // dir2 of the gotof quad is the quad we will goto, will be filled later
-            pushQuad("gotof", dirExpressionIf, null, null);
+            pushQuad(OP_GOTOF, dirExpressionIf, null, null);
             //cuando llegas al else o al final del if, llamamos una funcion que hace pop del stackjumps y lo llena, usando la posicion de quadcount - 1
             // push quadCount of the gotof quad 
             stackJumps.push(quadCount - 1);
@@ -1029,7 +1054,7 @@ DECISION_IF_AUX
 
 ELSE_START
     : else {
-        pushQuad("goto", null, null, null);
+        pushQuad(OP_GOTO, null, null, null);
         var posGotoF = stackJumps.pop();
         stackJumps.push(quadCount - 1);
         fillQuad(posGotoF);
@@ -1039,7 +1064,7 @@ CONDICIONAL_WHILE
     : WHILE_START EXPRESION_IF do BLOQUE{
         var endJump = stackJumps.pop();
         var returnJump = stackJumps.pop();
-        pushQuad("goto", returnJump, null, null);
+        pushQuad(OP_GOTO, returnJump, null, null);
         fillQuad(endJump);
     };
 
@@ -1053,11 +1078,11 @@ NO_CONDICIONAL_FOR
         // get for control variable
         var vControl = top(forVars).vControl;
 
-        pushQuad("plus", vControl, addConstant(1, CONST_INT), vControl);
+        pushQuad(OP_PLUS, vControl, addConstant(1, CONST_INT), vControl);
         var quadGotoFFor = stackJumps.pop();
         var quadComparisonFor = stackJumps.pop();
 
-        pushQuad("goto", quadComparisonFor, null, null);
+        pushQuad(OP_GOTO, quadComparisonFor, null, null);
         quads[quadGotoFFor].dir2 = quadCount;
 
         // pop control variable from array of control variables
@@ -1087,7 +1112,7 @@ FOR_EXP1
             if (resultType == undefined) {
                 flagError(ERROR_TYPE_MISMATCH);
             }
-            pushQuad("equals", exp, vControl, null);
+            pushQuad(OP_EQUALS, exp, vControl, null);
         }
     };
 
@@ -1108,10 +1133,10 @@ FOR_EXP2
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
             // quad for comparison in for loop
-            pushQuad("lessthan", vControl, exp, dirTemp);
+            pushQuad(OP_LESSTHAN, vControl, exp, dirTemp);
 
             stackJumps.push(quadCount - 1);
-            pushQuad("gotoF", dirTemp, null, null);
+            pushQuad(OP_GOTOF, dirTemp, null, null);
             stackJumps.push(quadCount - 1);
         }
     };
