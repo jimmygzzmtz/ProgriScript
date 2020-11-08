@@ -752,24 +752,36 @@ ESTATUTO
     : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION semicolon;
 
 EXPRESION
-    : EXP_COMP EXPRESION_AUX;
+    : EXP_AND EXPRESION_AUX;
 
 EXPRESION_AUX
-    : EXPRESION_AUX2 EXP_COMP EXPRESION_AUX | ;
+    : EXPRESION_AUX2 EXPRESION | ;
 
 EXPRESION_AUX2
-    : and {
-        pushOperator(OP_AND);
-        $$ = OP_AND;
-    } 
-    | or {
+    : or {
         pushOperator(OP_OR);
         $$ = OP_OR;
     };
 
+EXP_AND
+    : EXP_COMP EXP_AND_AUX {
+        if (top(stackOperators) == OP_OR) {
+            addQuad();
+        }
+    };
+
+EXP_AND_AUX
+    : EXP_AND_AUX2 EXP_AND | ;
+
+EXP_AND_AUX2
+    : and {
+        pushOperator(OP_AND);
+        $$ = OP_AND;
+    };
+
 EXP_COMP
     : EXP EXP_COMP_AUX {
-        if (top(stackOperators) == OP_AND || top(stackOperators) == OP_OR) {
+        if (top(stackOperators) == OP_AND) {
             addQuad();
         }
     };
@@ -805,7 +817,7 @@ EXP_COMP_AUX2
     ;
 
 EXP
-    : TERMINO EXP_AUX{
+    : TERMINO EXP_AUX {
         if (top(stackOperators) == OP_LESSTHAN || top(stackOperators) == OP_GREATERTHAN
             || top(stackOperators) == OP_ISDIFFERENT || top(stackOperators) == OP_ISEQUAL
             || top(stackOperators) == OP_LESSTHANEQUAL || top(stackOperators) == OP_GREATERTHANEQUAL) {

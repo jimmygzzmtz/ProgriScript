@@ -1,16 +1,13 @@
 program test;
-var int j, f, z;
-float x;
-
-module void hola() {
-    j = 1;
-    f = 1;
-    z = 0;
-    if (j == 1 || (z == 1 && f == 1)) then{
-        write("true");
-    }
-}
+var int a, b;
 
 main ( ){ 
-    hola();
+    a = 1;
+    b = 2;
+    if (a == 1 || b > 0 && a != 1) then {
+        b = 5;
+    }
+    if ((a == 1 || b > 0) && a != 1) then {
+        b = 7;
+    }
 }
