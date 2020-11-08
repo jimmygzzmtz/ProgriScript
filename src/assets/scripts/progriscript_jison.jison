@@ -193,6 +193,10 @@
         semCube.set("letrero,letrero,equals", "letrero");
         semCube.set("float,int,equals", "float");
 
+        // logic operations
+        semCube.set("bool,bool,and", "bool");
+        semCube.set("bool,bool,or", "bool");
+
         startingDirCodes.set("global,int", GLOBAL_INT);
         startingDirCodes.set("global,float", GLOBAL_FLOAT);
         startingDirCodes.set("global,char", GLOBAL_CHAR);
@@ -299,8 +303,6 @@
     }
 
     function addQuad() {
-        //printStacks();
-
         // pops
         var dirRight = stackOperands.pop();
         var dirLeft = stackOperands.pop();
@@ -750,12 +752,12 @@ ESTATUTO
     : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION semicolon;
 
 EXPRESION
-    : EXP_COMP_WRAPPER EXPRESION_AUX;
+    : EXP_COMP EXPRESION_AUX;
 
 EXPRESION_AUX
     : EXPRESION_AUX2 EXP_COMP EXPRESION_AUX | ;
 
-EXPRESION_AUX
+EXPRESION_AUX2
     : and {
         pushOperator(OP_AND);
         $$ = OP_AND;
@@ -765,15 +767,12 @@ EXPRESION_AUX
         $$ = OP_OR;
     };
 
-EXP_COMP_WRAPPER
-    : EXP_COMP {
+EXP_COMP
+    : EXP_WRAPPER EXP_COMP_AUX {
         if (top(stackOperators) == OP_AND || top(stackOperators) == OP_OR) {
             addQuad();
         }
     };
-
-EXP_COMP
-    : EXP_WRAPPER EXP_COMP_AUX;
 
 EXP_COMP_AUX
     : EXP_COMP_AUX2 EXP_COMP | ;

@@ -2,12 +2,15 @@ program test;
 var int j, f, z;
 float x;
 
-module float hola() {
-    return (1.2);
+module void hola() {
+    j = 1;
+    f = 1;
+    z = 0;
+    if (j == 1 || (z == 1 && f == 1)) then{
+        write("true");
+    }
 }
 
 main ( ){ 
-    x = 1.2 * 3.4;
-    x = hola();
-    x = hola();
+    hola();
 }
