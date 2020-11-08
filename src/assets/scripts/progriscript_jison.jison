@@ -768,7 +768,7 @@ EXPRESION_AUX2
     };
 
 EXP_COMP
-    : EXP_WRAPPER EXP_COMP_AUX {
+    : EXP EXP_COMP_AUX {
         if (top(stackOperators) == OP_AND || top(stackOperators) == OP_OR) {
             addQuad();
         }
@@ -804,18 +804,14 @@ EXP_COMP_AUX2
     }
     ;
 
-EXP_WRAPPER
-    : EXP {
+EXP
+    : TERMINO EXP_AUX{
         if (top(stackOperators) == OP_LESSTHAN || top(stackOperators) == OP_GREATERTHAN
             || top(stackOperators) == OP_ISDIFFERENT || top(stackOperators) == OP_ISEQUAL
             || top(stackOperators) == OP_LESSTHANEQUAL || top(stackOperators) == OP_GREATERTHANEQUAL) {
                 addQuad();
         }
-    }
-    ;
-
-EXP
-    : TERMINO_WRAPPER EXP_AUX;
+    };
 
 EXP_AUX
     : EXP_AUX2 EXP | ;
@@ -831,15 +827,12 @@ EXP_AUX2
     }
     ;
 
-TERMINO_WRAPPER
-    : TERMINO {
+TERMINO
+    : FACTOR_WRAPPER TERMINO_AUX {
         if (top(stackOperators) == OP_PLUS || top(stackOperators) == OP_MINUS) {
             addQuad();
         }
     };
-
-TERMINO
-    : FACTOR_WRAPPER TERMINO_AUX;
 
 TERMINO_AUX
     : TERMINO_AUX2 TERMINO | ;
