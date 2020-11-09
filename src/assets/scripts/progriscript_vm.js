@@ -218,15 +218,18 @@ function executeQuad(quad) {
         case OP_READ:
             //do stuff
             //call async function that will await an input
+            //var res = readFromFrontEnd();
+            //setOnMemory(dir1, res);
             break;
         case OP_WRITE:
             //do stuff
             //podemos hacer un console.log para usarlo
             console.log(getFromMemory(dir1));
+            //sendtoFrontEnd(getFromMemory(dir1));
             break;
         case OP_EQUALS:
             //do stuff
-            setOnMemory(dir2, getFromMemory(dir1));
+            setOnMemory(dir3, getFromMemory(dir1));
             break;
         case OP_PLUS:
             var res = getFromMemory(dir1) + getFromMemory(dir2);
@@ -270,7 +273,7 @@ function executeQuad(quad) {
             break;
         case OP_NOT:
             var res = !getFromMemory(dir1);
-            setOnMemory(dir2, res);
+            setOnMemory(dir3, res);
             break;
         case OP_AND:
             var res = getFromMemory(dir1) && getFromMemory(dir2);

@@ -339,7 +339,7 @@ case 70:
 
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
-            pushQuad(operator, operandDir, dirTemp, null);
+            pushQuad(operator, operandDir, null, dirTemp);
             pushOperand(dirTemp);
         }
     
@@ -511,8 +511,8 @@ case 100:
             flagError(ERROR_TYPE_MISMATCH, _$[$0-3].first_line);
         }
 
-        // push new quad
-        pushQuad(operator, dirRight, dirLeft, null);
+        // push new equals quad
+        pushQuad(operator, dirRight, null, dirLeft);
     
 break;
 case 101:
@@ -535,7 +535,7 @@ case 102:
         // If exp is not a temp, generate a temporary copy (to not use the variable dir, as its value may change)
         if (exp < 60000 || exp > 99999) {
             var dirTemp = generateDir(startingDirCodes.get("temp," + getTypeFromDir(exp)));
-            pushQuad(OP_EQUALS, exp, dirTemp, null);
+            pushQuad(OP_EQUALS, exp, null, dirTemp);
 
             exp = dirTemp;
         }
@@ -658,7 +658,7 @@ case 122:
             if (resultType == undefined) {
                 flagError(ERROR_TYPE_MISMATCH, _$[$0].first_line);
             }
-            pushQuad(OP_EQUALS, exp, vControl, null);
+            pushQuad(OP_EQUALS, exp, null, vControl);
         }
     
 break;

@@ -807,7 +807,7 @@ EXP_COMP
 
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
-            pushQuad(operator, operandDir, dirTemp, null);
+            pushQuad(operator, operandDir, null, dirTemp);
             pushOperand(dirTemp);
         }
     };
@@ -978,8 +978,8 @@ ASIGNACION
             flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
 
-        // push new quad
-        pushQuad(operator, dirRight, dirLeft, null);
+        // push new equals quad
+        pushQuad(operator, dirRight, null, dirLeft);
     };
 
 EQUALSSIGN
@@ -1003,7 +1003,7 @@ RETORNO_FUNCION
         // If exp is not a temp, generate a temporary copy (to not use the variable dir, as its value may change)
         if (exp < 60000 || exp > 99999) {
             var dirTemp = generateDir(startingDirCodes.get("temp," + getTypeFromDir(exp)));
-            pushQuad(OP_EQUALS, exp, dirTemp, null);
+            pushQuad(OP_EQUALS, exp, null, dirTemp);
 
             exp = dirTemp;
         }
@@ -1142,7 +1142,7 @@ FOR_EXP1
             if (resultType == undefined) {
                 flagError(ERROR_TYPE_MISMATCH, @1.first_line);
             }
-            pushQuad(OP_EQUALS, exp, vControl, null);
+            pushQuad(OP_EQUALS, exp, null, vControl);
         }
     };
 
