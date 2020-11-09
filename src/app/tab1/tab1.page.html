@@ -62,7 +62,7 @@
       <ion-card-title>Output</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <p>{{codeOutput}}</p>
+      <p *ngFor="let output of codeInOut.output">{{output}}</p>
     </ion-card-content>
   </ion-card>
 

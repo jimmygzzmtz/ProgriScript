@@ -16,12 +16,12 @@ export class Tab1Page {
 
   codes: any = [];
 
-  codeOutput = "Code Output Will Go Here";
-
   monacoEditor = false;
   standardEditor = false;
 
   userAgentString = navigator.userAgent;
+
+  codeInOut = {input: "", output: ["Code Output Will Go Here"]};
 
   theme = 'vs-dark';
 
@@ -93,14 +93,18 @@ main ( ){\n\
     //console.log(code);
     var result = "";
     try{
-      var progriscript_jison = require("../../assets/scripts/progriscript_jison");
-      var result = JSON.stringify(progriscript_jison.parse(code));
+      //var progriscript_jison = require("../../assets/scripts/progriscript_jison");
+      //var result = JSON.stringify(progriscript_jison.parse(code));
+      var progriscript_vm = require("../../assets/scripts/progriscript_vm");
+      //var result = JSON.stringify(progriscript_vm.startVM(code, this.codeInOut));
+      this.codeInOut.output = [];
+      progriscript_vm.startVM(code, this.codeInOut);
     }
     catch(error){
-      result = error.message;
+      this.codeInOut.output = [error.message];
     }
     
-    this.codeOutput = result;
+    //this.codeInOut.output = result;
   }
 
   share(){
@@ -242,6 +246,7 @@ main ( ){\n\
   
   enterInput(){
     console.log("enter input: " + this.inputTextArea);
+    console.log(this.codeInOut.output);
   }
 
   ionViewWillEnter(){

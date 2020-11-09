@@ -516,9 +516,6 @@ EXPRESSIONS
             programName: programName
         };
 
-        // Resets variables and releases Memory
-        resetVariables();
-
         return returnObj;
     };
 
@@ -527,6 +524,9 @@ PROGRAM
 
 PROGRAM_NAME
     : program id {
+        // Resets variables and releases Memory
+        resetVariables();
+
         pushQuad(OP_GOTO, null, null, null);
         stackJumps.push(quadCount - 1);
 
@@ -1051,7 +1051,7 @@ ESCRITURA_AUX2
     : comma ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 | ;
 
 DECISION_IF
-    : if EXPRESION_IF then BLOQUE DECISION_IF_AUX {
+    : if EXPRESION_IF BLOQUE DECISION_IF_AUX {
         var end = stackJumps.pop();
         //end es el num del quad que vamos a rellenar
         //quadcount es hacia donde va saltar (lo que va rellenar en el quad)
@@ -1090,7 +1090,7 @@ ELSE_START
     };
 
 CONDICIONAL_WHILE
-    : WHILE_START EXPRESION_IF do BLOQUE{
+    : WHILE_START EXPRESION_IF BLOQUE{
         var endJump = stackJumps.pop();
         var returnJump = stackJumps.pop();
         pushQuad(OP_GOTO, null, null, returnJump);
@@ -1103,7 +1103,7 @@ WHILE_START
     };
 
 NO_CONDICIONAL_FOR
-    : for ID_WRAPPER CHECK_IS_NUMBER equals FOR_EXP1 to FOR_EXP2 do BLOQUE {
+    : for ID_WRAPPER CHECK_IS_NUMBER equals FOR_EXP1 to FOR_EXP2 BLOQUE {
         // get for control variable
         var vControl = top(forVars).vControl;
 

@@ -1,3 +1,5 @@
+import { throwError } from 'rxjs';
+
 var quads;
 var funcs;
 var constTable;
@@ -5,6 +7,7 @@ var programName;
 var instructionPointer = 0;
 var globalMemory;
 var executionStack = [];
+var codeInOut = {input: "", output: []};
 
 const fs = require('fs');
 
@@ -83,13 +86,29 @@ class Memory {
 }
 
 //use with node, remove when using front-end
-startVM("test");
+//startVM("test");
 
-function startVM(code) {
+function resetVariables(){
+    instructionPointer = 0;
+    executionStack = [];
+    codeInOut = {input: "", output: []};
+}
+
+export function startVM(code, inout) {
+    resetVariables();
+    codeInOut = inout;
+
     var progriscript_jison = require("./progriscript_jison");
-    //var program = code;
-    var program = fs.readFileSync("./tests/test.progriscript", "utf8");
-    var parseResultObj = progriscript_jison.parse(program);
+    var program = code;
+    //var program = fs.readFileSync("./tests/test.progriscript", "utf8");
+    var parseResultObj;
+
+    try{
+        parseResultObj = progriscript_jison.parse(program);
+    }
+    catch(error){
+        throw new Error(error.message);
+    }
 
     quads = parseResultObj.quads;
     funcs = parseResultObj.funcs;
@@ -103,7 +122,7 @@ function startVM(code) {
 
     //console.log(constTable);
 
-    //iterateQuads();
+    iterateQuads();
 }
 
 function iterateQuads() {
@@ -257,19 +276,15 @@ function executeQuad(quad) {
     
     switch(quad.operator) {
         case OP_READ:
-            //do stuff
             //call async function that will await an input
             //var res = readFromFrontEnd();
             //setOnMemory(dir1, res);
             break;
         case OP_WRITE:
-            //do stuff
-            //podemos hacer un console.log para usarlo
-            console.log(getFromMemory(dir1));
-            //sendtoFrontEnd(getFromMemory(dir1));
+            //console.log(getFromMemory(dir1));
+            codeInOut.output.push(getFromMemory(dir1));
             break;
         case OP_EQUALS:
-            //do stuff
             setOnMemory(dir3, getFromMemory(dir1));
             break;
         case OP_PLUS:
