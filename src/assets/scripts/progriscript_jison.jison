@@ -59,6 +59,7 @@
     const OP_GREATERTHANEQUAL = "greaterthanEqual";
     const OP_ISDIFFERENT = "isDifferent";
     const OP_ISEQUAL = "isEqual";
+    const OP_NOT = "not";
     const OP_AND = "and";
     const OP_OR = "or";
     const OP_GOTO = "goto";
@@ -81,8 +82,8 @@
     const ERROR_WRONG_NUM_PARAMS = 8;
     const ERROR_EXP_PAREN = 9;
 
-    // Func
-    function flagError(errorCode, lineNumber=0){
+    // Return error to front-end
+    function flagError(errorCode, lineNumber) {
         var message = "";
         switch (errorCode) {
             case ERROR_TYPE_MISMATCH:
@@ -114,7 +115,6 @@
                 break;
         }
 
-        // TO-DO: change to "Compilation error on line x:"
         throw new Error("Compilation error on line " + lineNumber + ": " + message);
     }
 
@@ -196,6 +196,7 @@
         // logic operations
         semCube.set("bool,bool,and", "bool");
         semCube.set("bool,bool,or", "bool");
+        semCube.set("bool,null,not", "bool");
 
         startingDirCodes.set("global,int", GLOBAL_INT);
         startingDirCodes.set("global,float", GLOBAL_FLOAT);
@@ -455,7 +456,7 @@
 "<"                    return 'lessthan'
 ">"                    return 'greaterthan'
 "!="                   return 'isDifferent'
-"!"                    return 'inverse'
+"!"                    return 'not'
 "&&"                   return 'and'
 "||"                   return 'or'
 [a-zA-Z_][a-zA-Z_0-9]* return 'id'
@@ -473,8 +474,7 @@
 %% /* language grammar */
 
 EXPRESSIONS
-    : PROGRAM EOF{
-        // TODO: return quads, funcs, constants for VM
+    : PROGRAM EOF {
         pushQuad(OP_END, null, null, null);
 
         //console.log("quads:");
@@ -761,7 +761,7 @@ EXPRESION_AUX2
     };
 
 EXP_AND
-    : EXP_COMP EXP_AND_AUX {
+    : EXP_NOT_WRAPPER EXP_AND_AUX {
         if (top(stackOperators) == OP_OR) {
             addQuad(@1.first_line);
         }
@@ -776,10 +776,39 @@ EXP_AND_AUX2
         $$ = OP_AND;
     };
 
-EXP_COMP
-    : EXP EXP_COMP_AUX {
+EXP_NOT_WRAPPER
+    : EXP_NOT {
         if (top(stackOperators) == OP_AND) {
             addQuad(@1.first_line);
+        }
+    };
+
+EXP_NOT
+    : EXP_COMP | EXP_NOT_AUX EXP_COMP;
+
+EXP_NOT_AUX
+    : not {
+        pushOperator(OP_NOT);
+        $$ = OP_NOT;
+    };
+
+EXP_COMP
+    : EXP EXP_COMP_AUX {
+        if (top(stackOperators) == OP_NOT) {
+            var operator = stackOperators.pop();
+            var operandDir = stackOperands.pop();
+
+            // use semantic cube to generate the direction for the temporary var
+            var resultType = semCube.get(getTypeFromDir(operandDir) + ",null," + operator);
+
+            if (resultType == undefined) {
+                flagError(ERROR_TYPE_MISMATCH, @1.first_line);
+            }
+
+            var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+
+            pushQuad(operator, operandDir, dirTemp, null);
+            pushOperand(dirTemp);
         }
     };
 
