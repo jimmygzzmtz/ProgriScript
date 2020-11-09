@@ -2,17 +2,6 @@ program test;
 var int a, b, c, d;
 
 main ( ){
-    c = 50;
-    while (c < 53) do {
-        write(c);
-        c = c+2;
-        for a = 1 to 3 do {
-            write(a);
-            b = 10;
-            while(b < 13) do {
-                write(b);
-                b = b+1;
-            }
-        }
-    }
+    a = 1;
+    a = a + b;
 }

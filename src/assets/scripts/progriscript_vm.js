@@ -50,6 +50,25 @@ const OP_RETURN = "return";
 const OP_ENDFUNC = "endFunc";
 const OP_END = "end";
 
+// Error codes
+const ERROR_DIVISION_BY_ZERO = 1;
+const ERROR_UNDEFINED_VARIABLE = 2;
+
+// Return error to front-end
+function flagError(errorCode) {
+    var message = "";
+    switch (errorCode) {
+        case ERROR_DIVISION_BY_ZERO:
+            message = "Division by Zero";
+            break;
+        case ERROR_UNDEFINED_VARIABLE:
+            message = "Trying to use variable with undefined value";
+            break;
+    }
+
+    throw new Error("Execution error: " + message);
+}
+
 class Memory {
     constructor(functionId) {
         this.functionId = functionId;
@@ -110,39 +129,59 @@ function getFromMemory(dir) {
         } 
     }
 
+    var returningVar;
+
     switch(delta){
         // GLOBAL
         case 0:
-            return currentMemory.ints[dir - delta];
+            returningVar = currentMemory.ints[dir - delta];
+            break;
         case 10000:
-            return currentMemory.floats[dir - delta];
+            returningVar = currentMemory.floats[dir - delta];
+            break;
         case 20000:
-            return currentMemory.chars[dir - delta];
+            returningVar = currentMemory.chars[dir - delta];
+            break;
         // LOCAL
         case 30000:
-            return currentMemory.ints[dir - delta];
+            returningVar = currentMemory.ints[dir - delta];
+            break;
         case 40000:
-            return currentMemory.floats[dir - delta];
+            returningVar = currentMemory.floats[dir - delta];
+            break;
         case 50000:
-            return currentMemory.chars[dir - delta];
+            returningVar = currentMemory.chars[dir - delta];
+            break;
         // TEMP
         case 60000:
-            return currentMemory.tempInts[dir - delta];
+            returningVar = currentMemory.tempInts[dir - delta];
+            break;
         case 70000:
-            return currentMemory.tempFloats[dir - delta];
+            returningVar = currentMemory.tempFloats[dir - delta];
+            break;
         case 80000:
-            return currentMemory.tempChars[dir - delta];
+            returningVar = currentMemory.tempChars[dir - delta];
+            break;
         case 90000:
-            return currentMemory.tempBools[dir - delta];
+            returningVar = currentMemory.tempBools[dir - delta];
+            break;
         // CONST
         case 100000:
-            return constTable.int[dir - delta];
+            returningVar = constTable.int[dir - delta];
+            break
         case 110000:
-            return constTable.float[dir - delta];
+            returningVar = constTable.float[dir - delta];
+            break;
         case 120000:
-            return constTable.char[dir - delta];
+            returningVar = constTable.char[dir - delta];
+            break;
         case 130000:
-            return constTable.letrero[dir - delta];
+            returningVar = constTable.letrero[dir - delta];
+            break;
+    }
+
+    if (returningVar == undefined) {
+        flagError(ERROR_UNDEFINED_VARIABLE);
     }
 }
 
@@ -244,7 +283,11 @@ function executeQuad(quad) {
             setOnMemory(dir3, res);
             break;
         case OP_DIVIDE:
-            var res = getFromMemory(dir1) / getFromMemory(dir2);
+            var divisor = getFromMemory(dir2);
+            if (divisor == 0) {
+                flagError(ERROR_DIVISION_BY_ZERO);
+            }
+            var res = getFromMemory(dir1) / divisor;
             setOnMemory(dir3, res);
             break;
         case OP_LESSTHAN:
