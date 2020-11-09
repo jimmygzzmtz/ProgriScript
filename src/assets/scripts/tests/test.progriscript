@@ -1,9 +1,8 @@
 program test;
-var int a, b;
+var int a, b, c, d;
 
 main ( ){
-    a = 6; 
-    if (!(!(a > 5 || !(b == 0) && a != 1))) then {
-        b = 3;
+    for a = 1 to 10 do{
+        write(a);
     }
 }

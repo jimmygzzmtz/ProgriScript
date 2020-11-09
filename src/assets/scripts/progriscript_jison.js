@@ -609,7 +609,7 @@ case 118:
 
         var endJump = stackJumps.pop();
         var returnJump = stackJumps.pop();
-        pushQuad(OP_GOTO, returnJump, null, null);
+        pushQuad(OP_GOTO, null, null, returnJump);
         fillQuad(endJump);
     
 break;
@@ -627,8 +627,9 @@ case 120:
         var quadGotoFFor = stackJumps.pop();
         var quadComparisonFor = stackJumps.pop();
 
-        pushQuad(OP_GOTO, quadComparisonFor, null, null);
-        quads[quadGotoFFor].dir2 = quadCount;
+        pushQuad(OP_GOTO, null, null, quadComparisonFor);
+        // FILL FOR GOTOF QUAD
+        quads[quadGotoFFor].dir3 = quadCount;
 
         // pop control variable from array of control variables
         forVars.pop();
@@ -1138,7 +1139,7 @@ parse: function parse(input) {
     }
 
     function fillQuad(quadToFill) {
-        quads[quadToFill].dir2 = quadCount;
+        quads[quadToFill].dir3 = quadCount;
     }
 
     function addQuad(lineNumber) {
