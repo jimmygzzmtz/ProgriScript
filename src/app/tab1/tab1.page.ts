@@ -279,9 +279,14 @@ async sendRead(){
           handler: data => {
             if(this.codeInOut.input == "willRead"){
               this.codeInOut.input = data.input;
-              this.progriscript_vm.sendRead(this.codeInOut)
-              if(this.codeInOut.input == "willRead"){
-                this.sendRead();
+              try{
+                this.progriscript_vm.sendRead(this.codeInOut)
+                if(this.codeInOut.input == "willRead"){
+                  this.sendRead();
+                }
+              }
+              catch(error){
+                this.codeInOut.output = [error.message];
               }
             }
           }

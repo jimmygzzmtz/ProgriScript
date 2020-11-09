@@ -1,0 +1,14 @@
+program test;
+var int a;
+
+main ( ){
+  a = 1;
+
+  if(a >= 0){
+    write("positive!");
+  }
+  else{
+    write("negative!");
+  }
+  
+}

@@ -1,0 +1,13 @@
+program test;
+var int a, b;
+
+module int sum(int c, int d)
+{
+  return (c + d);
+}
+
+main ( ){
+  read(a);
+  read(b);
+  write(sum(a, b));
+}

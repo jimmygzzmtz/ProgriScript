@@ -1,0 +1,16 @@
+program test;
+var int a, b;
+
+main ( ){
+  for a = 0 to 5{
+    write(a);
+  }
+
+  b = 5;
+
+  while(b <= 10){
+    write(b);
+    b = b + 1;
+  }
+  
+}

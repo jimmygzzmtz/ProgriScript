@@ -55,6 +55,7 @@ const OP_END = "end";
 // Error codes
 const ERROR_DIVISION_BY_ZERO = 1;
 const ERROR_UNDEFINED_VARIABLE = 2;
+const ERROR_TYPE_MISMATCH = 3;
 
 // Return error to front-end
 function flagError(errorCode) {
@@ -65,6 +66,9 @@ function flagError(errorCode) {
             break;
         case ERROR_UNDEFINED_VARIABLE:
             message = "Trying to use variable with undefined value";
+            break;
+        case ERROR_TYPE_MISMATCH:
+            message = "Type Mismatch";
             break;
     }
 
@@ -318,12 +322,20 @@ function executeQuad(quad) {
                 var type = getTypeFromDir(dir1);
                 if(type == "int"){
                     res = Math.floor(Number(res));
+                    if(isNaN(res)){
+                        flagError(ERROR_TYPE_MISMATCH);
+                    }
                 }
                 if(type == "float"){
                     res = Number(res);
+                    if(isNaN(res)){
+                        flagError(ERROR_TYPE_MISMATCH);
+                    }
                 }
-                if(type == "bool"){
-                    res = Boolean(res);
+                if(type == "char"){
+                    if(res.length > 1){
+                        flagError(ERROR_TYPE_MISMATCH);
+                    }
                 }
                 setOnMemory(dir1, res);
                 codeInOut.input = "";

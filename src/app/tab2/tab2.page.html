@@ -7,33 +7,13 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-card button="true" (click)="cardClick(0)">
-    <ion-card-header>
-      <ion-card-subtitle>Data Type</ion-card-subtitle>
-      <ion-card-title>Integers</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>{{templateCode[0]}}</p>         
-    </ion-card-content>
-  </ion-card>
 
-  <ion-card button="true" (click)="cardClick(1)">
+  <ion-card *ngFor="let snippet of codeSnippets" button="true" (click)="cardClick(snippet)" >
     <ion-card-header>
-      <ion-card-subtitle>Data Type</ion-card-subtitle>
-      <ion-card-title>Strings</ion-card-title>
+      <ion-card-title>{{snippet.name}}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <p>{{templateCode[1]}}</p>         
-    </ion-card-content>
-  </ion-card>
-
-  <ion-card button="true" (click)="cardClick(2)">
-    <ion-card-header>
-      <ion-card-subtitle>Iteration</ion-card-subtitle>
-      <ion-card-title>For loop</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>{{templateCode[2]}}</p>         
+      <p>{{snippet.description}}</p>         
     </ion-card-content>
   </ion-card>
 

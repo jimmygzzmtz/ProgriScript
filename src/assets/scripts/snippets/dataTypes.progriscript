@@ -1,0 +1,10 @@
+program test;
+var int a;
+float b;
+char c;
+
+main ( ){
+  a = 1;
+  b = 2.5;
+  c = 'c';
+}
