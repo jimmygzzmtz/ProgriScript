@@ -291,7 +291,8 @@ async sendRead(){
             }
           }
         }
-    ]
+      ],
+      backdropDismiss: false
     });
 
 

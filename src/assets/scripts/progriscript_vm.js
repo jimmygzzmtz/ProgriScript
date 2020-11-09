@@ -56,6 +56,7 @@ const OP_END = "end";
 const ERROR_DIVISION_BY_ZERO = 1;
 const ERROR_UNDEFINED_VARIABLE = 2;
 const ERROR_TYPE_MISMATCH = 3;
+const ERROR_EMPTY_INPUT = 4;
 
 // Return error to front-end
 function flagError(errorCode) {
@@ -69,6 +70,9 @@ function flagError(errorCode) {
             break;
         case ERROR_TYPE_MISMATCH:
             message = "Type Mismatch";
+            break;
+        case ERROR_EMPTY_INPUT:
+            message = "Empty Input";
             break;
     }
 
@@ -320,6 +324,9 @@ function executeQuad(quad) {
                 var res = codeInOut.input;
                 //cast to correct type
                 var type = getTypeFromDir(dir1);
+                if(res == ""){
+                    flagError(ERROR_EMPTY_INPUT);
+                }
                 if(type == "int"){
                     res = Math.floor(Number(res));
                     if(isNaN(res)){
