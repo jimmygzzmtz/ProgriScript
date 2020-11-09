@@ -21,9 +21,9 @@ export class Tab1Page {
 
   userAgentString = navigator.userAgent;
 
-  codeInOut = {input: "", output: ["Code Output Will Go Here"]};
+  codeInOut = {input: "", output: [""]};
 
-  theme = 'vs-dark';
+  theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? "vs-dark" : "vs-light";
 
   progriscript_vm;
 
