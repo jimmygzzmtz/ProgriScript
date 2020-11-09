@@ -103,7 +103,7 @@ function startVM(code) {
 
     //console.log(constTable);
 
-    iterateQuads();
+    //iterateQuads();
 }
 
 function iterateQuads() {
@@ -338,10 +338,11 @@ function executeQuad(quad) {
             }
             break;
         case OP_ERA:
-            //do stuff
+            //do nothing because lists in javascript do not need defined size values
             break;
         case OP_PARAMETER:
             //do stuff
+            //assign to the parameter variables the sent directions
             break;
         case OP_GOSUB:
             //do stuff
@@ -353,7 +354,7 @@ function executeQuad(quad) {
             //do stuff
             break;
         case OP_END:
-            //do nothing
+            //do nothing since code ends
             break;
     }
     instructionPointer++;

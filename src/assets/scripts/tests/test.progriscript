@@ -1,7 +1,11 @@
 program test;
-var int a, b, c, d;
+var int j, f, z;
+
+module int hola(int a, int b)
+{
+    return (a + b);
+}
 
 main ( ){
-    a = 1;
-    a = a + b;
+    hola(1,2);
 }
