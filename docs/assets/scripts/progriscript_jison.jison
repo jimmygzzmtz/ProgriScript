@@ -45,6 +45,32 @@
     const CONST_CHAR = 120000;
     const CONST_LETRERO = 130000;
 
+    // Operation codes
+    const OP_READ = "read";
+    const OP_WRITE = "write";
+    const OP_EQUALS = "equals";
+    const OP_PLUS = "plus";
+    const OP_MINUS = "minus";
+    const OP_TIMES = "times";
+    const OP_DIVIDE = "divide";
+    const OP_LESSTHAN = "lessthan";
+    const OP_GREATERTHAN = "greaterthan";
+    const OP_LESSTHANEQUAL = "lessthanEqual";
+    const OP_GREATERTHANEQUAL = "greaterthanEqual";
+    const OP_ISDIFFERENT = "isDifferent";
+    const OP_ISEQUAL = "isEqual";
+    const OP_NOT = "not";
+    const OP_AND = "and";
+    const OP_OR = "or";
+    const OP_GOTO = "goto";
+    const OP_GOTOF = "gotoF";
+    const OP_ERA = "era";
+    const OP_PARAMETER = "parameter";
+    const OP_GOSUB = "goSub";
+    const OP_RETURN = "return";
+    const OP_ENDFUNC = "endFunc";
+    const OP_END = "end";
+
     // Error codes
     const ERROR_TYPE_MISMATCH = 1;
     const ERROR_VAR_REDECLATION = 2;
@@ -56,8 +82,8 @@
     const ERROR_WRONG_NUM_PARAMS = 8;
     const ERROR_EXP_PAREN = 9;
 
-    // Func
-    function flagError(errorCode){
+    // Return error to front-end
+    function flagError(errorCode, lineNumber) {
         var message = "";
         switch (errorCode) {
             case ERROR_TYPE_MISMATCH:
@@ -89,8 +115,7 @@
                 break;
         }
 
-        // TO-DO: change to "Compilation error on line x:"
-        throw new Error("Compilation error: " + message);
+        throw new Error("Compilation error on line " + lineNumber + ": " + message);
     }
 
     // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
@@ -168,6 +193,11 @@
         semCube.set("letrero,letrero,equals", "letrero");
         semCube.set("float,int,equals", "float");
 
+        // logic operations
+        semCube.set("bool,bool,and", "bool");
+        semCube.set("bool,bool,or", "bool");
+        semCube.set("bool,null,not", "bool");
+
         startingDirCodes.set("global,int", GLOBAL_INT);
         startingDirCodes.set("global,float", GLOBAL_FLOAT);
         startingDirCodes.set("global,char", GLOBAL_CHAR);
@@ -195,7 +225,7 @@
     }
 
     // adds a function to the function directory
-    function createFunction(id, funcType) {
+    function createFunction(id, funcType, lineNumber) {
         if (!functionDirectory.has(id)) {
             currentFunctionId = id;
             var countersCopy = counters.slice(0);
@@ -203,13 +233,13 @@
             initialCounters: countersCopy, tempVarsUsed: 0, foundReturnStatement: false, returnDirs: []});
         }
         else {
-            flagError(ERROR_FUNC_REDECLARATION);
+            flagError(ERROR_FUNC_REDECLARATION, lineNumber);
         }
     }
 
     // adds a variable to the variable table of a function in the directory
     // and returns the dir of the created variable
-    function createVariable(id) {
+    function createVariable(id, lineNumber) {
         var varTable = functionDirectory.get(currentFunctionId).varTable;
         if (!varTable.has(id)) {
             var scope = scopeIsGlobal() ? "global" : "local";
@@ -219,11 +249,11 @@
             return generatedDir;
         }
         else {
-            flagError(ERROR_VAR_REDECLATION);
+            flagError(ERROR_VAR_REDECLATION, lineNumber);
         }
     }
 
-    function variableExists(name) {
+    function variableExists(name, lineNumber) {
         var varTable = functionDirectory.get(currentFunctionId).varTable;
         var exists = varTable.has(name);
         if (!exists && !scopeIsGlobal()) {
@@ -234,12 +264,12 @@
             return true;
         }
         else {
-            flagError(ERROR_UNKNOWN_VARIABLE);
+            flagError(ERROR_UNKNOWN_VARIABLE, lineNumber);
         }
     }
 
     // returns a variable, given its id and function id
-    function getVariable(id, funcId) {
+    function getVariable(id, funcId, lineNumber) {
         var varTable = functionDirectory.get(funcId).varTable;
         if (varTable.has(id)) {
             return varTable.get(id);
@@ -251,7 +281,7 @@
             }
         }
         else {
-            flagError(ERROR_UNKNOWN_VARIABLE);
+            flagError(ERROR_UNKNOWN_VARIABLE, lineNumber);
         }
     }
     
@@ -270,12 +300,10 @@
     }
 
     function fillQuad(quadToFill) {
-        quads[quadToFill].dir2 = quadCount;
+        quads[quadToFill].dir3 = quadCount;
     }
 
-    function addQuad() {
-        //printStacks();
-
+    function addQuad(lineNumber) {
         // pops
         var dirRight = stackOperands.pop();
         var dirLeft = stackOperands.pop();
@@ -285,7 +313,7 @@
         var resultType = semanticCube(dirLeft, dirRight, operator);
 
         if (resultType == undefined) {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, lineNumber);
         }
 
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
@@ -428,12 +456,12 @@
 "<"                    return 'lessthan'
 ">"                    return 'greaterthan'
 "!="                   return 'isDifferent'
-"!"                    return 'inverse'
+"!"                    return 'not'
 "&&"                   return 'and'
 "||"                   return 'or'
 [a-zA-Z_][a-zA-Z_0-9]* return 'id'
-\d+                    return 'cte_int'
 \d+\.\d+               return 'cte_float'
+\d+                    return 'cte_int'
 \'.\'                  return 'cte_char'
 \".*\"                 return 'letrero'
 // EOF means "end of file"
@@ -446,26 +474,47 @@
 %% /* language grammar */
 
 EXPRESSIONS
-    : PROGRAM EOF{
-        // TODO: return quads, funcs, constants for VM
-        pushQuad("end", null, null, null);
+    : PROGRAM EOF {
+        pushQuad(OP_END, null, null, null);
 
-        console.log("quads:");
-        console.log(quads);
+        //console.log("quads:");
+        //console.log(quads);
 
+        // create funcDirectory for VM, that only sends data needed by VM
+        var vmFuncs = new Map();
+
+        for (let key of functionDirectory.keys()) {
+            var value = functionDirectory.get(key);
+            vmFuncs.set(key, {tempVarsUsed: value.tempVarsUsed, varsTableKeyLength: value.varTable.size,
+                returnDirs: value.returnDirs});
+        }
+
+        // create constTable for VM, that uses dir as the key
+        var vmConsts = {int: [], float: [], char: [], letrero: []};
+
+        for (let key of constTable.keys()) {
+            var dir = constTable.get(key);
+            if (dir >= CONST_INT && dir < CONST_FLOAT) {
+                vmConsts.int[dir - CONST_INT] = key;
+            }
+            else if (dir >= CONST_FLOAT && dir < CONST_CHAR) {
+                vmConsts.float[dir - CONST_FLOAT] = key; 
+            }
+            else if (dir >= CONST_CHAR && dir < CONST_LETRERO) {
+                vmConsts.char[dir - CONST_CHAR] = key; 
+            }
+            else if (dir >= CONST_LETRERO) {
+                vmConsts.letrero[dir - CONST_LETRERO] = key; 
+            }
+        }
+        
+        // data sent to VM
         var returnObj = {
             quads: quads,
-            funcs: functionDirectory,
-            const: constTable
+            funcs: vmFuncs,
+            constTable: vmConsts,
+            programName: programName
         };
-
-        //console.log("constants:");
-        //printMap(constTable);
-
-        //console.log("functions:");
-        //printMap(functionDirectory);
-
-        resetVariables();
 
         return returnObj;
     };
@@ -475,12 +524,15 @@ PROGRAM
 
 PROGRAM_NAME
     : program id {
-        pushQuad("goto", null, null, null);
+        // Resets variables and releases Memory
+        resetVariables();
+
+        pushQuad(OP_GOTO, null, null, null);
         stackJumps.push(quadCount - 1);
 
         programName = $2;
         //currentFunctionId = programName;
-        createFunction(programName, "program");
+        createFunction(programName, "program", @2.first_line);
         calledFuncs.push(programName);
     };
 
@@ -522,7 +574,7 @@ TIPO
 // id | id[INT]~[INT]~
 ID_DECLARE_VAR
     : id {
-        $$ = createVariable($1);
+        $$ = createVariable($1, @1.first_line);
     }
     | id lsqbracket cte_int rsqbracket ID_DECLARE_VAR_AUX;
 
@@ -536,11 +588,11 @@ ID_ACCESS_VAR
     | ID_WRAPPER lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
     | ID_WRAPPER lparen ID_LLAMADA_FUNCION PARAMS_LLAMADA_FUNCION rparen {
         if (top(calledParams).params.length != top(calledParams).paramCounter) {
-            flagError(ERROR_WRONG_NUM_PARAMS);
+            flagError(ERROR_WRONG_NUM_PARAMS, @1.first_line);
         }
 
         // generate quad(gosub, procedure-name, initial-address (quad in which func starts))
-        pushQuad("goSub", top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
+        pushQuad(OP_GOSUB, top(calledFuncs), functionDirectory.get(top(calledFuncs)).quadCounter, null);
 
         // generate temp dir for return value of the called function
         var returnType = functionDirectory.get(top(calledFuncs)).type;
@@ -568,13 +620,10 @@ ID_WRAPPER
 
 ID_SIMPLE_VAR
     : {
-        if (variableExists(lastReadId)) {
-            var dir = getVariable(lastReadId, currentFunctionId).dir;
+        if (variableExists(lastReadId, @1.first_line)) {
+            var dir = getVariable(lastReadId, currentFunctionId, @1.first_line).dir;
             pushOperand(dir);
             $$ = {name: lastReadId, dir: dir};
-        }
-        else {
-            flagError(ERROR_UNKNOWN_VARIABLE);
         }
     };
 
@@ -582,7 +631,7 @@ ID_LLAMADA_FUNCION
     : {
         // check that function id exists in functionDirectory
         if (!functionDirectory.has(lastReadId)) {
-            flagError(ERROR_UNKNOWN_FUNCTION);
+            flagError(ERROR_UNKNOWN_FUNCTION, @1.first_line);
         }
 
         calledFuncs.push(lastReadId);
@@ -590,7 +639,7 @@ ID_LLAMADA_FUNCION
 
         // generate ERA size quad
         var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
-        pushQuad("era", size, null, null);
+        pushQuad(OP_ERA, size, null, null);
     };
 
 PARAMS_LLAMADA_FUNCION
@@ -607,13 +656,13 @@ PARAM
         var params = top(calledParams).params;
         var paramCounter = top(calledParams).paramCounter;
         if (paramCounter >= params.length) {
-            flagError(ERROR_WRONG_NUM_PARAMS);
+            flagError(ERROR_WRONG_NUM_PARAMS, @1.first_line);
         }
         if (getTypeFromDir(dir) != params[paramCounter]) {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
 
-        pushQuad("parameter", dir, paramCounter, null);
+        pushQuad(OP_PARAMETER, dir, paramCounter, null);
 
         top(calledParams).paramCounter++;
     };
@@ -628,7 +677,7 @@ FUNCION
         // punto 7
         // check if non-void function has a return statement
         if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
-            flagError(ERROR_NO_RETURN_STATEMENT);
+            flagError(ERROR_NO_RETURN_STATEMENT, @1.first_line);
         }
 
         // save number of temporal variables used
@@ -646,7 +695,7 @@ FUNCION
         counters[12] = counterTemps[2];
         counters[13] = counterTemps[3];
 
-        pushQuad("endFunc", null, null, null);
+        pushQuad(OP_ENDFUNC, null, null, null);
 
         // change currentFunctionId back to the previous function
         calledFuncs.pop();
@@ -659,7 +708,7 @@ FUNCION
 // hacer copia de los counters, lo hace createFunction
 FUNCION_ID_WRAPPER
     : FUNCION_TIPO id {
-        createFunction($2, $1);
+        createFunction($2, $1, @2.first_line);
         calledFuncs.push($2);
     };
 
@@ -700,116 +749,147 @@ ESTATUTO
     : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION semicolon;
 
 EXPRESION
-    : EXP_COMP_WRAPPER EXPRESION_AUX;
+    : EXP_AND EXPRESION_AUX;
 
 EXPRESION_AUX
-    : EXPRESION_AUX2 EXP_COMP EXPRESION_AUX | ;
+    : EXPRESION_AUX2 EXPRESION | ;
 
-EXPRESION_AUX
-    : and {
-        pushOperator("and");
-        $$ = "and";
-    } 
-    | or {
-        pushOperator("or");
-        $$ = "or";
+EXPRESION_AUX2
+    : or {
+        pushOperator(OP_OR);
+        $$ = OP_OR;
     };
 
-EXP_COMP_WRAPPER
-    : EXP_COMP {
-        if (top(stackOperators) == "and" || top(stackOperators) == "or") {
-            addQuad();
+EXP_AND
+    : EXP_NOT_WRAPPER EXP_AND_AUX {
+        if (top(stackOperators) == OP_OR) {
+            addQuad(@1.first_line);
         }
     };
 
+EXP_AND_AUX
+    : EXP_AND_AUX2 EXP_AND | ;
+
+EXP_AND_AUX2
+    : and {
+        pushOperator(OP_AND);
+        $$ = OP_AND;
+    };
+
+EXP_NOT_WRAPPER
+    : EXP_NOT {
+        if (top(stackOperators) == OP_AND) {
+            addQuad(@1.first_line);
+        }
+    };
+
+EXP_NOT
+    : EXP_COMP | EXP_NOT_AUX EXP_COMP;
+
+EXP_NOT_AUX
+    : not {
+        pushOperator(OP_NOT);
+        $$ = OP_NOT;
+    };
+
 EXP_COMP
-    : EXP_WRAPPER EXP_COMP_AUX;
+    : EXP EXP_COMP_AUX {
+        if (top(stackOperators) == OP_NOT) {
+            var operator = stackOperators.pop();
+            var operandDir = stackOperands.pop();
+
+            // use semantic cube to generate the direction for the temporary var
+            var resultType = semCube.get(getTypeFromDir(operandDir) + ",null," + operator);
+
+            if (resultType == undefined) {
+                flagError(ERROR_TYPE_MISMATCH, @1.first_line);
+            }
+
+            var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+
+            pushQuad(operator, operandDir, null, dirTemp);
+            pushOperand(dirTemp);
+        }
+    };
 
 EXP_COMP_AUX
     : EXP_COMP_AUX2 EXP_COMP | ;
 
 EXP_COMP_AUX2
     : lessthan {
-        pushOperator("lessthan");
-        $$ = "lessthan";
+        pushOperator(OP_LESSTHAN);
+        $$ = OP_LESSTHAN;
     } 
     | greaterthan {
-        pushOperator("greaterthan");
-        $$ = "greaterthan";
+        pushOperator(OP_GREATERTHAN);
+        $$ = OP_GREATERTHAN;
     } 
     | isDifferent {
-        pushOperator("isDifferent");
-        $$ = "isDifferent";
+        pushOperator(OP_ISDIFFERENT);
+        $$ = OP_ISDIFFERENT;
     } 
     | isEqual {
-        pushOperator("isEqual");
-        $$ = "isEqual";
+        pushOperator(OP_ISEQUAL);
+        $$ = OP_ISEQUAL;
     } 
     | lessthanEqual {
-        pushOperator("lessthanEqual");
-        $$ = "lessthanEqual";
+        pushOperator(OP_LESSTHANEQUAL);
+        $$ = OP_LESSTHANEQUAL;
     } 
     | greaterthanEqual {
-        pushOperator("greaterthanEqual");
-        $$ = "greaterthanEqual";
-    }
-    ;
-
-EXP_WRAPPER
-    : EXP {
-        if (top(stackOperators) == "lessthan" || top(stackOperators) == "greaterthan"
-            || top(stackOperators) == "isDifferent" || top(stackOperators) == "isEqual"
-            || top(stackOperators) == "lessthanEqual" || top(stackOperators) == "greaterthanEqual") {
-                addQuad();
-        }
+        pushOperator(OP_GREATERTHANEQUAL);
+        $$ = OP_GREATERTHANEQUAL;
     }
     ;
 
 EXP
-    : TERMINO_WRAPPER EXP_AUX;
+    : TERMINO EXP_AUX {
+        if (top(stackOperators) == OP_LESSTHAN || top(stackOperators) == OP_GREATERTHAN
+            || top(stackOperators) == OP_ISDIFFERENT || top(stackOperators) == OP_ISEQUAL
+            || top(stackOperators) == OP_LESSTHANEQUAL || top(stackOperators) == OP_GREATERTHANEQUAL) {
+                addQuad(@1.first_line);
+        }
+    };
 
 EXP_AUX
     : EXP_AUX2 EXP | ;
 
 EXP_AUX2
     : plus {
-        pushOperator("plus");
-        $$ = "plus";
+        pushOperator(OP_PLUS);
+        $$ = OP_PLUS;
     } 
     | minus{
-        pushOperator("minus");
-        $$ = "minus";
+        pushOperator(OP_MINUS);
+        $$ = OP_MINUS;
     }
     ;
 
-TERMINO_WRAPPER
-    : TERMINO {
-        if (top(stackOperators) == "plus" || top(stackOperators) == "minus") {
-            addQuad();
+TERMINO
+    : FACTOR_WRAPPER TERMINO_AUX {
+        if (top(stackOperators) == OP_PLUS || top(stackOperators) == OP_MINUS) {
+            addQuad(@1.first_line);
         }
     };
-
-TERMINO
-    : FACTOR_WRAPPER TERMINO_AUX;
 
 TERMINO_AUX
     : TERMINO_AUX2 TERMINO | ;
 
 TERMINO_AUX2
     : times {
-        pushOperator("times");
-        $$ = "times";
+        pushOperator(OP_TIMES);
+        $$ = OP_TIMES;
     } 
     | divide{
-        pushOperator("divide");
-        $$ = "divide";
+        pushOperator(OP_DIVIDE);
+        $$ = OP_DIVIDE;
     }
     ;
 
 FACTOR_WRAPPER
     : FACTOR {
-        if (stackOperators[stackOperators.length - 1] == "times" || stackOperators[stackOperators.length - 1] == "divide") {
-            addQuad();
+        if (top(stackOperators) == OP_TIMES || top(stackOperators) == OP_DIVIDE) {
+            addQuad(@1.first_line);
         }
     };
 
@@ -820,7 +900,7 @@ FACTOR_AUX
     : BEGINPAREN EXPRESION rparen {
         var topOp = stackOperators.pop();
         if (topOp != "lparen") {
-            flagError(ERROR_EXP_PAREN);
+            flagError(ERROR_EXP_PAREN, @1.first_line);
         }
     };
 
@@ -841,7 +921,7 @@ FACTOR_AUX2
         operandVarType = getTypeFromDir(operandDir);  
         // if operand type is not int or float, error  
         if (operandVarType != "int" && operandVarType != "float") {
-            flagError(ERROR_ARITHMETIC_NON_NUMBER);
+            flagError(ERROR_ARITHMETIC_NON_NUMBER, @1.first_line);
         }
 
         // add -1 to constTable
@@ -850,14 +930,13 @@ FACTOR_AUX2
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(minusOneDir, operandDir, "times");
         if (resultType == undefined) {
-            console.log("Entered type mismatch in unary minus");
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
 
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
         // push quad for -1 * operand received
-        pushQuad("times", minusOneDir, operandDir, dirTemp);
+        pushQuad(OP_TIMES, minusOneDir, operandDir, dirTemp);
 
         // add dir of temporary var to operand stack
         pushOperand(dirTemp);
@@ -896,17 +975,17 @@ ASIGNACION
         
         // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
         if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
 
-        // push new quad
-        pushQuad(operator, dirRight, dirLeft, null);
+        // push new equals quad
+        pushQuad(operator, dirRight, null, dirLeft);
     };
 
 EQUALSSIGN
     : equals {
-        pushOperator("equals");
-        $$ = "equals";
+        pushOperator(OP_EQUALS);
+        $$ = OP_EQUALS;
     }
     ;
 
@@ -918,19 +997,19 @@ RETORNO_FUNCION
         
         // Check that the type of the returned exp is the same as the function type
         if (functionDirectory.get(currentFunctionId).type != getTypeFromDir(exp)) {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
 
         // If exp is not a temp, generate a temporary copy (to not use the variable dir, as its value may change)
         if (exp < 60000 || exp > 99999) {
             var dirTemp = generateDir(startingDirCodes.get("temp," + getTypeFromDir(exp)));
-            pushQuad("equals", exp, dirTemp, null);
+            pushQuad(OP_EQUALS, exp, null, dirTemp);
 
             exp = dirTemp;
         }
 
         // push new quad
-        pushQuad("return", exp, null, null);
+        pushQuad(OP_RETURN, exp, null, null);
     };
 
 LECTURA
@@ -945,7 +1024,7 @@ ID_ACCESS_VAR_LECTURA
         var dirOperand = stackOperands.pop();
 
         // push write quad with dir for each argument
-        pushQuad("read", dirOperand, null, null);
+        pushQuad(OP_READ, dirOperand, null, null);
     };
 
 ESCRITURA
@@ -957,7 +1036,7 @@ ESCRITURA_AUX_WRAPPER
         var dirOperand = stackOperands.pop();
 
         // push write quad with dir for each argument
-        pushQuad("write", dirOperand, null, null);
+        pushQuad(OP_WRITE, dirOperand, null, null);
     };
 
 ESCRITURA_AUX
@@ -972,7 +1051,7 @@ ESCRITURA_AUX2
     : comma ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 | ;
 
 DECISION_IF
-    : if EXPRESION_IF then BLOQUE DECISION_IF_AUX {
+    : if EXPRESION_IF BLOQUE DECISION_IF_AUX {
         var end = stackJumps.pop();
         //end es el num del quad que vamos a rellenar
         //quadcount es hacia donde va saltar (lo que va rellenar en el quad)
@@ -986,16 +1065,16 @@ EXPRESION_IF
     : lparen EXPRESION rparen {
         // check que expresion sea bool
         var dirExpressionIf = stackOperands.pop();
-        if(getTypeFromDir(dirExpressionIf) == "bool"){
+        if (getTypeFromDir(dirExpressionIf) == "bool") {
             
             // dir2 of the gotof quad is the quad we will goto, will be filled later
-            pushQuad("gotof", dirExpressionIf, null, null);
+            pushQuad(OP_GOTOF, dirExpressionIf, null, null);
             //cuando llegas al else o al final del if, llamamos una funcion que hace pop del stackjumps y lo llena, usando la posicion de quadcount - 1
             // push quadCount of the gotof quad 
             stackJumps.push(quadCount - 1);
         }
         else {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
     };
 
@@ -1004,17 +1083,17 @@ DECISION_IF_AUX
 
 ELSE_START
     : else {
-        pushQuad("goto", null, null, null);
+        pushQuad(OP_GOTO, null, null, null);
         var posGotoF = stackJumps.pop();
         stackJumps.push(quadCount - 1);
         fillQuad(posGotoF);
     };
 
 CONDICIONAL_WHILE
-    : WHILE_START EXPRESION_IF do BLOQUE{
+    : WHILE_START EXPRESION_IF BLOQUE{
         var endJump = stackJumps.pop();
         var returnJump = stackJumps.pop();
-        pushQuad("goto", returnJump, null, null);
+        pushQuad(OP_GOTO, null, null, returnJump);
         fillQuad(endJump);
     };
 
@@ -1024,16 +1103,17 @@ WHILE_START
     };
 
 NO_CONDICIONAL_FOR
-    : for ID_WRAPPER CHECK_IS_NUMBER equals FOR_EXP1 to FOR_EXP2 do BLOQUE {
+    : for ID_WRAPPER CHECK_IS_NUMBER equals FOR_EXP1 to FOR_EXP2 BLOQUE {
         // get for control variable
         var vControl = top(forVars).vControl;
 
-        pushQuad("plus", vControl, addConstant(1, CONST_INT), vControl);
+        pushQuad(OP_PLUS, vControl, addConstant(1, CONST_INT), vControl);
         var quadGotoFFor = stackJumps.pop();
         var quadComparisonFor = stackJumps.pop();
 
-        pushQuad("goto", quadComparisonFor, null, null);
-        quads[quadGotoFFor].dir2 = quadCount;
+        pushQuad(OP_GOTO, null, null, quadComparisonFor);
+        // FILL FOR GOTOF QUAD
+        quads[quadGotoFFor].dir3 = quadCount;
 
         // pop control variable from array of control variables
         forVars.pop();
@@ -1042,7 +1122,7 @@ NO_CONDICIONAL_FOR
 CHECK_IS_NUMBER
     : ID_SIMPLE_VAR {
         if (getTypeFromDir($1.dir) != "int" && getTypeFromDir($1.dir) != "float") {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
     };
 
@@ -1050,7 +1130,7 @@ FOR_EXP1
     : EXP {
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
         else {
             // pop control variable from operand stack and save it internally
@@ -1060,9 +1140,9 @@ FOR_EXP1
             // check that control variable and exp are of compatible data types
             var resultType = semanticCube(vControl, exp, "equals");
             if (resultType == undefined) {
-                flagError(ERROR_TYPE_MISMATCH);
+                flagError(ERROR_TYPE_MISMATCH, @1.first_line);
             }
-            pushQuad("equals", exp, vControl, null);
+            pushQuad(OP_EQUALS, exp, null, vControl);
         }
     };
 
@@ -1070,7 +1150,7 @@ FOR_EXP2
     : EXP {
         var exp = stackOperands.pop();
         if (getTypeFromDir(exp) != "int" && getTypeFromDir(exp) != "float") {
-            flagError(ERROR_TYPE_MISMATCH);
+            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
         else {
             var vControl = top(forVars).vControl;
@@ -1078,15 +1158,15 @@ FOR_EXP2
             // use semantic cube to generate the direction for the temporary var
             var resultType = semanticCube(vControl, exp, "lessthan");
             if (resultType == undefined) {
-                flagError(ERROR_TYPE_MISMATCH);
+                flagError(ERROR_TYPE_MISMATCH, @1.first_line);
             }
             var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
 
             // quad for comparison in for loop
-            pushQuad("lessthan", vControl, exp, dirTemp);
+            pushQuad(OP_LESSTHAN, vControl, exp, dirTemp);
 
             stackJumps.push(quadCount - 1);
-            pushQuad("gotoF", dirTemp, null, null);
+            pushQuad(OP_GOTOF, dirTemp, null, null);
             stackJumps.push(quadCount - 1);
         }
     };

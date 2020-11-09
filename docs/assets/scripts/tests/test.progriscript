@@ -1,6 +1,11 @@
 program test;
 var int j, f, z;
 
-main ( ){ 
-    j = 5 - (1 +2 / 3 -4 ) * 5 + 8;
+module int hola(int a, int b)
+{
+    return (a + b);
+}
+
+main ( ){
+    hola(1,2);
 }
