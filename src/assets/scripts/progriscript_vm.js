@@ -1,5 +1,3 @@
-import { throwError } from 'rxjs';
-
 var quads;
 var funcs;
 var constTable;
@@ -8,6 +6,7 @@ var instructionPointer = 0;
 var globalMemory;
 var executionStack = [];
 var codeInOut = {input: "", output: []};
+var willRead = false;
 
 const fs = require('fs');
 
@@ -92,6 +91,29 @@ function resetVariables(){
     instructionPointer = 0;
     executionStack = [];
     codeInOut = {input: "", output: []};
+    willRead = false;
+}
+
+function getTypeFromDir(dir) {
+    //depending on range get type
+    if ((dir >= GLOBAL_INT && dir < GLOBAL_FLOAT) || (dir >= LOCAL_INT && dir < LOCAL_FLOAT) 
+        || (dir >= TEMP_INT && dir < TEMP_FLOAT) || (dir >= CONST_INT && dir < CONST_FLOAT)) {
+            return "int";
+    }
+    if ((dir >= GLOBAL_FLOAT && dir < GLOBAL_CHAR) || (dir >= LOCAL_FLOAT && dir < LOCAL_CHAR) 
+        || (dir >= TEMP_FLOAT && dir < TEMP_CHAR) || (dir >= CONST_FLOAT && dir < CONST_CHAR)) {
+            return "float";
+    }
+    if ((dir >= GLOBAL_CHAR && dir < LOCAL_INT) || (dir >= LOCAL_CHAR && dir < TEMP_INT) 
+        || (dir >= TEMP_CHAR && dir < TEMP_BOOL) || (dir >= CONST_CHAR && dir < CONST_LETRERO)) {
+            return "char";
+    }
+    if (dir >= TEMP_BOOL && dir < CONST_INT){
+            return "bool";
+    }
+    if (dir >= CONST_LETRERO) {
+        return "letrero";
+    }
 }
 
 export function startVM(code, inout) {
@@ -125,9 +147,18 @@ export function startVM(code, inout) {
     iterateQuads();
 }
 
+export function sendRead(inout){
+    codeInOut = inout;
+    iterateQuads();
+}
+
 function iterateQuads() {
     while (instructionPointer < quads.length) {
         executeQuad(quads[instructionPointer]);
+        if(willRead == true){
+            codeInOut.input = "willRead";
+            return;
+        }
     }
 }
 
@@ -276,9 +307,27 @@ function executeQuad(quad) {
     
     switch(quad.operator) {
         case OP_READ:
-            //call async function that will await an input
-            //var res = readFromFrontEnd();
-            //setOnMemory(dir1, res);
+            if(willRead == false){
+                willRead = true;
+                return;
+            }
+            else{
+                willRead = false;
+                var res = codeInOut.input;
+                //cast to correct type
+                var type = getTypeFromDir(dir1);
+                if(type == "int"){
+                    res = Math.floor(Number(res));
+                }
+                if(type == "float"){
+                    res = Number(res);
+                }
+                if(type == "bool"){
+                    res = Boolean(res);
+                }
+                setOnMemory(dir1, res);
+                codeInOut.input = "";
+            }
             break;
         case OP_WRITE:
             //console.log(getFromMemory(dir1));

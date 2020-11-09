@@ -25,6 +25,8 @@ export class Tab1Page {
 
   theme = 'vs-dark';
 
+  progriscript_vm;
+
   initialText = "program test;\n\
 var int j, f;\n\
 main ( ){\n\
@@ -95,10 +97,13 @@ main ( ){\n\
     try{
       //var progriscript_jison = require("../../assets/scripts/progriscript_jison");
       //var result = JSON.stringify(progriscript_jison.parse(code));
-      var progriscript_vm = require("../../assets/scripts/progriscript_vm");
+      this.progriscript_vm = require("../../assets/scripts/progriscript_vm");
       //var result = JSON.stringify(progriscript_vm.startVM(code, this.codeInOut));
       this.codeInOut.output = [];
-      progriscript_vm.startVM(code, this.codeInOut);
+      this.progriscript_vm.startVM(code, this.codeInOut);
+      if(this.codeInOut.input == "willRead"){
+        this.sendRead();
+      }
     }
     catch(error){
       this.codeInOut.output = [error.message];
@@ -246,7 +251,6 @@ main ( ){\n\
   
   enterInput(){
     console.log("enter input: " + this.inputTextArea);
-    console.log(this.codeInOut.output);
   }
 
   ionViewWillEnter(){
@@ -258,4 +262,34 @@ main ( ){\n\
     }
   }
 
+  
+async sendRead(){
+    const alert = await this.alertController.create({
+      header: 'Enter Input',
+      inputs: [
+        {
+          name: 'input',
+          type: 'text',
+          placeholder: "Input"
+        }
+      ],
+      buttons: [
+        {
+          text: 'Enter',
+          handler: data => {
+            if(this.codeInOut.input == "willRead"){
+              this.codeInOut.input = data.input;
+              this.progriscript_vm.sendRead(this.codeInOut)
+              if(this.codeInOut.input == "willRead"){
+                this.sendRead();
+              }
+            }
+          }
+        }
+    ]
+    });
+
+
+    await alert.present();
+  }
 }
