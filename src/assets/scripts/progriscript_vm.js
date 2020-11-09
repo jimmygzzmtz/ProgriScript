@@ -183,6 +183,8 @@ function getFromMemory(dir) {
     if (returningVar == undefined) {
         flagError(ERROR_UNDEFINED_VARIABLE);
     }
+
+    return returningVar;
 }
 
 function setOnMemory(dir, res) {
