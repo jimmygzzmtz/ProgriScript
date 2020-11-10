@@ -486,7 +486,7 @@ EXPRESSIONS
         for (let key of functionDirectory.keys()) {
             var value = functionDirectory.get(key);
             vmFuncs.set(key, {tempVarsUsed: value.tempVarsUsed, varsTableKeyLength: value.varTable.size,
-                returnDirs: value.returnDirs});
+                returnDirs: value.returnDirs, goSubCounter: 0});
         }
 
         // create constTable for VM, that uses dir as the key
@@ -574,7 +574,7 @@ TIPO
 // id | id[INT]~[INT]~
 ID_DECLARE_VAR
     : id {
-        $$ = createVariable($1, @1.first_line);
+        $$ = {dir: createVariable($1, @1.first_line)};
     }
     | id lsqbracket cte_int rsqbracket ID_DECLARE_VAR_AUX;
 
@@ -639,7 +639,7 @@ ID_LLAMADA_FUNCION
 
         // generate ERA size quad
         var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
-        pushQuad(OP_ERA, size, null, null);
+        pushQuad(OP_ERA, size, top(calledFuncs), null);
     };
 
 PARAMS_LLAMADA_FUNCION
@@ -658,11 +658,11 @@ PARAM
         if (paramCounter >= params.length) {
             flagError(ERROR_WRONG_NUM_PARAMS, @1.first_line);
         }
-        if (getTypeFromDir(dir) != params[paramCounter]) {
+        if (getTypeFromDir(dir) != params[paramCounter].type) {
             flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
 
-        pushQuad(OP_PARAMETER, dir, paramCounter, null);
+        pushQuad(OP_PARAMETER, dir, paramCounter, params[paramCounter].dir);
 
         top(calledParams).paramCounter++;
     };
@@ -730,7 +730,7 @@ FUNCION_TIPO
 VAR_FUNC_PARAM
     : TIPO ID_DECLARE_VAR {
         // pushear a params de la funcion el tipo
-        functionDirectory.get(currentFunctionId).params.push($1);
+        functionDirectory.get(currentFunctionId).params.push({type: $1, dir: $2.dir});
     };
     
 FUNCION_PARAM_LIST

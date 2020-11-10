@@ -7,6 +7,9 @@ var globalMemory;
 var executionStack = [];
 var codeInOut = {input: "", output: []};
 var willRead = false;
+const outputLimit = 100000;
+var funcCallsJumps = [];
+var memoryToBePushed;
 
 const fs = require('fs');
 
@@ -57,6 +60,7 @@ const ERROR_DIVISION_BY_ZERO = 1;
 const ERROR_UNDEFINED_VARIABLE = 2;
 const ERROR_TYPE_MISMATCH = 3;
 const ERROR_EMPTY_INPUT = 4;
+const ERROR_OUTPUT_LIMIT_EXCEEDED = 5;
 
 // Return error to front-end
 function flagError(errorCode) {
@@ -73,6 +77,9 @@ function flagError(errorCode) {
             break;
         case ERROR_EMPTY_INPUT:
             message = "Empty Input";
+            break;
+        case ERROR_OUTPUT_LIMIT_EXCEEDED:
+            message = "Output limit exceeded";
             break;
     }
 
@@ -142,6 +149,7 @@ export function startVM(code, inout) {
 
     quads = parseResultObj.quads;
     funcs = parseResultObj.funcs;
+    //funcs.get(id).returnDirs
     constTable = parseResultObj.constTable;
     programName = parseResultObj.programName;
 
@@ -174,8 +182,16 @@ function top(stack) {
     return stack[stack.length - 1];
 }
 
-function getFromMemory(dir) {
-    var currentMemory = top(executionStack);
+function getFromMemory(dir, getFromPrev=false) {
+
+    var currentMemory;
+    if (getFromPrev) {
+        currentMemory = executionStack[executionStack.length - 2];
+    }
+    else{
+        currentMemory = top(executionStack);
+    }
+    
     var delta = 0;
     
     //depending on range get delta to subtract to dir
@@ -192,13 +208,13 @@ function getFromMemory(dir) {
     switch(delta){
         // GLOBAL
         case 0:
-            returningVar = currentMemory.ints[dir - delta];
+            returningVar = executionStack[0].ints[dir - delta];
             break;
         case 10000:
-            returningVar = currentMemory.floats[dir - delta];
+            returningVar = executionStack[0].floats[dir - delta];
             break;
         case 20000:
-            returningVar = currentMemory.chars[dir - delta];
+            returningVar = executionStack[0].chars[dir - delta];
             break;
         // LOCAL
         case 30000:
@@ -239,14 +255,21 @@ function getFromMemory(dir) {
     }
 
     if (returningVar == undefined) {
+        //console.log("IP: " + instructionPointer);
         flagError(ERROR_UNDEFINED_VARIABLE);
     }
 
     return returningVar;
 }
 
-function setOnMemory(dir, res) {
-    var currentMemory = top(executionStack);
+function setOnMemory(dir, res, mem=null) {
+    var currentMemory;
+    if (mem != null) {
+        currentMemory = mem;
+    }
+    else {
+        currentMemory = top(executionStack);
+    }
     var delta = 0;
     
     //depending on range get delta to subtract to dir
@@ -261,13 +284,13 @@ function setOnMemory(dir, res) {
     switch(delta){
         // GLOBAL
         case 0:
-            currentMemory.ints[dir - delta] = res;
+            executionStack[0].ints[dir - delta] = res;
             break;
         case 10000:
-            currentMemory.floats[dir - delta] = res;
+            executionStack[0].floats[dir - delta] = res;
             break;
         case 20000:
-            currentMemory.chars[dir - delta] = res;
+            executionStack[0].chars[dir - delta] = res;
             break;
         // LOCAL
         case 30000:
@@ -350,6 +373,9 @@ function executeQuad(quad) {
             break;
         case OP_WRITE:
             //console.log(getFromMemory(dir1));
+            if(codeInOut.output.length > outputLimit){
+                flagError(ERROR_OUTPUT_LIMIT_EXCEEDED);
+            }
             codeInOut.output.push(getFromMemory(dir1));
             break;
         case OP_EQUALS:
@@ -421,20 +447,36 @@ function executeQuad(quad) {
             }
             break;
         case OP_ERA:
-            //do nothing because lists in javascript do not need defined size values
+            //create memory and push to execution stack
+            memoryToBePushed = new Memory(dir2);
+            //executionStack.push(localMemory);
             break;
         case OP_PARAMETER:
-            //do stuff
             //assign to the parameter variables the sent directions
+            //var previousMemory = getFromMemory(dir1, true);
+            //console.log("in param quad, dir1 value: " + getFromMemory(dir1));
+
+            setOnMemory(dir3, getFromMemory(dir1), memoryToBePushed);
+            //console.log("in param quad, dir3 value in memoryToBePushed: " + getFromMemory(dir3));
             break;
         case OP_GOSUB:
-            //do stuff
+            executionStack.push(memoryToBePushed);
+            funcCallsJumps.push(instructionPointer + 1);
+            instructionPointer = dir2 - 1;
+            
+            funcs.get(top(executionStack).functionId).goSubCounter;
             break;
         case OP_RETURN:
             //do stuff
+            var currentFunctionId = top(executionStack).functionId;
+            var returnDir = funcs.get(currentFunctionId).returnDirs[funcs.get(currentFunctionId).goSubCounter];
+            setOnMemory(returnDir, getFromMemory(dir1), executionStack[executionStack.length - 2]);
+            //funcs.get(top(executionStack).functionId).goSubCounter
             break;
         case OP_ENDFUNC:
-            //do stuff
+            //pop execution stack
+            instructionPointer = funcCallsJumps.pop() - 1;
+            executionStack.pop();
             break;
         case OP_END:
             //do nothing since code ends

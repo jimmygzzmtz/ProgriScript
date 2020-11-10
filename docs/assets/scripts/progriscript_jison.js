@@ -96,7 +96,7 @@ case 1:
         for (let key of functionDirectory.keys()) {
             var value = functionDirectory.get(key);
             vmFuncs.set(key, {tempVarsUsed: value.tempVarsUsed, varsTableKeyLength: value.varTable.size,
-                returnDirs: value.returnDirs});
+                returnDirs: value.returnDirs, goSubCounter: 0});
         }
 
         // create constTable for VM, that uses dir as the key
@@ -166,7 +166,7 @@ case 17:
 break;
 case 18:
 
-        this.$ = createVariable($$[$0], _$[$0].first_line);
+        this.$ = {dir: createVariable($$[$0], _$[$0].first_line)};
     
 break;
 case 24:
@@ -222,7 +222,7 @@ case 27:
 
         // generate ERA size quad
         var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
-        pushQuad(OP_ERA, size, null, null);
+        pushQuad(OP_ERA, size, top(calledFuncs), null);
     
 break;
 case 32:
@@ -234,11 +234,11 @@ case 32:
         if (paramCounter >= params.length) {
             flagError(ERROR_WRONG_NUM_PARAMS, _$[$0].first_line);
         }
-        if (getTypeFromDir(dir) != params[paramCounter]) {
+        if (getTypeFromDir(dir) != params[paramCounter].type) {
             flagError(ERROR_TYPE_MISMATCH, _$[$0].first_line);
         }
 
-        pushQuad(OP_PARAMETER, dir, paramCounter, null);
+        pushQuad(OP_PARAMETER, dir, paramCounter, params[paramCounter].dir);
 
         top(calledParams).paramCounter++;
     
@@ -289,7 +289,7 @@ break;
 case 42:
 
         // pushear a params de la funcion el tipo
-        functionDirectory.get(currentFunctionId).params.push($$[$0-1]);
+        functionDirectory.get(currentFunctionId).params.push({type: $$[$0-1], dir: $$[$0].dir});
     
 break;
 case 61:
