@@ -424,7 +424,7 @@
 "void"                 return 'void'
 "program"              return 'program'
 "main"                 return 'main'
-"module"               return 'module'
+"function"             return 'function'
 "if"                   return 'if'
 "then"                 return 'then'
 "else"                 return 'else'
@@ -671,9 +671,9 @@ PARAM
 ID_ACCESS_VAR_AUX
     : lsqbracket EXP rsqbracket | ;
 
-// module void|TIPO id (list[TIPO id ...]); VARS {BLOQUE}
+// function void|TIPO id (list[TIPO id ...]); VARS {BLOQUE}
 FUNCION
-    : module FUNCION_ID_WRAPPER lparen FUNCION_PARAM_LIST rparen VARS_FUNC BLOQUE {
+    : function FUNCION_ID_WRAPPER lparen FUNCION_PARAM_LIST rparen VARS_FUNC BLOQUE {
         // punto 7
         // check if non-void function has a return statement
         if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {

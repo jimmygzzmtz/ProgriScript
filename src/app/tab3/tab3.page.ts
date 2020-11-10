@@ -49,4 +49,20 @@ export class Tab3Page {
     await alert.present();
   }
 
+  async installPrompt(){
+    const alert = await this.alertController.create({
+      header: "How to Install",
+      message: "<ion-icon name='logo-apple'></ion-icon> Tap on <ion-icon name='share'></ion-icon>, then 'Add to Homescreen'.<br><br>\
+      <ion-icon name='logo-android'></ion-icon> Tap on <ion-icon name='menu'></ion-icon>, then 'Add to Homescreen'.<br><br>\
+      <ion-icon name='logo-chrome'></ion-icon><ion-icon name='logo-edge'></ion-icon> Click on <ion-icon name='add'></ion-icon> on the address bar.",
+      buttons: [
+        {
+            text: 'OK'
+        }
+    ]
+    });
+
+    await alert.present();
+  }
+
 }

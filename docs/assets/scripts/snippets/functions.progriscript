@@ -1,7 +1,7 @@
 program test;
 var int a, b;
 
-module int sum(int c, int d)
+function int sum(int c, int d)
 {
   return (c + d);
 }

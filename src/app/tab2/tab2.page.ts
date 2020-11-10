@@ -79,7 +79,7 @@ export class Tab2Page {
       {name: "Functions", description: "Use functions to avoid repeating code.", code: "program test;\n\
       var int a, b;\n\
       \n\
-      module int sum(int c, int d)\n\
+      function int sum(int c, int d)\n\
       {\n\
         return (c + d);\n\
       }\n\

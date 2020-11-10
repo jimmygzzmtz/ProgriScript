@@ -23,7 +23,7 @@ export class Tab1Page {
 
   codeInOut = {input: "", output: [""]};
 
-  theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? "vs-dark" : "vs-light";
+  theme;
 
   progriscript_vm;
 
@@ -55,6 +55,22 @@ main ( ){\n\
 
   onCodeChanged(value) {
     
+  }
+
+  ngOnInit() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    prefersDark.addListener((e) => this.changeTheme(e.matches));
+    this.changeTheme(prefersDark.matches)
+  }
+
+  
+  changeTheme(shouldChange) {
+    if(shouldChange){
+      this.theme = "vs-dark";
+    }
+    else{
+      this.theme = "vs-light";
+    }
   }
 
   constructor(private route: ActivatedRoute, private router: Router, private storage: Storage, public alertController: AlertController) {
