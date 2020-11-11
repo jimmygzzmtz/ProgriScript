@@ -37,7 +37,6 @@ main ( ){\n\
 ";
 
   codeTextArea: any = this.initialText;
-  inputTextArea: any;
 
   model = {
     language: 'typescript',
@@ -267,10 +266,6 @@ main ( ){\n\
       this.codeSelect = "new";
       this.storage.set('codes', JSON.stringify(this.codes));
     }
-  }
-  
-  enterInput(){
-    console.log("enter input: " + this.inputTextArea);
   }
 
   ionViewWillEnter(){
