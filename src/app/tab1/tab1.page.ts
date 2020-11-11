@@ -172,6 +172,10 @@ main ( ){\n\
           {
               text: 'Save',
               handler: data => {
+
+                if(data.name == ""){
+                  return false;
+                }
   
                 var newCode = {};
   

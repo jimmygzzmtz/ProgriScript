@@ -28,7 +28,7 @@ export class Tab2Page {
 
   fillSnippets(){
     this.codeSnippets = [
-      {name: "Date Types", description: "Use different data types depending on the type of the value.", code: "program test;\n\
+      {name: "Date Types", description: "Use different data types depending on the type of the value.", code: "program snippet;\n\
       var int a;\n\
       float b;\n\
       char c;\n\
@@ -38,7 +38,7 @@ export class Tab2Page {
         b = 2.5;\n\
         c = 'c';\n\
       }"},
-      {name: "Read/Write", description: "Read and Write values to communicate with the user.", code: "program test;\n\
+      {name: "Read/Write", description: "Read and Write values to communicate with the user.", code: "program snippet;\n\
       var int a, b;\n\
       main ( ){\n\
         read(a);\n\
@@ -46,7 +46,7 @@ export class Tab2Page {
         \n\
         write(a+b);\n\
       }"},
-      {name: "If/Else", description: "Use If and Else decisions to control which code executes.", code: 'program test;\n\
+      {name: "If/Else", description: "Use If and Else decisions to control which code executes.", code: 'program snippet;\n\
       var int a;\n\
       \n\
       main ( ){\n\
@@ -60,7 +60,7 @@ export class Tab2Page {
         }\n\
         \n\
       }'},
-      {name: "For/While Loops", description: "Use For or While loops to execute code until a condition is met.", code: "program test;\n\
+      {name: "For/While Loops", description: "Use For or While loops to execute code until a condition is met.", code: "program snippet;\n\
       var int a, b;\n\
       \n\
       main ( ){\n\
@@ -76,7 +76,7 @@ export class Tab2Page {
         }\n\
         \n\
       }"},
-      {name: "Functions", description: "Use functions to avoid repeating code.", code: "program test;\n\
+      {name: "Functions", description: "Use functions to avoid repeating code.", code: "program snippet;\n\
       var int a, b;\n\
       \n\
       function int sum(int c, int d)\n\
@@ -88,7 +88,31 @@ export class Tab2Page {
         read(a);\n\
         read(b);\n\
         write(sum(a, b));\n\
-      }"}
+      }"},
+      {name: "Fibonacci Series", description: "A more complex example using recursive functions.", code: 'program snippet;\n\
+      var int a, i;\n\
+      \n\
+      function int fibonacci(int a)\n\
+      {\n\
+        if( (a == 0) || (a == 1) ) {\n\
+            return(a);\n\
+        }\n\
+        else {\n\
+            return (fibonacci(a - 1) + fibonacci(a - 2));\n\
+        }\n\
+      }\n\
+      \n\
+      main ( ){\n\
+        i = 0;\n\
+        write("Number of series : ");\n\
+        read(a);\n\
+        write("Fibonnaci Series : ");\n\
+        while(i < a) {\n\
+            write (fibonacci(i));\n\
+            i = i + 1;\n\
+        }\n\
+      }'},
+      
     ]
   }
 

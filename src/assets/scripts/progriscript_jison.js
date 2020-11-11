@@ -96,7 +96,7 @@ case 1:
         for (let key of functionDirectory.keys()) {
             var value = functionDirectory.get(key);
             vmFuncs.set(key, {tempVarsUsed: value.tempVarsUsed, varsTableKeyLength: value.varTable.size,
-                returnDirs: value.returnDirs, goSubCounter: 0});
+                returnDirs: value.returnDirs});
         }
 
         // create constTable for VM, that uses dir as the key
@@ -182,10 +182,19 @@ case 24:
         var returnType = functionDirectory.get(top(calledFuncs)).type;
         if (returnType != "void") {
             var returnTemp = generateDir(startingDirCodes.get("temp," + returnType));
-            console.log("funcCall. generated returnTempDir: " + returnTemp);
             stackOperands.push(returnTemp);
 
-            functionDirectory.get(top(calledFuncs)).returnDirs.push(returnTemp);
+            // returnDirs is a map that has the returnDirs in the order they are used inside a function
+            // key: name of the function called
+            // value: list with the return dirs of the called function, when called inside the function of functionDirectory
+            var returnDirs = functionDirectory.get(top(calledFuncs)).returnDirs;
+            if (returnDirs.has(currentFunctionId)) {
+                returnDirs.get(currentFunctionId).push(returnTemp);
+            }
+            else {
+                returnDirs.set(currentFunctionId, [returnTemp])
+            }
+            
             this.$ = {dir: returnTemp};
         }
         else {
@@ -408,7 +417,6 @@ break;
 case 84:
 
         if (top(stackOperators) == OP_PLUS || top(stackOperators) == OP_MINUS) {
-            console.log("about to generate plus quad. stackOperands: " + stackOperands);
             addQuad(_$[$0-1].first_line);
         }
     
@@ -1071,7 +1079,7 @@ parse: function parse(input) {
             currentFunctionId = id;
             var countersCopy = counters.slice(0);
             functionDirectory.set(id, {type: funcType, varTable: new Map(), params: [], quadCounter: 0, paramCounter: 0, 
-            initialCounters: countersCopy, tempVarsUsed: 0, foundReturnStatement: false, returnDirs: []});
+            initialCounters: countersCopy, tempVarsUsed: 0, foundReturnStatement: false, returnDirs: new Map()});
         }
         else {
             flagError(ERROR_FUNC_REDECLARATION, lineNumber);
@@ -1178,7 +1186,6 @@ parse: function parse(input) {
 
     function pushOperand(operand){
         stackOperands.push(operand);
-        console.log("calledFuncs: " + calledFuncs + ". pushed operand: " + operand);
     }
 
     function pushFondoFalso() {

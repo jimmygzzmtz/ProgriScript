@@ -96,6 +96,8 @@ class Memory {
         this.tempFloats = [];
         this.tempChars = [];
         this.tempBools = [];
+        this.callCounters = new Map();
+        this.alreadySeenEras = new Set();
     }
 }
 
@@ -107,6 +109,8 @@ function resetVariables(){
     executionStack = [];
     codeInOut = {input: "", output: []};
     willRead = false;
+    funcCallsJumps = [];
+    memoryToBePushed = null;
 }
 
 function getTypeFromDir(dir) {
@@ -182,11 +186,15 @@ function top(stack) {
     return stack[stack.length - 1];
 }
 
+function getPreviousMemory() {
+    return executionStack[executionStack.length - 2];
+}
+
 function getFromMemory(dir, getFromPrev=false) {
 
     var currentMemory;
     if (getFromPrev) {
-        currentMemory = executionStack[executionStack.length - 2];
+        currentMemory = getPreviousMemory();
     }
     else{
         currentMemory = top(executionStack);
@@ -255,7 +263,7 @@ function getFromMemory(dir, getFromPrev=false) {
     }
 
     if (returningVar == undefined) {
-        //console.log("IP: " + instructionPointer);
+        console.log("IP: " + instructionPointer);
         flagError(ERROR_UNDEFINED_VARIABLE);
     }
 
@@ -447,9 +455,22 @@ function executeQuad(quad) {
             }
             break;
         case OP_ERA:
-            //create memory and push to execution stack
+            //create memory here, will be pushed in OP_GOSUB
             memoryToBePushed = new Memory(dir2);
-            //executionStack.push(localMemory);
+            var currentMemory = top(executionStack);
+
+            // dir2 in OP_ERA contains the functionId of the called function
+            // callCounters is a map containing the number of calls of each function
+            // alreadySeenEras contains the quad number of eras that were already processed in the respective memory
+            // Add 1 to callCounters only when the OP_ERA being processed is new
+            if (currentMemory.callCounters.has(dir2) && !currentMemory.alreadySeenEras.has(instructionPointer)) {
+                currentMemory.callCounters.set(dir2, currentMemory.callCounters.get(dir2) + 1);
+            }
+            else {
+                currentMemory.alreadySeenEras.add(instructionPointer);
+                currentMemory.callCounters.set(dir2, 0);
+            }
+
             break;
         case OP_PARAMETER:
             //assign to the parameter variables the sent directions
@@ -463,15 +484,17 @@ function executeQuad(quad) {
             executionStack.push(memoryToBePushed);
             funcCallsJumps.push(instructionPointer + 1);
             instructionPointer = dir2 - 1;
-            
-            funcs.get(top(executionStack).functionId).goSubCounter;
             break;
         case OP_RETURN:
-            //do stuff
             var currentFunctionId = top(executionStack).functionId;
-            var returnDir = funcs.get(currentFunctionId).returnDirs[funcs.get(currentFunctionId).goSubCounter];
-            setOnMemory(returnDir, getFromMemory(dir1), executionStack[executionStack.length - 2]);
-            //funcs.get(top(executionStack).functionId).goSubCounter
+            var previousMemory = getPreviousMemory();
+            
+            // get the conrresponding returnDir where the return value will be saved
+            var funcCallCounter = previousMemory.callCounters.get(currentFunctionId);
+            var arrReturnDirs = funcs.get(currentFunctionId).returnDirs.get(previousMemory.functionId);
+            var returnDir = arrReturnDirs[funcCallCounter];
+            
+            setOnMemory(returnDir, getFromMemory(dir1), previousMemory);
             break;
         case OP_ENDFUNC:
             //pop execution stack
