@@ -1,11 +1,13 @@
 program test;
-var int j, f, z;
+var int a, b;
 
-module int hola(int a, int b)
+function int times(int c, int d)
 {
-    return (a + b);
+    return (c * d);
 }
 
 main ( ){
-    hola(1,2);
+    a = 1;
+    b = 2;
+    write(5 + times(b, a));
 }

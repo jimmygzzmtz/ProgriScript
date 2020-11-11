@@ -182,6 +182,7 @@ case 24:
         var returnType = functionDirectory.get(top(calledFuncs)).type;
         if (returnType != "void") {
             var returnTemp = generateDir(startingDirCodes.get("temp," + returnType));
+            console.log("funcCall. generated returnTempDir: " + returnTemp);
             stackOperands.push(returnTemp);
 
             functionDirectory.get(top(calledFuncs)).returnDirs.push(returnTemp);
@@ -194,6 +195,7 @@ case 24:
 
         calledParams.pop();
         calledFuncs.pop();
+        removeFondoFalso(_$[$0-4].first_line);
     
 break;
 case 25:
@@ -223,6 +225,8 @@ case 27:
         // generate ERA size quad
         var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
         pushQuad(OP_ERA, size, top(calledFuncs), null);
+
+        pushFondoFalso();
     
 break;
 case 32:
@@ -404,6 +408,7 @@ break;
 case 84:
 
         if (top(stackOperators) == OP_PLUS || top(stackOperators) == OP_MINUS) {
+            console.log("about to generate plus quad. stackOperands: " + stackOperands);
             addQuad(_$[$0-1].first_line);
         }
     
@@ -429,15 +434,12 @@ case 89:
 break;
 case 92:
 
-        var topOp = stackOperators.pop();
-        if (topOp != "lparen") {
-            flagError(ERROR_EXP_PAREN, _$[$0-2].first_line);
-        }
+        removeFondoFalso(_$[$0-2].first_line);
     
 break;
 case 93:
 
-        pushOperator("lparen");
+        pushFondoFalso();
     
 break;
 case 94: case 96:
@@ -1176,6 +1178,18 @@ parse: function parse(input) {
 
     function pushOperand(operand){
         stackOperands.push(operand);
+        console.log("calledFuncs: " + calledFuncs + ". pushed operand: " + operand);
+    }
+
+    function pushFondoFalso() {
+        pushOperator("lparen");
+    }
+
+    function removeFondoFalso(lineNumber) {
+        var topOp = stackOperators.pop();
+        if (topOp != "lparen") {
+            flagError(ERROR_EXP_PAREN, lineNumber);
+        }
     }
 
     function generateDir(startingDir) {

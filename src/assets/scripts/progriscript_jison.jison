@@ -337,6 +337,18 @@
 
     function pushOperand(operand){
         stackOperands.push(operand);
+        console.log("calledFuncs: " + calledFuncs + ". pushed operand: " + operand);
+    }
+
+    function pushFondoFalso() {
+        pushOperator("lparen");
+    }
+
+    function removeFondoFalso(lineNumber) {
+        var topOp = stackOperators.pop();
+        if (topOp != "lparen") {
+            flagError(ERROR_EXP_PAREN, lineNumber);
+        }
     }
 
     function generateDir(startingDir) {
@@ -598,6 +610,7 @@ ID_ACCESS_VAR
         var returnType = functionDirectory.get(top(calledFuncs)).type;
         if (returnType != "void") {
             var returnTemp = generateDir(startingDirCodes.get("temp," + returnType));
+            console.log("funcCall. generated returnTempDir: " + returnTemp);
             stackOperands.push(returnTemp);
 
             functionDirectory.get(top(calledFuncs)).returnDirs.push(returnTemp);
@@ -610,6 +623,7 @@ ID_ACCESS_VAR
 
         calledParams.pop();
         calledFuncs.pop();
+        removeFondoFalso(@1.first_line);
     };
     //| id lparen rparen;
 
@@ -640,6 +654,8 @@ ID_LLAMADA_FUNCION
         // generate ERA size quad
         var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
         pushQuad(OP_ERA, size, top(calledFuncs), null);
+
+        pushFondoFalso();
     };
 
 PARAMS_LLAMADA_FUNCION
@@ -868,6 +884,7 @@ EXP_AUX2
 TERMINO
     : FACTOR_WRAPPER TERMINO_AUX {
         if (top(stackOperators) == OP_PLUS || top(stackOperators) == OP_MINUS) {
+            console.log("about to generate plus quad. stackOperands: " + stackOperands);
             addQuad(@1.first_line);
         }
     };
@@ -898,15 +915,12 @@ FACTOR
 
 FACTOR_AUX
     : BEGINPAREN EXPRESION rparen {
-        var topOp = stackOperators.pop();
-        if (topOp != "lparen") {
-            flagError(ERROR_EXP_PAREN, @1.first_line);
-        }
+        removeFondoFalso(@1.first_line);
     };
 
 BEGINPAREN
     : lparen {
-        pushOperator("lparen");
+        pushFondoFalso();
     }
     ;
 
