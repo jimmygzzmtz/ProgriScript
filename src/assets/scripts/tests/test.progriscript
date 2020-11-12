@@ -1,13 +1,7 @@
 program test;
-var int a, b;
-
-function int times(int c, int d)
-{
-    return (c * d);
-}
+var int a[5][2];
 
 main ( ){
-    a = 1;
-    b = 2;
-    write(5 + times(b, a));
+    a[6/2][1/1] = 1;
+    write(a[3][1]);
 }
