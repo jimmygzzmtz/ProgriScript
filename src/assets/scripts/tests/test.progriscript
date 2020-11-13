@@ -1,7 +1,7 @@
 program test;
-var int a[5][2];
+var int a[5][5];
 
 main ( ){
-    a[6/2][1/1] = 1;
-    write(a[3][1]);
+    a[3][2] = 1;
+    write(a[3][2]);
 }

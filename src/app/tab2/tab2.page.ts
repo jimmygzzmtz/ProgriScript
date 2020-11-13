@@ -89,7 +89,76 @@ export class Tab2Page {
         read(b);\n\
         write(sum(a, b));\n\
       }"},
-      {name: "Fibonacci Series", description: "A more complex example using recursive functions.", code: 'program snippet;\n\
+      {name: "1D Arrays", description: "A way to store more than one value in a data type.", code: "program test;\n\
+      var int a[5];\n\
+      \n\
+      main ( ){\n\
+          a[3] = (9/3);\n\
+          a[2] = (6*3);\n\
+          write(a[3] + a[2]);\n\
+      }"},
+      {name: "2D Arrays", description: "A way to store more than one value per row in a data type.", code: "program test;\n\
+      var int a[5][5];\n\
+      \n\
+      main ( ){\n\
+          a[3][2] = 1;\n\
+          a[2][1] = (6*3);\n\
+          write(a[3][2] + a[2][1] + 1);\n\
+      }"},
+      {name: "Iterative Factorial", description: "An iterative way to obtain the factorial of a number.", code: 'program snippet;\n\
+      var int n, fact, i;\n\
+      \n\
+      main ( ){\n\
+        write("Enter a positive integer: ");\n\
+        read(n);\n\
+        fact = 1;\n\
+        i = 1;\n\
+        for i = 1 to (n+1){\n\
+          fact = fact * i;\n\
+        }\n\
+        write(fact);\n\
+      }'},
+      {name: "Iterative Fibonacci", description: "An iterative way to obtain the fibonacci series.", code: 'program snippet;\n\
+      var int n;\n\
+      \n\
+      function void fib(int num)\n\
+      var int x, y, z, i;\n\
+      {\n\
+        x = 0;\n\
+        y = 1;\n\
+        z = 0;\n\
+        for i = 0 to num{\n\
+            write(x);\n\
+            z = x + y;\n\
+            x = y;\n\
+            y = z;\n\
+        }\n\
+      }\n\
+      \n\
+      main ( ){\n\
+        write("Enter fibonnaci series");\n\
+        read(n);\n\
+        fib(n);\n\
+      }'},
+      {name: "Recursive Factorial", description: "A recursive way to obtain the factorial of a number.", code: 'program snippet;\n\
+      var int n;\n\
+      \n\
+      function int factorial(int f)\n\
+      {\n\
+        if(f > 1){\n\
+            return (f * factorial(f - 1));\n\
+        }\n\
+        else{\n\
+            return (1);\n\
+        }\n\
+      }\n\
+      \n\
+      main ( ){\n\
+        write("Enter a positive integer: ");\n\
+        read(n);\n\
+        write(factorial(n));\n\
+      }'},
+      {name: "Recursive Fibonacci", description: "A recursive way to obtain the fibonacci series.", code: 'program snippet;\n\
       var int a, i;\n\
       \n\
       function int fibonacci(int a)\n\
@@ -112,7 +181,6 @@ export class Tab2Page {
             i = i + 1;\n\
         }\n\
       }'},
-      
     ]
   }
 

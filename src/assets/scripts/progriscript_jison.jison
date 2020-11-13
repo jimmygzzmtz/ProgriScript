@@ -48,6 +48,7 @@
     // Operation codes
     const OP_READ = "read";
     const OP_WRITE = "write";
+    const OP_VER = "ver";
     const OP_EQUALS = "equals";
     const OP_PLUS = "plus";
     const OP_MINUS = "minus";
@@ -658,14 +659,14 @@ ID_ACCESS_VAR
         if ($6 != null) {
             expMatrixDim = stackOperands.pop();
             // is matrix
-            pushQuad("ver", expMatrixDim, addConstant(0, CONST_INT), addConstant(array.sizeMatrixDim, CONST_INT));
+            pushQuad(OP_VER, expMatrixDim, addConstant(0, CONST_INT), addConstant(array.sizeMatrixDim, CONST_INT));
 
             dirTempMatrix = generateTemp(expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), OP_TIMES, @1.first_line);
             pushQuad(OP_TIMES, expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), dirTempMatrix);
         }
 
         // single dimension array
-        pushQuad("ver", expLastDim, addConstant(0, CONST_INT), addConstant(array.sizeLastDim, CONST_INT));
+        pushQuad(OP_VER, expLastDim, addConstant(0, CONST_INT), addConstant(array.sizeLastDim, CONST_INT));
 
         if (dirTempMatrix != addConstant(0, CONST_INT)) {
             dirTempMatrix = stackOperands.pop();
@@ -678,7 +679,9 @@ ID_ACCESS_VAR
         
         var arrayAccessedDir = generateTemp(dirTempSum, addConstant(array.dir, CONST_INT), OP_PLUS, @1.first_line);
         stackOperands[stackOperands.length - 1] = "(" + top(stackOperands) + ")";
-        pushQuad(OP_PLUS, dirTempSum, addConstant(array.dir, CONST_INT), "(" + arrayAccessedDir + ")");
+        pushQuad(OP_PLUS, dirTempSum, addConstant(array.dir, CONST_INT), arrayAccessedDir);
+
+        removeFondoFalso();
 
         $$ = {dir: arrayAccessedDir};
     }
@@ -736,6 +739,7 @@ ID_SIMPLE_VAR
 
 ID_ARRAY
     : {
+        pushFondoFalso();
         if (variableExists(lastReadId, @1.first_line)) {
             var dir = getVariable(lastReadId, currentFunctionId, @1.first_line).dir;
             $$ = {name: lastReadId, dir: dir};

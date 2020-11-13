@@ -117,9 +117,6 @@ case 1:
                 vmConsts.letrero[dir - CONST_LETRERO] = key; 
             }
         }
-
-        printMap(constTable);
-        console.log(quads);
         
         // data sent to VM
         var returnObj = {
@@ -214,14 +211,14 @@ case 23:
         if ($$[$0] != null) {
             expMatrixDim = stackOperands.pop();
             // is matrix
-            pushQuad("ver", expMatrixDim, addConstant(0, CONST_INT), addConstant(array.sizeMatrixDim, CONST_INT));
+            pushQuad(OP_VER, expMatrixDim, addConstant(0, CONST_INT), addConstant(array.sizeMatrixDim, CONST_INT));
 
             dirTempMatrix = generateTemp(expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), OP_TIMES, _$[$0-5].first_line);
             pushQuad(OP_TIMES, expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), dirTempMatrix);
         }
 
         // single dimension array
-        pushQuad("ver", expLastDim, addConstant(0, CONST_INT), addConstant(array.sizeLastDim, CONST_INT));
+        pushQuad(OP_VER, expLastDim, addConstant(0, CONST_INT), addConstant(array.sizeLastDim, CONST_INT));
 
         if (dirTempMatrix != addConstant(0, CONST_INT)) {
             dirTempMatrix = stackOperands.pop();
@@ -232,10 +229,11 @@ case 23:
 
         dirTempSum = stackOperands.pop();
         
-        console.log("array.dir in last sum quad: " + array.dir);
         var arrayAccessedDir = generateTemp(dirTempSum, addConstant(array.dir, CONST_INT), OP_PLUS, _$[$0-5].first_line);
         stackOperands[stackOperands.length - 1] = "(" + top(stackOperands) + ")";
-        pushQuad(OP_PLUS, dirTempSum, addConstant(array.dir, CONST_INT), "(" + arrayAccessedDir + ")");
+        pushQuad(OP_PLUS, dirTempSum, addConstant(array.dir, CONST_INT), arrayAccessedDir);
+
+        removeFondoFalso();
 
         this.$ = {dir: arrayAccessedDir};
     
@@ -294,6 +292,7 @@ case 26:
 break;
 case 27:
 
+        pushFondoFalso();
         if (variableExists(lastReadId, _$[$0].first_line)) {
             var dir = getVariable(lastReadId, currentFunctionId, _$[$0].first_line).dir;
             this.$ = {name: lastReadId, dir: dir};
@@ -981,6 +980,7 @@ parse: function parse(input) {
     // Operation codes
     const OP_READ = "read";
     const OP_WRITE = "write";
+    const OP_VER = "ver";
     const OP_EQUALS = "equals";
     const OP_PLUS = "plus";
     const OP_MINUS = "minus";
@@ -1191,7 +1191,6 @@ parse: function parse(input) {
         if (!varTable.has(id)) {
             var scope = scopeIsGlobal() ? "global" : "local";
             var arrayBaseDir = generateDir(startingDirCodes.get(scope + "," + currentType));
-            console.log("array base dir when created: " + arrayBaseDir);
 
             var arraySize = (matrixDim != null) ? lastDim * matrixDim : lastDim;
             varTable.set(id, {type: currentType, dir: arrayBaseDir, sizeLastDim: lastDim, sizeMatrixDim: matrixDim, size: arraySize});
@@ -1298,7 +1297,6 @@ parse: function parse(input) {
     function generateTemp(dirLeft, dirRight, operator, lineNumber) {
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(dirLeft, dirRight, operator);
-
         if (resultType == undefined) {
             console.log("type mismatach in generate temp");
             flagError(ERROR_TYPE_MISMATCH, lineNumber);
