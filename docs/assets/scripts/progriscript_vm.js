@@ -32,6 +32,7 @@ const CONST_LETRERO = 130000;
 // Operation codes
 const OP_READ = "read";
 const OP_WRITE = "write";
+const OP_VER = "ver";
 const OP_EQUALS = "equals";
 const OP_PLUS = "plus";
 const OP_MINUS = "minus";
@@ -339,10 +340,24 @@ function setOnMemory(dir, res, mem=null) {
     }
 }
 
+function parenDirVal(dir){
+    if (dir != null && dir[0] == "(") {
+        dir = Number(dir.slice(1,-1));
+        return getFromMemory(dir);
+    }
+    else{
+        return dir;
+    }
+}
+
 function executeQuad(quad) {
     var dir1 = quad.dir1;
     var dir2 = quad.dir2;
     var dir3 = quad.dir3;
+
+    dir1 = parenDirVal(dir1);
+    dir2 = parenDirVal(dir2);
+    dir3 = parenDirVal(dir3);
     
     switch(quad.operator) {
         case OP_READ:
@@ -380,11 +395,12 @@ function executeQuad(quad) {
             }
             break;
         case OP_WRITE:
-            //console.log(getFromMemory(dir1));
             if(codeInOut.output.length > outputLimit){
                 flagError(ERROR_OUTPUT_LIMIT_EXCEEDED);
             }
             codeInOut.output.push(getFromMemory(dir1));
+            break;
+        case OP_VER:
             break;
         case OP_EQUALS:
             setOnMemory(dir3, getFromMemory(dir1));

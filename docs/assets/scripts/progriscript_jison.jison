@@ -48,6 +48,7 @@
     // Operation codes
     const OP_READ = "read";
     const OP_WRITE = "write";
+    const OP_VER = "ver";
     const OP_EQUALS = "equals";
     const OP_PLUS = "plus";
     const OP_MINUS = "minus";
@@ -253,6 +254,26 @@
         }
     }
 
+    function createArray(id, lastDim, matrixDim, lineNumber) {
+        var varTable = functionDirectory.get(currentFunctionId).varTable;
+        if (!varTable.has(id)) {
+            var scope = scopeIsGlobal() ? "global" : "local";
+            var arrayBaseDir = generateDir(startingDirCodes.get(scope + "," + currentType));
+
+            var arraySize = (matrixDim != null) ? lastDim * matrixDim : lastDim;
+            varTable.set(id, {type: currentType, dir: arrayBaseDir, sizeLastDim: lastDim, sizeMatrixDim: matrixDim, size: arraySize});
+
+            for(var i = 1; i < arraySize; i++) {
+                generateDir(startingDirCodes.get(scope + "," + currentType));
+            }
+
+            return arrayBaseDir;
+        }
+        else {
+            flagError(ERROR_VAR_REDECLATION, lineNumber);
+        }
+    }
+
     function variableExists(name, lineNumber) {
         var varTable = functionDirectory.get(currentFunctionId).varTable;
         var exists = varTable.has(name);
@@ -308,21 +329,12 @@
         var dirRight = stackOperands.pop();
         var dirLeft = stackOperands.pop();
         var operator = stackOperators.pop();
-        
-        // use semantic cube to generate the direction for the temporary var
-        var resultType = semanticCube(dirLeft, dirRight, operator);
 
-        if (resultType == undefined) {
-            flagError(ERROR_TYPE_MISMATCH, lineNumber);
-        }
-
-        var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+        var dirTemp = generateTemp(dirLeft, dirRight, operator, lineNumber);
 
         // push new quad
         pushQuad(operator, dirLeft, dirRight, dirTemp);
 
-        // add dir of temporary var to operand stack
-        pushOperand(dirTemp);
         return dirTemp;
     }
 
@@ -350,6 +362,20 @@
         }
     }
 
+    function generateTemp(dirLeft, dirRight, operator, lineNumber) {
+        // use semantic cube to generate the direction for the temporary var
+        var resultType = semanticCube(dirLeft, dirRight, operator);
+        if (resultType == undefined) {
+            console.log("type mismatach in generate temp");
+            flagError(ERROR_TYPE_MISMATCH, lineNumber);
+        }
+
+        var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+        // add dir of temporary var to operand stack
+        pushOperand(dirTemp);
+        return dirTemp;
+    }
+
     function generateDir(startingDir) {
         // make copy of counter of direction type, and then add to counter
         var dirCounter = startingDir + counters[startingDir / 10000];
@@ -359,6 +385,10 @@
     }
 
     function getTypeFromDir(dir) {
+        if (dir[0] == "(") {
+            dir = Number(dir.slice(1,-1));
+        }
+
         //depending on range get type
         if ((dir >= GLOBAL_INT && dir < GLOBAL_FLOAT) || (dir >= LOCAL_INT && dir < LOCAL_FLOAT) 
             || (dir >= TEMP_INT && dir < TEMP_FLOAT) || (dir >= CONST_INT && dir < CONST_FLOAT)) {
@@ -587,16 +617,74 @@ ID_DECLARE_VAR
     : id {
         $$ = {dir: createVariable($1, @1.first_line)};
     }
-    | id lsqbracket cte_int rsqbracket ID_DECLARE_VAR_AUX;
+    | id lsqbracket cte_int rsqbracket ID_DECLARE_VAR_AUX {
+        var valDim1 = Number($3);
+        var valDim2 = $5;
+        
+        var lastDim;
+        var matrixDim = null;
+        
+        if (valDim2 == null) {
+            lastDim = valDim1;
+        }
+        else {
+            lastDim = valDim2;
+            matrixDim = valDim1;
+        }
+
+        $$ = {dir: createArray($1, lastDim, matrixDim, @1.first_line)};
+    };
 
 // [INT] | eps
 ID_DECLARE_VAR_AUX
-    : lsqbracket cte_int rsqbracket | ;
+    : lsqbracket cte_int rsqbracket {
+        $$ = Number($2);
+    } 
+    | {
+        $$ = null;
+    };
 
 // id | id[EXP]~[EXP]~
 ID_ACCESS_VAR
     : ID_WRAPPER ID_SIMPLE_VAR
-    | ID_WRAPPER lsqbracket EXP rsqbracket ID_ACCESS_VAR_AUX
+    | ID_WRAPPER lsqbracket ID_ARRAY EXP rsqbracket ID_ACCESS_VAR_AUX {
+        var dirTempMatrix = addConstant(0, CONST_INT);
+
+        var expMatrixDim;
+        var expLastDim = stackOperands.pop();
+        //var dim1 = stackOperands.pop();
+
+        var array = getVariable($3.name, currentFunctionId, @1.first_line);
+        
+        if ($6 != null) {
+            expMatrixDim = stackOperands.pop();
+            // is matrix
+            pushQuad(OP_VER, expMatrixDim, addConstant(0, CONST_INT), addConstant(array.sizeMatrixDim, CONST_INT));
+
+            dirTempMatrix = generateTemp(expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), OP_TIMES, @1.first_line);
+            pushQuad(OP_TIMES, expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), dirTempMatrix);
+        }
+
+        // single dimension array
+        pushQuad(OP_VER, expLastDim, addConstant(0, CONST_INT), addConstant(array.sizeLastDim, CONST_INT));
+
+        if (dirTempMatrix != addConstant(0, CONST_INT)) {
+            dirTempMatrix = stackOperands.pop();
+        }
+
+        var dirTempSum = generateTemp(dirTempMatrix, expLastDim, OP_PLUS, @1.first_line);
+        pushQuad(OP_PLUS, dirTempMatrix, expLastDim, dirTempSum);
+
+        dirTempSum = stackOperands.pop();
+        
+        var arrayAccessedDir = generateTemp(dirTempSum, addConstant(array.dir, CONST_INT), OP_PLUS, @1.first_line);
+        stackOperands[stackOperands.length - 1] = "(" + top(stackOperands) + ")";
+        pushQuad(OP_PLUS, dirTempSum, addConstant(array.dir, CONST_INT), arrayAccessedDir);
+
+        removeFondoFalso();
+
+        $$ = {dir: arrayAccessedDir};
+    }
     | ID_WRAPPER lparen ID_LLAMADA_FUNCION PARAMS_LLAMADA_FUNCION rparen {
         if (top(calledParams).params.length != top(calledParams).paramCounter) {
             flagError(ERROR_WRONG_NUM_PARAMS, @1.first_line);
@@ -649,6 +737,15 @@ ID_SIMPLE_VAR
         }
     };
 
+ID_ARRAY
+    : {
+        pushFondoFalso();
+        if (variableExists(lastReadId, @1.first_line)) {
+            var dir = getVariable(lastReadId, currentFunctionId, @1.first_line).dir;
+            $$ = {name: lastReadId, dir: dir};
+        }
+    };
+
 ID_LLAMADA_FUNCION
     : {
         // check that function id exists in functionDirectory
@@ -693,7 +790,12 @@ PARAM
 
 // [EXP] | eps
 ID_ACCESS_VAR_AUX
-    : lsqbracket EXP rsqbracket | ;
+    : lsqbracket EXP rsqbracket {
+        $$ = $2.dir;
+    } 
+    | {
+        $$ = null;
+    };
 
 // function void|TIPO id (list[TIPO id ...]); VARS {BLOQUE}
 FUNCION
