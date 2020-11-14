@@ -82,6 +82,7 @@
     const ERROR_UNKNOWN_FUNCTION = 7;
     const ERROR_WRONG_NUM_PARAMS = 8;
     const ERROR_EXP_PAREN = 9;
+    const ERROR_INVALID_VAR_ACCESS = 10;
 
     // Return error to front-end
     function flagError(errorCode, lineNumber) {
@@ -100,7 +101,7 @@
                 message = "Unknown Variable";
                 break;
             case ERROR_NO_RETURN_STATEMENT:
-                message = "No return statement";
+                message = "No return statement in non-void function";
                 break;
             case ERROR_ARITHMETIC_NON_NUMBER:
                 message = "Arithmetic operation with non-numbers";
@@ -113,6 +114,9 @@
                 break;
             case ERROR_EXP_PAREN:
                 message = "Error in expression inside parenthesis";
+                break;
+            case ERROR_INVALID_VAR_ACCESS:
+                message = "Invalid access call to variable";
                 break;
         }
 
@@ -366,7 +370,6 @@
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(dirLeft, dirRight, operator);
         if (resultType == undefined) {
-            console.log("type mismatach in generate temp");
             flagError(ERROR_TYPE_MISMATCH, lineNumber);
         }
 
@@ -655,14 +658,27 @@ ID_ACCESS_VAR
         //var dim1 = stackOperands.pop();
 
         var array = getVariable($3.name, currentFunctionId, @1.first_line);
+
+        if (array.sizeLastDim == undefined) {
+            flagError(ERROR_INVALID_VAR_ACCESS, @1.first_line);
+        }
         
         if ($6 != null) {
+            if (array.sizeMatrixDim == undefined) {
+                flagError(ERROR_INVALID_VAR_ACCESS, @1.first_line);
+            }
+
             expMatrixDim = stackOperands.pop();
             // is matrix
             pushQuad(OP_VER, expMatrixDim, addConstant(0, CONST_INT), addConstant(array.sizeMatrixDim, CONST_INT));
 
             dirTempMatrix = generateTemp(expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), OP_TIMES, @1.first_line);
             pushQuad(OP_TIMES, expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), dirTempMatrix);
+        }
+        else {
+            if (array.sizeMatrixDim != undefined) {
+                flagError(ERROR_INVALID_VAR_ACCESS, @1.first_line);
+            }
         }
 
         // single dimension array
@@ -731,7 +747,13 @@ ID_WRAPPER
 ID_SIMPLE_VAR
     : {
         if (variableExists(lastReadId, @1.first_line)) {
-            var dir = getVariable(lastReadId, currentFunctionId, @1.first_line).dir;
+            var variable = getVariable(lastReadId, currentFunctionId, @1.first_line);
+
+            if (variable.sizeLastDim != undefined) {
+                flagError(ERROR_INVALID_VAR_ACCESS, @1.first_line);
+            }
+
+            var dir = variable.dir;
             pushOperand(dir);
             $$ = {name: lastReadId, dir: dir};
         }

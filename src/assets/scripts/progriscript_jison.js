@@ -207,14 +207,27 @@ case 23:
         //var dim1 = stackOperands.pop();
 
         var array = getVariable($$[$0-3].name, currentFunctionId, _$[$0-5].first_line);
+
+        if (array.sizeLastDim == undefined) {
+            flagError(ERROR_INVALID_VAR_ACCESS, _$[$0-5].first_line);
+        }
         
         if ($$[$0] != null) {
+            if (array.sizeMatrixDim == undefined) {
+                flagError(ERROR_INVALID_VAR_ACCESS, _$[$0-5].first_line);
+            }
+
             expMatrixDim = stackOperands.pop();
             // is matrix
             pushQuad(OP_VER, expMatrixDim, addConstant(0, CONST_INT), addConstant(array.sizeMatrixDim, CONST_INT));
 
             dirTempMatrix = generateTemp(expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), OP_TIMES, _$[$0-5].first_line);
             pushQuad(OP_TIMES, expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), dirTempMatrix);
+        }
+        else {
+            if (array.sizeMatrixDim != undefined) {
+                flagError(ERROR_INVALID_VAR_ACCESS, _$[$0-5].first_line);
+            }
         }
 
         // single dimension array
@@ -284,7 +297,13 @@ break;
 case 26:
 
         if (variableExists(lastReadId, _$[$0].first_line)) {
-            var dir = getVariable(lastReadId, currentFunctionId, _$[$0].first_line).dir;
+            var variable = getVariable(lastReadId, currentFunctionId, _$[$0].first_line);
+
+            if (variable.sizeLastDim != undefined) {
+                flagError(ERROR_INVALID_VAR_ACCESS, _$[$0].first_line);
+            }
+
+            var dir = variable.dir;
             pushOperand(dir);
             this.$ = {name: lastReadId, dir: dir};
         }
@@ -1014,6 +1033,7 @@ parse: function parse(input) {
     const ERROR_UNKNOWN_FUNCTION = 7;
     const ERROR_WRONG_NUM_PARAMS = 8;
     const ERROR_EXP_PAREN = 9;
+    const ERROR_INVALID_VAR_ACCESS = 10;
 
     // Return error to front-end
     function flagError(errorCode, lineNumber) {
@@ -1032,7 +1052,7 @@ parse: function parse(input) {
                 message = "Unknown Variable";
                 break;
             case ERROR_NO_RETURN_STATEMENT:
-                message = "No return statement";
+                message = "No return statement in non-void function";
                 break;
             case ERROR_ARITHMETIC_NON_NUMBER:
                 message = "Arithmetic operation with non-numbers";
@@ -1045,6 +1065,9 @@ parse: function parse(input) {
                 break;
             case ERROR_EXP_PAREN:
                 message = "Error in expression inside parenthesis";
+                break;
+            case ERROR_INVALID_VAR_ACCESS:
+                message = "Invalid access call to variable";
                 break;
         }
 
@@ -1298,7 +1321,6 @@ parse: function parse(input) {
         // use semantic cube to generate the direction for the temporary var
         var resultType = semanticCube(dirLeft, dirRight, operator);
         if (resultType == undefined) {
-            console.log("type mismatach in generate temp");
             flagError(ERROR_TYPE_MISMATCH, lineNumber);
         }
 

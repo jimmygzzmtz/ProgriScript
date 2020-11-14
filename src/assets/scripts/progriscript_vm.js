@@ -62,6 +62,7 @@ const ERROR_UNDEFINED_VARIABLE = 2;
 const ERROR_TYPE_MISMATCH = 3;
 const ERROR_EMPTY_INPUT = 4;
 const ERROR_OUTPUT_LIMIT_EXCEEDED = 5;
+const ERROR_INDEX_OUT_OF_BOUNDS = 6;
 
 // Return error to front-end
 function flagError(errorCode) {
@@ -81,6 +82,9 @@ function flagError(errorCode) {
             break;
         case ERROR_OUTPUT_LIMIT_EXCEEDED:
             message = "Output limit exceeded";
+            break;
+        case ERROR_INDEX_OUT_OF_BOUNDS:
+            message = "Array index out of bounds";
             break;
     }
 
@@ -401,6 +405,9 @@ function executeQuad(quad) {
             codeInOut.output.push(getFromMemory(dir1));
             break;
         case OP_VER:
+            if (getFromMemory(dir1) < getFromMemory(dir2) || getFromMemory(dir1) >= getFromMemory(dir3)) {
+                flagError(ERROR_INDEX_OUT_OF_BOUNDS);
+            }
             break;
         case OP_EQUALS:
             setOnMemory(dir3, getFromMemory(dir1));
