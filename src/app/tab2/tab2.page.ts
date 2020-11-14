@@ -89,7 +89,7 @@ export class Tab2Page {
         read(b);\n\
         write(sum(a, b));\n\
       }"},
-      {name: "1D Arrays", description: "A way to store more than one value in a data type.", code: "program 1dArrays;\n\
+      {name: "1D Arrays", description: "A way to store more than one value in a data type.", code: "program arrays1D;\n\
       var int a[5];\n\
       \n\
       main ( ){\n\
@@ -97,7 +97,7 @@ export class Tab2Page {
           a[2] = (6*3);\n\
           write(a[3] + a[2]);\n\
       }"},
-      {name: "2D Arrays", description: "A way to store more than one value per row in a data type.", code: "program 2dArrays;\n\
+      {name: "2D Arrays", description: "A way to store more than one value per row in a data type.", code: "program arrays2D;\n\
       var int a[5][5];\n\
       \n\
       main ( ){\n\

@@ -330,14 +330,12 @@
     }
 
     function addQuad(lineNumber) {
-        // pops
         var dirRight = stackOperands.pop();
         var dirLeft = stackOperands.pop();
         var operator = stackOperators.pop();
 
         var dirTemp = generateTemp(dirLeft, dirRight, operator, lineNumber);
 
-        // push new quad
         pushQuad(operator, dirLeft, dirRight, dirTemp);
 
         return dirTemp;
@@ -375,7 +373,6 @@
         }
 
         var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
-        // add dir of temporary var to operand stack
         pushOperand(dirTemp);
         return dirTemp;
     }
@@ -440,7 +437,7 @@
         console.log("}");
     }
 
-    // reset variables
+    // Resets variables and releases Memory
     function resetVariables(){
         functionDirectory.clear();
         constTable.clear();
@@ -461,7 +458,7 @@
 
 %}
 
-/* lexical grammar */
+/* lexical grammar (TOKENS) */
 %lex
 %%
 
@@ -526,9 +523,6 @@ EXPRESSIONS
     : PROGRAM EOF {
         pushQuad(OP_END, null, null, null);
 
-        //console.log("quads:");
-        //console.log(quads);
-
         // create funcDirectory for VM, that only sends data needed by VM
         var vmFuncs = new Map();
 
@@ -573,14 +567,12 @@ PROGRAM
 
 PROGRAM_NAME
     : program id {
-        // Resets variables and releases Memory
         resetVariables();
 
         pushQuad(OP_GOTO, null, null, null);
         stackJumps.push(quadCount - 1);
 
         programName = $2;
-        //currentFunctionId = programName;
         createFunction(programName, "program", @2.first_line);
         calledFuncs.push(programName);
     };
@@ -620,7 +612,6 @@ TIPO
         currentType = "char";
     };
 
-// id | id[INT]~[INT]~
 ID_DECLARE_VAR
     : id {
         $$ = {dir: createVariable($1, @1.first_line)};
@@ -643,7 +634,6 @@ ID_DECLARE_VAR
         $$ = {dir: createArray($1, lastDim, matrixDim, @1.first_line)};
     };
 
-// [INT] | eps
 ID_DECLARE_VAR_AUX
     : lsqbracket cte_int rsqbracket {
         $$ = Number($2);
@@ -652,7 +642,6 @@ ID_DECLARE_VAR_AUX
         $$ = null;
     };
 
-// id | id[EXP]~[EXP]~
 ID_ACCESS_VAR
     : ID_WRAPPER ID_SIMPLE_VAR
     | ID_WRAPPER lsqbracket ID_ARRAY EXP rsqbracket ID_ACCESS_VAR_AUX {
@@ -660,7 +649,6 @@ ID_ACCESS_VAR
 
         var expMatrixDim;
         var expLastDim = stackOperands.pop();
-        //var dim1 = stackOperands.pop();
 
         var array = getVariable($3.name, currentFunctionId, @1.first_line);
 
@@ -668,13 +656,13 @@ ID_ACCESS_VAR
             flagError(ERROR_INVALID_VAR_ACCESS, @1.first_line);
         }
         
+        // is matrix
         if ($6 != null) {
             if (array.sizeMatrixDim == undefined) {
                 flagError(ERROR_INVALID_VAR_ACCESS, @1.first_line);
             }
 
             expMatrixDim = stackOperands.pop();
-            // is matrix
             pushQuad(OP_VER, expMatrixDim, addConstant(0, CONST_INT), addConstant(array.sizeMatrixDim, CONST_INT));
 
             dirTempMatrix = generateTemp(expMatrixDim, addConstant(array.sizeLastDim, CONST_INT), OP_TIMES, @1.first_line);
@@ -742,7 +730,6 @@ ID_ACCESS_VAR
         calledFuncs.pop();
         removeFondoFalso(@1.first_line);
     };
-    //| id lparen rparen;
 
 ID_WRAPPER
     : id {
@@ -783,7 +770,6 @@ ID_LLAMADA_FUNCION
         calledFuncs.push(lastReadId);
         calledParams.push({params: functionDirectory.get(lastReadId).params, paramCounter: 0})
 
-        // generate ERA size quad
         var size = functionDirectory.get(lastReadId).varTable.size + functionDirectory.get(lastReadId).tempVarsUsed;
         pushQuad(OP_ERA, size, top(calledFuncs), null);
 
@@ -815,7 +801,6 @@ PARAM
         top(calledParams).paramCounter++;
     };
 
-// [EXP] | eps
 ID_ACCESS_VAR_AUX
     : lsqbracket EXP rsqbracket {
         $$ = $2.dir;
@@ -824,10 +809,8 @@ ID_ACCESS_VAR_AUX
         $$ = null;
     };
 
-// function void|TIPO id (list[TIPO id ...]); VARS {BLOQUE}
 FUNCION
     : function FUNCION_ID_WRAPPER lparen FUNCION_PARAM_LIST rparen VARS_FUNC BLOQUE {
-        // punto 7
         // check if non-void function has a return statement
         if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
             flagError(ERROR_NO_RETURN_STATEMENT, @1.first_line);
@@ -855,21 +838,14 @@ FUNCION
         currentFunctionId = top(calledFuncs);
     };
 
-// wrapper de id = punto 1
-// checar que no existe la function id en la funcTable, ya lo hace createFunction
-// cuando hagamos agregar a funcTable, tenemos que cambiar currentfunctionid, ya lo hace createFunction
-// hacer copia de los counters, lo hace createFunction
 FUNCION_ID_WRAPPER
     : FUNCION_TIPO id {
         createFunction($2, $1, @2.first_line);
         calledFuncs.push($2);
     };
 
-// wrapper de VARS = punto 5 y 6
 VARS_FUNC
     : VARS_FUNC_AUX {
-        // el punto 5 es mamada
-        // punto 6
         functionDirectory.get(currentFunctionId).quadCounter = quadCount;
     };
 
@@ -879,10 +855,8 @@ VARS_FUNC_AUX
 FUNCION_TIPO
     : void | TIPO;
 
-// wrapper de id_declare_var = punto 2 y 3
 VAR_FUNC_PARAM
     : TIPO ID_DECLARE_VAR {
-        // pushear a params de la funcion el tipo
         functionDirectory.get(currentFunctionId).params.push({type: $1, dir: $2.dir});
     };
     
@@ -949,7 +923,7 @@ EXP_COMP
     : EXP EXP_COMP_AUX {
         if (top(stackOperators) == OP_NOT) {
             var operator = stackOperators.pop();
-            var operandDir = stackOperands.pop();
+            var operandDir = stackOperands.pop();            
 
             // use semantic cube to generate the direction for the temporary var
             var resultType = semCube.get(getTypeFromDir(operandDir) + ",null," + operator);
@@ -1067,7 +1041,6 @@ FACTOR_AUX2
     | minus VAR_CTE {
         var operandDir = stackOperands.pop();
         
-        // check varType of operand  
         operandVarType = getTypeFromDir(operandDir);  
         // if operand type is not int or float, error  
         if (operandVarType != "int" && operandVarType != "float") {
@@ -1076,20 +1049,12 @@ FACTOR_AUX2
 
         // add -1 to constTable
         minusOneDir = addConstant(-1, operandVarType == "int" ? CONST_INT : CONST_FLOAT);
-    
-        // use semantic cube to generate the direction for the temporary var
-        var resultType = semanticCube(minusOneDir, operandDir, "times");
-        if (resultType == undefined) {
-            flagError(ERROR_TYPE_MISMATCH, @1.first_line);
-        }
 
-        var dirTemp = generateDir(startingDirCodes.get("temp," + resultType));
+        var dirTemp = generateTemp(minusOneDir, operandDir, OP_TIMES);
 
         // push quad for -1 * operand received
         pushQuad(OP_TIMES, minusOneDir, operandDir, dirTemp);
 
-        // add dir of temporary var to operand stack
-        pushOperand(dirTemp);
         $$ = {dir: dirTemp};
     };
 
@@ -1117,18 +1082,15 @@ VAR_CTE
 
 ASIGNACION
     : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon {
-        //printStacks();
-        // pops
         var dirRight = stackOperands.pop();
         var dirLeft = stackOperands.pop();
         var operator = stackOperators.pop();
         
-        // checar si el tipo de el temp es el mismo (o compatible) que el de la variable
+        // Check that the temp type is compatible with the var type
         if (semanticCube(dirLeft, dirRight, "equals") == undefined) {
             flagError(ERROR_TYPE_MISMATCH, @1.first_line);
         }
 
-        // push new equals quad
         pushQuad(operator, dirRight, null, dirLeft);
     };
 
@@ -1158,7 +1120,6 @@ RETORNO_FUNCION
             exp = dirTemp;
         }
 
-        // push new quad
         pushQuad(OP_RETURN, exp, null, null);
     };
 
@@ -1170,10 +1131,7 @@ LECTURA_AUX
 
 ID_ACCESS_VAR_LECTURA
     : ID_ACCESS_VAR {
-        // pop operand
         var dirOperand = stackOperands.pop();
-
-        // push write quad with dir for each argument
         pushQuad(OP_READ, dirOperand, null, null);
     };
 
@@ -1182,10 +1140,7 @@ ESCRITURA
 
 ESCRITURA_AUX_WRAPPER
     : ESCRITURA_AUX {
-        // pop operand
         var dirOperand = stackOperands.pop();
-
-        // push write quad with dir for each argument
         pushQuad(OP_WRITE, dirOperand, null, null);
     };
 
@@ -1202,25 +1157,18 @@ ESCRITURA_AUX2
 
 DECISION_IF
     : if EXPRESION_IF BLOQUE DECISION_IF_AUX {
+        // dir of the quad to be filled
         var end = stackJumps.pop();
-        //end es el num del quad que vamos a rellenar
-        //quadcount es hacia donde va saltar (lo que va rellenar en el quad)
         fillQuad(end);
-        //quads[end].dir2 = quadCount;
-        //end = pjumps.pop;
-        //fill(end, quadcount);
     };
 
 EXPRESION_IF
     : lparen EXPRESION rparen {
-        // check que expresion sea bool
+        // Check that expression is of bool type
         var dirExpressionIf = stackOperands.pop();
         if (getTypeFromDir(dirExpressionIf) == "bool") {
-            
-            // dir2 of the gotof quad is the quad we will goto, will be filled later
+            // dir2 of the gotoF quad is the quad we will goto, will be filled later
             pushQuad(OP_GOTOF, dirExpressionIf, null, null);
-            //cuando llegas al else o al final del if, llamamos una funcion que hace pop del stackjumps y lo llena, usando la posicion de quadcount - 1
-            // push quadCount of the gotof quad 
             stackJumps.push(quadCount - 1);
         }
         else {
@@ -1254,7 +1202,6 @@ WHILE_START
 
 NO_CONDICIONAL_FOR
     : for ID_WRAPPER CHECK_IS_NUMBER equals FOR_EXP1 to FOR_EXP2 BLOQUE {
-        // get for control variable
         var vControl = top(forVars).vControl;
 
         pushQuad(OP_PLUS, vControl, addConstant(1, CONST_INT), vControl);
@@ -1263,7 +1210,7 @@ NO_CONDICIONAL_FOR
 
         pushQuad(OP_GOTO, null, null, quadComparisonFor);
         // FILL FOR GOTOF QUAD
-        quads[quadGotoFFor].dir3 = quadCount;
+        fillQuad(quadGotoFFor);
 
         // pop control variable from array of control variables
         forVars.pop();
@@ -1305,8 +1252,8 @@ FOR_EXP2
         else {
             var vControl = top(forVars).vControl;
 
-            // use semantic cube to generate the direction for the temporary var
-            var resultType = semanticCube(vControl, exp, "lessthan");
+            // use semantic cube to generate the dir for the temporary var
+            var resultType = semanticCube(vControl, exp, OP_LESSTHAN);
             if (resultType == undefined) {
                 flagError(ERROR_TYPE_MISMATCH, @1.first_line);
             }
