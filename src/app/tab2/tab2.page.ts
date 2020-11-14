@@ -28,7 +28,7 @@ export class Tab2Page {
 
   fillSnippets(){
     this.codeSnippets = [
-      {name: "Date Types", description: "Use different data types depending on the type of the value.", code: "program snippet;\n\
+      {name: "Date Types", description: "Use different data types depending on the type of the value.", code: "program dataTypes;\n\
       var int a;\n\
       float b;\n\
       char c;\n\
@@ -38,7 +38,7 @@ export class Tab2Page {
         b = 2.5;\n\
         c = 'c';\n\
       }"},
-      {name: "Read/Write", description: "Read and Write values to communicate with the user.", code: "program snippet;\n\
+      {name: "Read/Write", description: "Read and Write values to communicate with the user.", code: "program readWrite;\n\
       var int a, b;\n\
       main ( ){\n\
         read(a);\n\
@@ -46,7 +46,7 @@ export class Tab2Page {
         \n\
         write(a+b);\n\
       }"},
-      {name: "If/Else", description: "Use If and Else decisions to control which code executes.", code: 'program snippet;\n\
+      {name: "If/Else", description: "Use If and Else decisions to control which code executes.", code: 'program ifElse;\n\
       var int a;\n\
       \n\
       main ( ){\n\
@@ -60,7 +60,7 @@ export class Tab2Page {
         }\n\
         \n\
       }'},
-      {name: "For/While Loops", description: "Use For or While loops to execute code until a condition is met.", code: "program snippet;\n\
+      {name: "For/While Loops", description: "Use For or While loops to execute code until a condition is met.", code: "program forWhile;\n\
       var int a, b;\n\
       \n\
       main ( ){\n\
@@ -76,7 +76,7 @@ export class Tab2Page {
         }\n\
         \n\
       }"},
-      {name: "Functions", description: "Use functions to avoid repeating code.", code: "program snippet;\n\
+      {name: "Functions", description: "Use functions to avoid repeating code.", code: "program functions;\n\
       var int a, b;\n\
       \n\
       function int sum(int c, int d)\n\
@@ -89,7 +89,7 @@ export class Tab2Page {
         read(b);\n\
         write(sum(a, b));\n\
       }"},
-      {name: "1D Arrays", description: "A way to store more than one value in a data type.", code: "program test;\n\
+      {name: "1D Arrays", description: "A way to store more than one value in a data type.", code: "program 1dArrays;\n\
       var int a[5];\n\
       \n\
       main ( ){\n\
@@ -97,7 +97,7 @@ export class Tab2Page {
           a[2] = (6*3);\n\
           write(a[3] + a[2]);\n\
       }"},
-      {name: "2D Arrays", description: "A way to store more than one value per row in a data type.", code: "program test;\n\
+      {name: "2D Arrays", description: "A way to store more than one value per row in a data type.", code: "program 2dArrays;\n\
       var int a[5][5];\n\
       \n\
       main ( ){\n\
@@ -105,7 +105,7 @@ export class Tab2Page {
           a[2][1] = (6*3);\n\
           write(a[3][2] + a[2][1] + 1);\n\
       }"},
-      {name: "Iterative Factorial", description: "An iterative way to obtain the factorial of a number.", code: 'program snippet;\n\
+      {name: "Iterative Factorial", description: "An iterative way to obtain the factorial of a number.", code: 'program iterativeFactorial;\n\
       var int n, fact, i;\n\
       \n\
       main ( ){\n\
@@ -118,7 +118,7 @@ export class Tab2Page {
         }\n\
         write(fact);\n\
       }'},
-      {name: "Iterative Fibonacci", description: "An iterative way to obtain the fibonacci series.", code: 'program snippet;\n\
+      {name: "Iterative Fibonacci", description: "An iterative way to obtain the fibonacci series.", code: 'program iterativeFibonacci;\n\
       var int n;\n\
       \n\
       function void fib(int num)\n\
@@ -136,11 +136,11 @@ export class Tab2Page {
       }\n\
       \n\
       main ( ){\n\
-        write("Enter fibonnaci series");\n\
+        write("Enter fibonacci series");\n\
         read(n);\n\
         fib(n);\n\
       }'},
-      {name: "Recursive Factorial", description: "A recursive way to obtain the factorial of a number.", code: 'program snippet;\n\
+      {name: "Recursive Factorial", description: "A recursive way to obtain the factorial of a number.", code: 'program recursiveFactorial;\n\
       var int n;\n\
       \n\
       function int factorial(int f)\n\
@@ -158,7 +158,7 @@ export class Tab2Page {
         read(n);\n\
         write(factorial(n));\n\
       }'},
-      {name: "Recursive Fibonacci", description: "A recursive way to obtain the fibonacci series.", code: 'program snippet;\n\
+      {name: "Recursive Fibonacci", description: "A recursive way to obtain the fibonacci series.", code: 'program recursiveFibonacci;\n\
       var int a, i;\n\
       \n\
       function int fibonacci(int a)\n\
@@ -175,7 +175,7 @@ export class Tab2Page {
         i = 0;\n\
         write("Number of series : ");\n\
         read(a);\n\
-        write("Fibonnaci Series : ");\n\
+        write("Fibonacci Series : ");\n\
         while(i < a) {\n\
             write (fibonacci(i));\n\
             i = i + 1;\n\

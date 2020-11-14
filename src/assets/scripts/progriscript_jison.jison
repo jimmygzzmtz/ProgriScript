@@ -86,6 +86,7 @@
 
     // Return error to front-end
     function flagError(errorCode, lineNumber) {
+        var startingMessage = lineNumber != undefined ? "Compilation error on line " + lineNumber + ": " : "Compilation error: ";
         var message = "";
         switch (errorCode) {
             case ERROR_TYPE_MISMATCH:
@@ -120,7 +121,7 @@
                 break;
         }
 
-        throw new Error("Compilation error on line " + lineNumber + ": " + message);
+        throw new Error(startingMessage + message);
     }
 
     // This sets up the elements of the semantic cube by inserting the combinations and their resulting types.
@@ -388,6 +389,10 @@
     }
 
     function getTypeFromDir(dir) {
+        if (dir == undefined) {
+            flagError(ERROR_UNKNOWN_VARIABLE);
+        }
+
         if (dir[0] == "(") {
             dir = Number(dir.slice(1,-1));
         }
