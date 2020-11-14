@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1605241987584,
+  "timestamp": 1605331931918,
   "index": "https://jimmygzzmtz.github.io/ProgriScript/index.html",
   "assetGroups": [
     {
@@ -11,10 +11,10 @@
         "ignoreVary": true
       },
       "urls": [
-        "https://jimmygzzmtz.github.io/ProgriScript/11-es2015.5af2465b9eaef7870721.js",
-        "https://jimmygzzmtz.github.io/ProgriScript/11-es5.5af2465b9eaef7870721.js",
-        "https://jimmygzzmtz.github.io/ProgriScript/12-es2015.eaf78f9aa6b48db92b4e.js",
-        "https://jimmygzzmtz.github.io/ProgriScript/12-es5.eaf78f9aa6b48db92b4e.js",
+        "https://jimmygzzmtz.github.io/ProgriScript/11-es2015.fff54d3606e1cde77016.js",
+        "https://jimmygzzmtz.github.io/ProgriScript/11-es5.fff54d3606e1cde77016.js",
+        "https://jimmygzzmtz.github.io/ProgriScript/12-es2015.75061e3618399236c164.js",
+        "https://jimmygzzmtz.github.io/ProgriScript/12-es5.75061e3618399236c164.js",
         "https://jimmygzzmtz.github.io/ProgriScript/13-es2015.2c373c57faad0653bd29.js",
         "https://jimmygzzmtz.github.io/ProgriScript/13-es5.2c373c57faad0653bd29.js",
         "https://jimmygzzmtz.github.io/ProgriScript/14-es2015.77f4487b52b2c2313dbb.js",
@@ -137,8 +137,8 @@
         "https://jimmygzzmtz.github.io/ProgriScript/polyfills-dom-es5.6b1764212747fb5c4287.js",
         "https://jimmygzzmtz.github.io/ProgriScript/polyfills-es2015.048fb8854c66c2bbd96e.js",
         "https://jimmygzzmtz.github.io/ProgriScript/polyfills-es5.05f6c52f912073533556.js",
-        "https://jimmygzzmtz.github.io/ProgriScript/runtime-es2015.939f97160efbaedb5c16.js",
-        "https://jimmygzzmtz.github.io/ProgriScript/runtime-es5.939f97160efbaedb5c16.js",
+        "https://jimmygzzmtz.github.io/ProgriScript/runtime-es2015.84dd67d2bdca0da13faf.js",
+        "https://jimmygzzmtz.github.io/ProgriScript/runtime-es5.84dd67d2bdca0da13faf.js",
         "https://jimmygzzmtz.github.io/ProgriScript/styles.4f4d721fbdcaccef0cb2.css"
       ],
       "patterns": []
@@ -177,10 +177,10 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "https://jimmygzzmtz.github.io/ProgriScript/11-es2015.5af2465b9eaef7870721.js": "30f9aabf9008ce0e2d393c96d3c4abe32ffec662",
-    "https://jimmygzzmtz.github.io/ProgriScript/11-es5.5af2465b9eaef7870721.js": "74239b080ad76f725fdc6ef862c1fbd293861df6",
-    "https://jimmygzzmtz.github.io/ProgriScript/12-es2015.eaf78f9aa6b48db92b4e.js": "2cde03f8167e61f7672906a050558ba1bef8774c",
-    "https://jimmygzzmtz.github.io/ProgriScript/12-es5.eaf78f9aa6b48db92b4e.js": "3fa1e8a5fe4c27e0d8560aea380454d9a5c18d2e",
+    "https://jimmygzzmtz.github.io/ProgriScript/11-es2015.fff54d3606e1cde77016.js": "8b3a8daf5cce352eca597220e4a066f40556b5df",
+    "https://jimmygzzmtz.github.io/ProgriScript/11-es5.fff54d3606e1cde77016.js": "4446d306b92c2db6896efe1d4647ae7c0e36c109",
+    "https://jimmygzzmtz.github.io/ProgriScript/12-es2015.75061e3618399236c164.js": "04ecdc1f90722160c174a5f950424753e9bf7fce",
+    "https://jimmygzzmtz.github.io/ProgriScript/12-es5.75061e3618399236c164.js": "8d7a29901b9621a8e1e261e57692ad06d6c389b1",
     "https://jimmygzzmtz.github.io/ProgriScript/13-es2015.2c373c57faad0653bd29.js": "d474f43fc569086ce1c66463abaaf161818a9a0e",
     "https://jimmygzzmtz.github.io/ProgriScript/13-es5.2c373c57faad0653bd29.js": "6790f427c201fb9f2a4b8cad09d07573cde94194",
     "https://jimmygzzmtz.github.io/ProgriScript/14-es2015.77f4487b52b2c2313dbb.js": "1bbcfca839ce5caa4c14092f1ddd5c243e39ff56",
@@ -298,9 +298,9 @@
     "https://jimmygzzmtz.github.io/ProgriScript/assets/icons/icon-512x512.png": "22d873b6f1c65ae3fa041487df6754488d9f947a",
     "https://jimmygzzmtz.github.io/ProgriScript/assets/icons/icon-72x72.png": "5a8fe4fc3a549c713626514a57a9c476241eedce",
     "https://jimmygzzmtz.github.io/ProgriScript/assets/icons/icon-96x96.png": "815987cc0cdfd4fa992a83af5fd34d276e7369fa",
-    "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/progriscript_jison.jison": "7b83ee053d07122d1b4b3910cf51294b8c25aa1b",
-    "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/progriscript_jison.js": "81c0c58f911e8e826304a448540725ba029cb050",
-    "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/progriscript_vm.js": "2457e759fac9862820ffbf447aa0f4a1db9c360a",
+    "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/progriscript_jison.jison": "fd48c8d0610dd85e87f1dd3e2ce170e7fa316d0c",
+    "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/progriscript_jison.js": "6717ff633487775529c5c541457e44f74a0134aa",
+    "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/progriscript_vm.js": "fec5891db541e37df6f13e78170a5d928f0e8e1a",
     "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/snippets/dataTypes.progriscript": "17c70a8c6706a558c13e36fcb9dae0b7df4b6c52",
     "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/snippets/forWhile.progriscript": "167fe8b6a12fe333babea128ddfeea336369d1f5",
     "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/snippets/functions.progriscript": "8df7449aca60c1810fe081125f3ade0b5abbca15",
@@ -311,7 +311,7 @@
     "https://jimmygzzmtz.github.io/ProgriScript/assets/scripts/tests/tester.js": "749bef986c058d1e3dea171d37ec7ea987c96b45",
     "https://jimmygzzmtz.github.io/ProgriScript/common-es2015.5ba1bd739b37c0d5b62a.js": "5a08ccc29ab2883312a1ea3bbb8f9f4fdbda958f",
     "https://jimmygzzmtz.github.io/ProgriScript/common-es5.5ba1bd739b37c0d5b62a.js": "f0fedf36adae5bcd1f1b83329baf976ad472c04b",
-    "https://jimmygzzmtz.github.io/ProgriScript/index.html": "0a74e1ebd5dfb747961eb2376bc0a6b2ea0ac9b3",
+    "https://jimmygzzmtz.github.io/ProgriScript/index.html": "51975f1c443b2d8a7c1f05bd1063f13a60583518",
     "https://jimmygzzmtz.github.io/ProgriScript/main-es2015.2827b2d67a19a7612b31.js": "cb9cfa71b13e8071362b7c0f894d30ad3c849e7f",
     "https://jimmygzzmtz.github.io/ProgriScript/main-es5.2827b2d67a19a7612b31.js": "9b486389737e639e20447683ee7a70ba33965cc6",
     "https://jimmygzzmtz.github.io/ProgriScript/manifest.webmanifest": "061e16565120e351970758239d68ff96e9c96bb4",
@@ -323,8 +323,8 @@
     "https://jimmygzzmtz.github.io/ProgriScript/polyfills-dom-es5.6b1764212747fb5c4287.js": "b40b060fc2ec6685d08ec75044e49dd2f737e044",
     "https://jimmygzzmtz.github.io/ProgriScript/polyfills-es2015.048fb8854c66c2bbd96e.js": "4de571922adde5bdc4ea2945f7267909dcc4ce25",
     "https://jimmygzzmtz.github.io/ProgriScript/polyfills-es5.05f6c52f912073533556.js": "d11abab8dd3c6d26400e4b4fb862ba9d0248269f",
-    "https://jimmygzzmtz.github.io/ProgriScript/runtime-es2015.939f97160efbaedb5c16.js": "1dee86f3c74089f5fb430cf8416e44b569d8fd16",
-    "https://jimmygzzmtz.github.io/ProgriScript/runtime-es5.939f97160efbaedb5c16.js": "60627221d2ac480ff454053ef5fe10324d086985",
+    "https://jimmygzzmtz.github.io/ProgriScript/runtime-es2015.84dd67d2bdca0da13faf.js": "77c2f1c49389cd4ecdec66187d08f0d8e3f29e5c",
+    "https://jimmygzzmtz.github.io/ProgriScript/runtime-es5.84dd67d2bdca0da13faf.js": "4bdc59ddd7702f4b9979556ab23afc521deb01b9",
     "https://jimmygzzmtz.github.io/ProgriScript/styles.4f4d721fbdcaccef0cb2.css": "936ac83c97adde7a379b7e5daa4c6638cd48506e"
   },
   "navigationUrls": [

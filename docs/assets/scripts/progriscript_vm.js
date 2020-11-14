@@ -62,6 +62,7 @@ const ERROR_UNDEFINED_VARIABLE = 2;
 const ERROR_TYPE_MISMATCH = 3;
 const ERROR_EMPTY_INPUT = 4;
 const ERROR_OUTPUT_LIMIT_EXCEEDED = 5;
+const ERROR_INDEX_OUT_OF_BOUNDS = 6;
 
 // Return error to front-end
 function flagError(errorCode) {
@@ -81,6 +82,9 @@ function flagError(errorCode) {
             break;
         case ERROR_OUTPUT_LIMIT_EXCEEDED:
             message = "Output limit exceeded";
+            break;
+        case ERROR_INDEX_OUT_OF_BOUNDS:
+            message = "Array index out of bounds";
             break;
     }
 
@@ -154,16 +158,14 @@ export function startVM(code, inout) {
 
     quads = parseResultObj.quads;
     funcs = parseResultObj.funcs;
-    //funcs.get(id).returnDirs
     constTable = parseResultObj.constTable;
     programName = parseResultObj.programName;
 
+    console.log(constTable);
     console.log(quads);
 
     globalMemory = new Memory(programName);
     executionStack.push(globalMemory);
-
-    //console.log(constTable);
 
     iterateQuads();
 }
@@ -205,7 +207,6 @@ function getFromMemory(dir, getFromPrev=false) {
     
     //depending on range get delta to subtract to dir
     for (var dirBase = CONST_LETRERO; dirBase > 0; dirBase -= 10000) {
-        //console.log("dirBase in for: " + dirBase);
         if ((dir / dirBase) >= 1) {
             delta = dirBase;
             break;
@@ -283,7 +284,6 @@ function setOnMemory(dir, res, mem=null) {
     
     //depending on range get delta to subtract to dir
     for (var dirBase = CONST_LETRERO; dirBase > 0; dirBase -= 10000) {
-        //console.log("dirBase in for: " + dirBase);
         if ((dir / dirBase) >= 1) {
             delta = dirBase;
             break;
@@ -368,7 +368,8 @@ function executeQuad(quad) {
             else{
                 willRead = false;
                 var res = codeInOut.input;
-                //cast to correct type
+                
+                // cast input to correct type
                 var type = getTypeFromDir(dir1);
                 if(res == ""){
                     flagError(ERROR_EMPTY_INPUT);
@@ -401,6 +402,9 @@ function executeQuad(quad) {
             codeInOut.output.push(getFromMemory(dir1));
             break;
         case OP_VER:
+            if (getFromMemory(dir1) < getFromMemory(dir2) || getFromMemory(dir1) >= getFromMemory(dir3)) {
+                flagError(ERROR_INDEX_OUT_OF_BOUNDS);
+            }
             break;
         case OP_EQUALS:
             setOnMemory(dir3, getFromMemory(dir1));
@@ -462,7 +466,7 @@ function executeQuad(quad) {
             setOnMemory(dir3, res);
             break;
         case OP_GOTO:
-            // -1 to take into account ++ after switch
+            // -1 to IP, to take into account ++ after switch case
             instructionPointer = dir3 - 1;
             break;
         case OP_GOTOF:
@@ -471,7 +475,7 @@ function executeQuad(quad) {
             }
             break;
         case OP_ERA:
-            //create memory here, will be pushed in OP_GOSUB
+            // Create memory here, will be pushed in OP_GOSUB
             memoryToBePushed = new Memory(dir2);
             var currentMemory = top(executionStack);
 
@@ -489,12 +493,7 @@ function executeQuad(quad) {
 
             break;
         case OP_PARAMETER:
-            //assign to the parameter variables the sent directions
-            //var previousMemory = getFromMemory(dir1, true);
-            //console.log("in param quad, dir1 value: " + getFromMemory(dir1));
-
             setOnMemory(dir3, getFromMemory(dir1), memoryToBePushed);
-            //console.log("in param quad, dir3 value in memoryToBePushed: " + getFromMemory(dir3));
             break;
         case OP_GOSUB:
             executionStack.push(memoryToBePushed);
@@ -505,7 +504,7 @@ function executeQuad(quad) {
             var currentFunctionId = top(executionStack).functionId;
             var previousMemory = getPreviousMemory();
             
-            // get the conrresponding returnDir where the return value will be saved
+            // Get the conrresponding returnDir where the return value will be saved
             var funcCallCounter = previousMemory.callCounters.get(currentFunctionId);
             var arrReturnDirs = funcs.get(currentFunctionId).returnDirs.get(previousMemory.functionId);
             var returnDir = arrReturnDirs[funcCallCounter];
@@ -513,12 +512,11 @@ function executeQuad(quad) {
             setOnMemory(returnDir, getFromMemory(dir1), previousMemory);
             break;
         case OP_ENDFUNC:
-            //pop execution stack
             instructionPointer = funcCallsJumps.pop() - 1;
             executionStack.pop();
             break;
         case OP_END:
-            //do nothing since code ends
+            // Do nothing since code ends
             break;
     }
     instructionPointer++;
