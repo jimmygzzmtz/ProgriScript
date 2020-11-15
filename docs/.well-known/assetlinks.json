@@ -1,5 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target" : { "namespace": "android_app", "package_name": "com.jimmygzzmtz.progriscript",
-                   "sha256_cert_fingerprints": ["CD:F9:C5:7B:01:F1:D0:BA:A5:F4:2E:D0:E0:C6:E8:4D:EE:F0:58:B6:D2:8A:5A:3B:B5:84:D8:BE:BA:0C:02:3B"] }
-    }]
