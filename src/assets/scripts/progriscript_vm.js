@@ -510,6 +510,9 @@ function executeQuad(quad) {
             var returnDir = arrReturnDirs[funcCallCounter];
             
             setOnMemory(returnDir, getFromMemory(dir1), previousMemory);
+
+            instructionPointer = funcCallsJumps.pop() - 1;
+            executionStack.pop();
             break;
         case OP_ENDFUNC:
             instructionPointer = funcCallsJumps.pop() - 1;

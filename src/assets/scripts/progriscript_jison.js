@@ -348,7 +348,7 @@ case 33:
 break;
 case 34:
 
-        this.$ = $$[$0-1].dir;
+        this.$ = true;
     
 break;
 case 36:

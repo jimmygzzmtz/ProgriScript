@@ -803,7 +803,7 @@ PARAM
 
 ID_ACCESS_VAR_AUX
     : lsqbracket EXP rsqbracket {
-        $$ = $2.dir;
+        $$ = true;
     } 
     | {
         $$ = null;
