@@ -27,14 +27,11 @@ export class Tab1Page {
 
   progriscript_vm;
 
-  initialText = "program test;\n\
-var int j, f;\n\
+  initialText = 'program helloWorld;\n\
 main ( ){\n\
-  f = 6;\n\
-  j = 5;\n\
-  f = f + j - 5 * j;\n\
+  write("Hello World!");\n\
 }\
-";
+';
 
   codeTextArea: any = this.initialText;
 
@@ -231,7 +228,7 @@ main ( ){\n\
     var CodeValue = "";
 
     if(this.codeSelect == "new"){
-      //CodeValue = 'write "Hello World!"';
+      return;
     }
     else{
       CodeValue = this.codeSelect.code;
@@ -255,11 +252,11 @@ main ( ){\n\
         this.model = {
           language: 'typescript',
           uri: 'main.ts',
-          value: 'write "Hello World!"',
+          value: this.initialText,
         };
       }
       else{
-        this.codeTextArea = 'write "Hello World!"';
+        this.codeTextArea = this.initialText;
       }
 
       this.codes.splice(this.codes.indexOf(this.codeSelect),1)

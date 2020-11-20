@@ -181,6 +181,94 @@ export class Tab2Page {
             i = i + 1;\n\
         }\n\
       }'},
+      {name: "Find", description: "Find and print a number inside an array.", code: 'program findNum;\n\
+      var int a[5], z;\n\
+      \n\
+      function int find(int num)\n\
+      var int i;\n\
+      {\n\
+        for i = 0 to 5{\n\
+          if(a[i] == num){\n\
+            return (i);\n\
+          }\n\
+        }\n\
+        \n\
+        return (-1);\n\
+      }\n\
+      \n\
+      main ( ){\n\
+        a[0] = 5;\n\
+        a[1] = 15;\n\
+        a[2] = 13;\n\
+        a[3] = 83;\n\
+        a[4] = 73;\n\
+        \n\
+        write("Which number are you searching for?");\n\
+        read(z);\n\
+        write("The position of that number is:", find(z));\n\
+      }'},
+      {name: "Sort", description: "Sort and print an array filled with numbers.", code: 'program sortArr;\n\
+      var int a[5], i;\n\
+      \n\
+      function void sort()\n\
+      var int i, j, n, temp;\n\
+      {\n\
+        n = 5;\n\
+        for i = 0 to n - 1{\n\
+          for j = 0 to n - i - 1{\n\
+            if(a[j] > a[j + 1]){\n\
+              temp = a[j];\n\
+              a[j] = a[j+1];\n\
+              a[j+1] = temp;\n\
+            }\n\
+          }\n\
+        }\n\
+      }\n\
+      \n\
+      main ( ){\n\
+        a[0] = 73;\n\
+        a[1] = 83;\n\
+        a[2] = 13;\n\
+        a[3] = 5;\n\
+        a[4] = 15;\n\
+        \n\
+        sort();\n\
+        for i = 0 to 5{\n\
+          write(a[i]);\n\
+        }\n\
+      }'},
+      {name: "Multiply Matrix", description: "Multiply every element in a matrix by a given integer.", code: 'program multMatrix;\n\
+      var int a[2][2], i, j, n, n2, z;\n\
+      \n\
+      function void mult(int factor)\n\
+      var int i, j;\n\
+      {\n\
+        for i = 0 to n{\n\
+          for j = 0 to n2{\n\
+            a[i][j] = a[i][j] * factor;\n\
+          }\n\
+        }\n\
+      }\n\
+      \n\
+      main ( ){\n\
+        a[0][0] = 1;\n\
+        a[0][1] = 2;\n\
+        a[1][0] = 3;\n\
+        a[1][1] = 4;\n\
+        \n\
+        n = 2;\n\
+        n2 = 2;\n\
+        \n\
+        write("What is the integer to multiply the matrix by?");\n\
+        read(z);\n\
+        \n\
+        mult(z);\n\
+        for i = 0 to n{\n\
+          for j = 0 to n2{\n\
+            write(a[i][j]);\n\
+          }\n\
+        }\n\
+      }'},
     ]
   }
 
