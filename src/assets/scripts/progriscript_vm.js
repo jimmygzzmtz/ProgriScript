@@ -9,7 +9,7 @@ var codeInOut = {input: "", output: []};
 var willRead = false;
 const outputLimit = 100000;
 var funcCallsJumps = [];
-var memoryToBePushed;
+var memoryToBePushed = [];
 
 const fs = require('fs');
 
@@ -115,7 +115,7 @@ function resetVariables(){
     codeInOut = {input: "", output: []};
     willRead = false;
     funcCallsJumps = [];
-    memoryToBePushed = null;
+    memoryToBePushed = [];
 }
 
 function getTypeFromDir(dir) {
@@ -476,7 +476,7 @@ function executeQuad(quad) {
             break;
         case OP_ERA:
             // Create memory here, will be pushed in OP_GOSUB
-            memoryToBePushed = new Memory(dir2);
+            memoryToBePushed.push(new Memory(dir2));
             var currentMemory = top(executionStack);
 
             // dir2 in OP_ERA contains the functionId of the called function
@@ -493,10 +493,11 @@ function executeQuad(quad) {
 
             break;
         case OP_PARAMETER:
-            setOnMemory(dir3, getFromMemory(dir1), memoryToBePushed);
+            setOnMemory(dir3, getFromMemory(dir1), top(memoryToBePushed));
             break;
         case OP_GOSUB:
-            executionStack.push(memoryToBePushed);
+            executionStack.push(top(memoryToBePushed));
+            memoryToBePushed.pop();
             funcCallsJumps.push(instructionPointer + 1);
             instructionPointer = dir2 - 1;
             break;
