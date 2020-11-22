@@ -53,13 +53,15 @@ main ( ){\n\
     
   }
 
+  // When the application loads, get the current theme, 
+  // and add a listener to change the theme if the OS theme changes
   ngOnInit() {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
     prefersDark.addListener((e) => this.changeTheme(e.matches));
     this.changeTheme(prefersDark.matches)
   }
 
-  
+  // If the OS theme changes, change the application theme
   changeTheme(shouldChange) {
     if(shouldChange){
       this.theme = "vs-dark";
@@ -69,6 +71,7 @@ main ( ){\n\
     }
   }
 
+  // When the application loads for the first time, load the list of saved codes
   constructor(private route: ActivatedRoute, private router: Router, private storage: Storage, public alertController: AlertController) {
     this.codeSelect = "new";
     this.storage.get('codes').then((val) => {
@@ -78,6 +81,7 @@ main ( ){\n\
     });
 
 
+    // If the page is loaded from a snippet, load the snippet code
     this.route.queryParams.subscribe(params => {
       if(this.router.getCurrentNavigation().extras.state) {
         if(this.monacoEditor == false){
@@ -94,8 +98,8 @@ main ( ){\n\
     });
   }
 
+  // When clicking the run button, send the written code to the VM
   run(){
-    //console.log(this.model.value);
     var code = "";
     if(this.monacoEditor == false){
       code = this.model.value;
@@ -104,13 +108,8 @@ main ( ){\n\
       code = this.codeTextArea;
     }
 
-    //console.log(code);
-    var result = "";
     try{
-      //var progriscript_jison = require("../../assets/scripts/progriscript_jison");
-      //var result = JSON.stringify(progriscript_jison.parse(code));
       this.progriscript_vm = require("../../assets/scripts/progriscript_vm");
-      //var result = JSON.stringify(progriscript_vm.startVM(code, this.codeInOut));
       this.codeInOut.output = [];
       this.progriscript_vm.startVM(code, this.codeInOut);
       if(this.codeInOut.input == "willRead"){
@@ -121,9 +120,9 @@ main ( ){\n\
       this.codeInOut.output = [error.message];
     }
     
-    //this.codeInOut.output = result;
   }
 
+  // When clicking the share button, use the WebShareAPI to share the written code
   share(){
     var codeValShare = "";
     if(this.monacoEditor == false){
@@ -149,6 +148,7 @@ main ( ){\n\
     }
   }
 
+  // Save the current code using a user-written name
   async save(){
     if(this.codeSelect == "new"){
 
@@ -224,6 +224,7 @@ main ( ){\n\
     }
   }
 
+  // Load the selected code to the text area
   loadCode(){
     var CodeValue = "";
 
@@ -246,6 +247,7 @@ main ( ){\n\
     }
   }
 
+  // Delete the current code
   delete(){
     if(this.codeSelect != "new"){
       if(this.monacoEditor == false){
@@ -265,6 +267,8 @@ main ( ){\n\
     }
   }
 
+  // If the device is Android-based, use a standard Text Area
+  // due to a deleting bug in Monaco Editor
   ionViewWillEnter(){
     if(this.userAgentString.includes("Android")){
       this.monacoEditor = true;
@@ -274,40 +278,41 @@ main ( ){\n\
     }
   }
 
-  
-async sendRead(){
-    const alert = await this.alertController.create({
-      header: 'Enter Input',
-      inputs: [
-        {
-          name: 'input',
-          type: 'text',
-          placeholder: "Input"
-        }
-      ],
-      buttons: [
-        {
-          text: 'Enter',
-          handler: data => {
-            if(this.codeInOut.input == "willRead"){
-              this.codeInOut.input = data.input;
-              try{
-                this.progriscript_vm.sendRead(this.codeInOut)
-                if(this.codeInOut.input == "willRead"){
-                  this.sendRead();
+  // If an input is expected from the vm, 
+  // get it from the user and sent it back to the VM
+  async sendRead(){
+      const alert = await this.alertController.create({
+        header: 'Enter Input',
+        inputs: [
+          {
+            name: 'input',
+            type: 'text',
+            placeholder: "Input"
+          }
+        ],
+        buttons: [
+          {
+            text: 'Enter',
+            handler: data => {
+              if(this.codeInOut.input == "willRead"){
+                this.codeInOut.input = data.input;
+                try{
+                  this.progriscript_vm.sendRead(this.codeInOut)
+                  if(this.codeInOut.input == "willRead"){
+                    this.sendRead();
+                  }
                 }
-              }
-              catch(error){
-                this.codeInOut.output = [error.message];
+                catch(error){
+                  this.codeInOut.output = [error.message];
+                }
               }
             }
           }
-        }
-      ],
-      backdropDismiss: false
-    });
+        ],
+        backdropDismiss: false
+      });
 
 
-    await alert.present();
-  }
+      await alert.present();
+    }
 }

@@ -11,6 +11,7 @@ export class Tab3Page {
 
   constructor(private storage: Storage, public alertController: AlertController) {}
 
+  // Share the link to ProgriScript using the Web Share API
   share(){
     let newNavigator: any;
       newNavigator = window.navigator;
@@ -28,6 +29,7 @@ export class Tab3Page {
     }
   }
 
+  // Delete all the saved codes
   async clearStorage() {
     const alert = await this.alertController.create({
       header: "Clear Storage",
@@ -49,6 +51,7 @@ export class Tab3Page {
     await alert.present();
   }
 
+  // Pop up a guide on how to install ProgriScript
   async installPrompt(){
     const alert = await this.alertController.create({
       header: "How to Install",

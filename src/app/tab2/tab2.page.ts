@@ -10,13 +10,12 @@ export class Tab2Page {
 
   codeSnippets = [];
 
+  // When loading the application, fill in the list of snippets
   constructor(private router: Router) {
     this.fillSnippets();
   }
 
-  templateCode = ['int test = 1;', 'string test = "lol";', 'for (int i = 0; i < 10; i++){};'];
-  
-
+  // When clicking a card, get the containing snippet code and send it to the run page
   cardClick(snippet){
     let navigationExtras: NavigationExtras = {
       state: {
@@ -26,6 +25,7 @@ export class Tab2Page {
     this.router.navigate(['/tabs/tab1'], navigationExtras);
   }
 
+  // Fill in the snippets list
   fillSnippets(){
     this.codeSnippets = [
       {name: "Date Types", description: "Use different data types depending on the type of the value.", code: "program dataTypes;\n\

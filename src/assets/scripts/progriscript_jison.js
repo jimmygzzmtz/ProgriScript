@@ -987,7 +987,7 @@ parse: function parse(input) {
 
     // Error codes
     const ERROR_TYPE_MISMATCH = 1;
-    const ERROR_VAR_REDECLATION = 2;
+    const ERROR_VAR_REDECLARATION = 2;
     const ERROR_FUNC_REDECLARATION = 3;
     const ERROR_UNKNOWN_VARIABLE = 4;
     const ERROR_NO_RETURN_STATEMENT = 5;
@@ -1005,7 +1005,7 @@ parse: function parse(input) {
             case ERROR_TYPE_MISMATCH:
                 message = "Type Mismatch";
                 break;
-            case ERROR_VAR_REDECLATION:
+            case ERROR_VAR_REDECLARATION:
                 message = "Variable Redeclaration";
                 break;
             case ERROR_FUNC_REDECLARATION:
@@ -1168,7 +1168,7 @@ parse: function parse(input) {
             return generatedDir;
         }
         else {
-            flagError(ERROR_VAR_REDECLATION, lineNumber);
+            flagError(ERROR_VAR_REDECLARATION, lineNumber);
         }
     }
 
@@ -1188,7 +1188,7 @@ parse: function parse(input) {
             return arrayBaseDir;
         }
         else {
-            flagError(ERROR_VAR_REDECLATION, lineNumber);
+            flagError(ERROR_VAR_REDECLARATION, lineNumber);
         }
     }
 
