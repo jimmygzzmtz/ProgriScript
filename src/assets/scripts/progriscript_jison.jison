@@ -56,7 +56,7 @@
     const OP_DIVIDE = "divide";
     const OP_LESSTHAN = "lessthan";
     const OP_GREATERTHAN = "greaterthan";
-    const OP_LESSTHANEQUAL = "lessthanEqual";
+    const OP_LESSTHANEQUAL = "<=";
     const OP_GREATERTHANEQUAL = "greaterthanEqual";
     const OP_ISDIFFERENT = "isDifferent";
     const OP_ISEQUAL = "isEqual";
@@ -472,7 +472,6 @@
 "main"                 return 'main'
 "function"             return 'function'
 "if"                   return 'if'
-"then"                 return 'then'
 "else"                 return 'else'
 "return"               return 'return'
 "write"                return 'write'
@@ -480,31 +479,28 @@
 "while"                return 'while'
 "for"                  return 'for'
 "to"                   return 'to'
-"do"                   return 'do'
-"=="                   return 'isEqual'
-"="                    return 'equals'
-":"                    return 'colon'
-";"                    return 'semicolon'
-","                    return 'comma'
-"{"                    return 'lbracket'
-"}"                    return 'rbracket'
-"["                    return 'lsqbracket'
-"]"                    return 'rsqbracket'
-"("                    return 'lparen'
-")"                    return 'rparen'
-"+"                    return 'plus'
-"+"                    return 'plus'
-"-"                    return 'minus'
-"*"                    return 'times'
-"/"                    return 'divide'
-"<="                   return 'lessthanEqual'
-">="                   return 'greaterthanEqual'
-"<"                    return 'lessthan'
-">"                    return 'greaterthan'
-"!="                   return 'isDifferent'
-"!"                    return 'not'
-"&&"                   return 'and'
-"||"                   return 'or'
+"=="                   return '=='
+"="                    return '='
+";"                    return ';'
+","                    return ','
+"{"                    return '{'
+"}"                    return '}'
+"["                    return '['
+"]"                    return ']'
+"("                    return '('
+")"                    return ')'
+"+"                    return '+'
+"-"                    return '-'
+"*"                    return '*'
+"/"                    return '/'
+"<="                   return '<='
+">="                   return '>='
+"<"                    return '<'
+">"                    return '>'
+"!="                   return '!='
+"!"                    return '!'
+"&&"                   return '&&'
+"||"                   return '||'
 [a-zA-Z_][a-zA-Z_0-9]* return 'id'
 \d+\.\d+               return 'cte_float'
 \d+                    return 'cte_int'
@@ -563,7 +559,7 @@ EXPRESSIONS
     };
 
 PROGRAM
-    : PROGRAM_NAME semicolon PROGRAM_AUX PROGRAM_AUX2 MAIN;
+    : PROGRAM_NAME ';' PROGRAM_AUX PROGRAM_AUX2 MAIN;
 
 PROGRAM_NAME
     : program id {
@@ -587,7 +583,7 @@ MAIN
     : MAIN_WRAPPER BLOQUE;
 
 MAIN_WRAPPER
-    : main lparen rparen {
+    : main '(' ')' {
         var posGotoMain = stackJumps.pop();
         fillQuad(posGotoMain);
     };
@@ -596,10 +592,10 @@ VARS
     : var VARS_AUX;
 
 VARS_AUX
-    : TIPO ID_DECLARE_VAR VARS_AUX2 semicolon VARS_AUX | ;
+    : TIPO ID_DECLARE_VAR VARS_AUX2 ';' VARS_AUX | ;
 
 VARS_AUX2
-    : comma ID_DECLARE_VAR VARS_AUX2 | ;
+    : ',' ID_DECLARE_VAR VARS_AUX2 | ;
 
 TIPO
     : int {
@@ -616,7 +612,7 @@ ID_DECLARE_VAR
     : id {
         $$ = {dir: createVariable($1, @1.first_line)};
     }
-    | id lsqbracket cte_int rsqbracket ID_DECLARE_VAR_AUX {
+    | id '[' cte_int ']' ID_DECLARE_VAR_AUX {
         var valDim1 = Number($3);
         var valDim2 = $5;
         
@@ -635,7 +631,7 @@ ID_DECLARE_VAR
     };
 
 ID_DECLARE_VAR_AUX
-    : lsqbracket cte_int rsqbracket {
+    : '[' cte_int ']' {
         $$ = Number($2);
     } 
     | {
@@ -644,7 +640,7 @@ ID_DECLARE_VAR_AUX
 
 ID_ACCESS_VAR
     : ID_WRAPPER ID_SIMPLE_VAR
-    | ID_WRAPPER lsqbracket ID_ARRAY EXP rsqbracket ID_ACCESS_VAR_AUX {
+    | ID_WRAPPER '[' ID_ARRAY EXP ']' ID_ACCESS_VAR_AUX {
         var dirTempMatrix = addConstant(0, CONST_INT);
 
         var expMatrixDim;
@@ -694,7 +690,7 @@ ID_ACCESS_VAR
 
         $$ = {dir: arrayAccessedDir};
     }
-    | ID_WRAPPER lparen ID_LLAMADA_FUNCION PARAMS_LLAMADA_FUNCION rparen {
+    | ID_WRAPPER '(' ID_LLAMADA_FUNCION PARAMS_LLAMADA_FUNCION ')' {
         if (top(calledParams).params.length != top(calledParams).paramCounter) {
             flagError(ERROR_WRONG_NUM_PARAMS, @1.first_line);
         }
@@ -780,7 +776,7 @@ PARAMS_LLAMADA_FUNCION
     : PARAM PARAMS_LLAMADA_FUNCION_AUX | ;
 
 PARAMS_LLAMADA_FUNCION_AUX
-    : comma PARAM PARAMS_LLAMADA_FUNCION_AUX
+    : ',' PARAM PARAMS_LLAMADA_FUNCION_AUX
     | ;
 
 PARAM
@@ -802,7 +798,7 @@ PARAM
     };
 
 ID_ACCESS_VAR_AUX
-    : lsqbracket EXP rsqbracket {
+    : '[' EXP ']' {
         $$ = true;
     } 
     | {
@@ -810,7 +806,7 @@ ID_ACCESS_VAR_AUX
     };
 
 FUNCION
-    : function FUNCION_ID_WRAPPER lparen FUNCION_PARAM_LIST rparen VARS_FUNC BLOQUE {
+    : function FUNCION_ID_WRAPPER '(' FUNCION_PARAM_LIST ')' VARS_FUNC BLOQUE {
         // check if non-void function has a return statement
         if (functionDirectory.get(currentFunctionId).type != "void" && !functionDirectory.get(currentFunctionId).foundReturnStatement) {
             flagError(ERROR_NO_RETURN_STATEMENT, @1.first_line);
@@ -864,16 +860,16 @@ FUNCION_PARAM_LIST
     : VAR_FUNC_PARAM FUNCION_PARAM_LIST_AUX | ;
 
 FUNCION_PARAM_LIST_AUX
-    : comma VAR_FUNC_PARAM FUNCION_PARAM_LIST_AUX | ;
+    : ',' VAR_FUNC_PARAM FUNCION_PARAM_LIST_AUX | ;
 
 BLOQUE
-    : lbracket BLOQUE_AUX rbracket;
+    : '{' BLOQUE_AUX '}';
 
 BLOQUE_AUX
     : BLOQUE_AUX ESTATUTO | ;
 
 ESTATUTO
-    : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION semicolon;
+    : ASIGNACION | LECTURA | ESCRITURA | DECISION_IF | CONDICIONAL_WHILE | NO_CONDICIONAL_FOR | RETORNO_FUNCION | EXPRESION ';' ;
 
 EXPRESION
     : EXP_AND EXPRESION_AUX;
@@ -882,7 +878,7 @@ EXPRESION_AUX
     : EXPRESION_AUX2 EXPRESION | ;
 
 EXPRESION_AUX2
-    : or {
+    : '||' {
         pushOperator(OP_OR);
         $$ = OP_OR;
     };
@@ -898,7 +894,7 @@ EXP_AND_AUX
     : EXP_AND_AUX2 EXP_AND | ;
 
 EXP_AND_AUX2
-    : and {
+    : '&&' {
         pushOperator(OP_AND);
         $$ = OP_AND;
     };
@@ -914,7 +910,7 @@ EXP_NOT
     : EXP_COMP | EXP_NOT_AUX EXP_COMP;
 
 EXP_NOT_AUX
-    : not {
+    : '!' {
         pushOperator(OP_NOT);
         $$ = OP_NOT;
     };
@@ -943,27 +939,27 @@ EXP_COMP_AUX
     : EXP_COMP_AUX2 EXP_COMP | ;
 
 EXP_COMP_AUX2
-    : lessthan {
+    : '<' {
         pushOperator(OP_LESSTHAN);
         $$ = OP_LESSTHAN;
     } 
-    | greaterthan {
+    | '>' {
         pushOperator(OP_GREATERTHAN);
         $$ = OP_GREATERTHAN;
     } 
-    | isDifferent {
+    | '!=' {
         pushOperator(OP_ISDIFFERENT);
         $$ = OP_ISDIFFERENT;
     } 
-    | isEqual {
+    | '==' {
         pushOperator(OP_ISEQUAL);
         $$ = OP_ISEQUAL;
     } 
-    | lessthanEqual {
+    | '<=' {
         pushOperator(OP_LESSTHANEQUAL);
         $$ = OP_LESSTHANEQUAL;
     } 
-    | greaterthanEqual {
+    | '>=' {
         pushOperator(OP_GREATERTHANEQUAL);
         $$ = OP_GREATERTHANEQUAL;
     }
@@ -982,11 +978,11 @@ EXP_AUX
     : EXP_AUX2 EXP | ;
 
 EXP_AUX2
-    : plus {
+    : '+' {
         pushOperator(OP_PLUS);
         $$ = OP_PLUS;
     } 
-    | minus{
+    | '-' {
         pushOperator(OP_MINUS);
         $$ = OP_MINUS;
     }
@@ -1003,11 +999,11 @@ TERMINO_AUX
     : TERMINO_AUX2 TERMINO | ;
 
 TERMINO_AUX2
-    : times {
+    : '*' {
         pushOperator(OP_TIMES);
         $$ = OP_TIMES;
     } 
-    | divide{
+    | '/' {
         pushOperator(OP_DIVIDE);
         $$ = OP_DIVIDE;
     }
@@ -1024,12 +1020,12 @@ FACTOR
     : FACTOR_AUX | FACTOR_AUX2;
 
 FACTOR_AUX
-    : BEGINPAREN EXPRESION rparen {
+    : BEGINPAREN EXPRESION ')' {
         removeFondoFalso(@1.first_line);
     };
 
 BEGINPAREN
-    : lparen {
+    : '(' {
         pushFondoFalso();
     }
     ;
@@ -1038,7 +1034,7 @@ FACTOR_AUX2
     : VAR_CTE {
         $$ = $1;
     }
-    | minus VAR_CTE {
+    | '-' VAR_CTE {
         var operandDir = stackOperands.pop();
         
         operandVarType = getTypeFromDir(operandDir);  
@@ -1081,7 +1077,7 @@ VAR_CTE
     };
 
 ASIGNACION
-    : ID_ACCESS_VAR EQUALSSIGN EXPRESION semicolon {
+    : ID_ACCESS_VAR EQUALSSIGN EXPRESION ';' {
         var dirRight = stackOperands.pop();
         var dirLeft = stackOperands.pop();
         var operator = stackOperators.pop();
@@ -1095,14 +1091,14 @@ ASIGNACION
     };
 
 EQUALSSIGN
-    : equals {
+    : '=' {
         pushOperator(OP_EQUALS);
         $$ = OP_EQUALS;
     }
     ;
 
 RETORNO_FUNCION
-    : return lparen EXP rparen semicolon {
+    : return '(' EXP ')' ';' {
         functionDirectory.get(currentFunctionId).foundReturnStatement = true;
         
         var exp = stackOperands.pop();
@@ -1124,10 +1120,10 @@ RETORNO_FUNCION
     };
 
 LECTURA
-    : read lparen ID_ACCESS_VAR_LECTURA LECTURA_AUX rparen semicolon;
+    : read '(' ID_ACCESS_VAR_LECTURA LECTURA_AUX ')' ';' ;
 
 LECTURA_AUX
-    : comma ID_ACCESS_VAR_LECTURA LECTURA_AUX | ;
+    : ',' ID_ACCESS_VAR_LECTURA LECTURA_AUX | ;
 
 ID_ACCESS_VAR_LECTURA
     : ID_ACCESS_VAR {
@@ -1136,7 +1132,7 @@ ID_ACCESS_VAR_LECTURA
     };
 
 ESCRITURA
-    : write lparen ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 rparen semicolon;
+    : write '(' ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 ')' ';' ;
 
 ESCRITURA_AUX_WRAPPER
     : ESCRITURA_AUX {
@@ -1153,7 +1149,7 @@ ESCRITURA_AUX
     };
 
 ESCRITURA_AUX2
-    : comma ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 | ;
+    : ',' ESCRITURA_AUX_WRAPPER ESCRITURA_AUX2 | ;
 
 DECISION_IF
     : if EXPRESION_IF BLOQUE DECISION_IF_AUX {
@@ -1163,7 +1159,7 @@ DECISION_IF
     };
 
 EXPRESION_IF
-    : lparen EXPRESION rparen {
+    : '(' EXPRESION ')' {
         // Check that expression is of bool type
         var dirExpressionIf = stackOperands.pop();
         if (getTypeFromDir(dirExpressionIf) == "bool") {
@@ -1201,7 +1197,7 @@ WHILE_START
     };
 
 NO_CONDICIONAL_FOR
-    : for ID_WRAPPER CHECK_IS_NUMBER equals FOR_EXP1 to FOR_EXP2 BLOQUE {
+    : for ID_WRAPPER CHECK_IS_NUMBER '=' FOR_EXP1 to FOR_EXP2 BLOQUE {
         var vControl = top(forVars).vControl;
 
         pushQuad(OP_PLUS, vControl, addConstant(1, CONST_INT), vControl);
