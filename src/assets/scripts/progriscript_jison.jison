@@ -56,7 +56,7 @@
     const OP_DIVIDE = "divide";
     const OP_LESSTHAN = "lessthan";
     const OP_GREATERTHAN = "greaterthan";
-    const OP_LESSTHANEQUAL = "<=";
+    const OP_LESSTHANEQUAL = "lessthanEqual";
     const OP_GREATERTHANEQUAL = "greaterthanEqual";
     const OP_ISDIFFERENT = "isDifferent";
     const OP_ISEQUAL = "isEqual";
