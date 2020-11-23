@@ -20,13 +20,13 @@ Inside of the "src/assets/scripts" folder, the parser is found as "progriscript_
 
 ## Virtual Machine
 
-Inside of the "src/assets/scripts" folder, the virtual machine is found as "progriscript_vm.js". This is a JavaScript file that uses the "progriscript_jison.js" file, both used by the web-app.
+Inside of the "src/assets/scripts" folder, the virtual machine is found as "progriscript_vm.js". The web-app calls the virtual machine with the written code, which in turn calls the "progriscript_jison.js" file to obtain the intermediate code it needs to process.
 
 ## Development Installation Guide
 
 - To install the necessary dependencies for the Progressive Web App, use "npm install" on the root folder. 
 - Jison is also needed to compile the parser, so use "npm install jison". 
-- If changes are made to the Jison file, compile a new JavaScript version by going to the "src/assets/scripts folder" and running the following command: "jison progriscript_jison.- jison". This JavaScript file will be used by the Virtual Machine. 
+- If changes are made to the Jison file, compile a new JavaScript version by going to the "src/assets/scripts folder" and running the following command: "jison progriscript_jison.jison". This JavaScript file will be used by the Virtual Machine. 
 - To compile the Progressive Web App for development, run the "ionic serve" command. To compile a production version, run "ionic build --prod".
 
 ## GitHub Pages Link
